@@ -1,0 +1,164 @@
+; ==============================================================
+; --------------------------------------------------------------
+; Level data equates
+; --------------------------------------------------------------
+
+levelmaxobj =		$300					; max number of objects per level
+objcount =		$40					; max number of objects
+dislayercount =		6					; number of distinct display layers
+platformcount =		$20					; number of platform objects
+touchcount =		$20					; number of touch objects
+dyncount =		$20					; number of dynamic art objects
+
+dynallocdelta =		$100/$40				; amount of frames until VRAM must be refactored
+dynallocsize =		2					; number of bits of tiles to allocate for every bit of alloc table
+dynallocstart =		$B000					; start VRAM address for dynamic allocator
+dynallocend =		$E000					; end VRAM address for dynamic allocator
+dynalloctiles =		(dynallocend-dynallocstart)/32		; number of tiles for dynamic allocator
+dynallocbits =		dynalloctiles/(1<<dynallocsize)		; number of bits for dynamic allocator
+
+	if dynallocbits>$100					; check if there are too many bits for allocator to work
+		inform 3,"Too many tiles reserved for dynamic allocator!"; display error message
+	endif
+; ==============================================================
+; --------------------------------------------------------------
+; Display layer equates
+; --------------------------------------------------------------
+
+	rsset 0
+ddnext			rs.w 1					; pointer to first display object in linked list
+ddn2			rs.w 1					; must be 0
+ddn1			rs.w 1					; must be 0
+ddprev			rs.w 1					; pointer to last display object in linked list
+ddsize			rs.w 0					; size of display layer
+; ==============================================================
+; --------------------------------------------------------------
+; Object equates
+; --------------------------------------------------------------
+
+	rsset 0
+subtype			rs.b 0					; object subtype variable
+ptr			rs.l 1					; pointer to object code
+prev			rs.w 1					; pointer to the previous object in linked list
+next			rs.w 1					; pointer to the next object in linked list
+dprev			rs.w 1					; pointer to the previous object in display list
+dnext			rs.w 1					; pointer to the next object in display list
+plat			rs.w 1					; pointer to the platform object data. Positive values indicate nothing is loaded
+touch			rs.w 1					; pointer to the touch object data. Positive values indicate nothing is loaded
+dyn			rs.w 1					; pointer to the dynamic art data. Positive values indicate nothing is loaded
+resp			rs.w 1					; pointer to the respawn data. Positive values indicate nothing is loaded
+flags			rs.w 1					; object flags bitfields
+xpos			rs.l 1					; object x-position in 16.8 fixed point format
+width =			__rs-1					; object display width in pixels
+ypos			rs.l 1					; object y-position in 16.8 fixed point format
+width =			__rs-1					; object display height in pixels
+xvel			rs.w 1					; object x-velocity
+yvel			rs.w 1					; object y-velocity
+frame			rs.b 0					; current display frame
+map			rs.l 1					; object mappings address
+tile			rs.w 1					; VRAM tile and settings
+exram			rs.b $28				; extra RAM the object may use for whatever
+size			rs.w 0					; size of object
+; ==============================================================
+; --------------------------------------------------------------
+; Object equate flags
+; --------------------------------------------------------------
+
+	rsset 0		; byte 0
+xflip			rs.b 1					; set if object is x-flipped
+yflip			rs.b 1					; set if object is y-flipped
+singlesprite		rs.b 1					; set if object displays only a single sprite. Used for some special objects
+			rs.b 4					; unused
+onscreen		rs.b 1					; set if object was displayed last frame
+
+	rsset 0		; byte 1
+			rs.b 8					; unused
+; ==============================================================
+; --------------------------------------------------------------
+; Platform object equates
+; --------------------------------------------------------------
+
+	rsset 0
+			rs.w 1					; pointer to parent object. 0 means this slot is free
+pwidth			rs.b 1					; platform collision width in pixels
+pheight			rs.b 1					; platform collision height in pixels
+pflags			rs.b 0					; platform flags bitfield
+pmap			rs.l 1					; pointer to collision height mappings
+psize			rs.w 0					; size of platform object
+; ==============================================================
+; --------------------------------------------------------------
+; Platform object equate flags
+; --------------------------------------------------------------
+
+	rsset 0
+pstandp1		rs.b 1					; Player 1 is standing on object
+pstandp2		rs.b 1					; Player 2 is standing on object
+ppushp1			rs.b 1					; Player 1 is pushing the object
+ppushp2			rs.b 1					; Player 2 is pushing the object
+ptop			rs.b 1					; if set, platform has solidity on the top
+plrb			rs.b 1					; if set, platform has solidity on left, right and bottom
+			rs.b 1					; unused
+pactive			rs.b 1					; set to 1 if active
+; ==============================================================
+; --------------------------------------------------------------
+; Touch object equates
+; --------------------------------------------------------------
+
+	rsset 0
+			rs.w 1					; pointer to parent object. 0 means this slot is free
+twidth			rs.b 1					; touch collision width in pixels
+theight			rs.b 1					; touch collision height in pixels
+tflags			rs.b 1					; flags for touch object
+textra			rs.b 1					; extra flags
+tsize			rs.w 0					; size of touch object
+; ==============================================================
+; --------------------------------------------------------------
+; Dynamic art object equates
+; --------------------------------------------------------------
+
+	rsset 0
+			rs.w 1					; pointer to parent object. 0 means this slot is free
+dlast			rs.b 0					; last frame number
+dart			rs.l 1					; pointer to art data
+dwidth			rs.b 0					; amount of VRAM to be reserved
+dmap			rs.l 1					; pointer to dynamic art mappings
+dbit			rs.b 1					; starting bit of allocation
+dsize			rs.w 0					; size of dynamic art object
+; ==============================================================
+; --------------------------------------------------------------
+; Exception list
+; --------------------------------------------------------------
+
+	rsset 0
+exCreatePlat		rs.w 1					; exception when there are too many platforms
+exCreateTouch		rs.w 1					; exception when there are too many touch objects
+exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objects
+; ==============================================================
+; --------------------------------------------------------------
+; RAM equate table
+; --------------------------------------------------------------
+
+	rsset $FFFF0000
+			rs.b $8000				; idk what it would be used for
+Stack			rs.w 0					; the bottom of stack data
+RespawnList		rs.w levelmaxobj/2			; max number of objects per level
+ObjList			rs.b objcount*size			; the RAM for every object
+TailPtr			rs.l 1					; pointer to tail object code
+TailPrev		rs.w 1					; pointer to the last object in linked list
+TailNext		rs.w 1					; pointer to the first object in linked list
+FreeHead		rs.w 1					; pointer to the first object that is not loaded
+DisplayList		rs.b dislayercount*ddsize		; the RAM for every display layer data
+PlatformList		rs.b platformcount*psize		; the RAM for every platform object data
+TouchList		rs.b touchcount*tsize			; the RAM for every touch object data
+DartList		rs.b dyncount*dsize			; the RAM for every touch object data
+DynAllocTable		rs.b dynallocbits/8+1			; the RAM for all the bits needed for dynamic allocator
+DynAllocTimer		rs.b 1					; timer for refactoring dynamic allocations
+; ==============================================================
+; --------------------------------------------------------------
+; Exception macro
+; --------------------------------------------------------------
+
+exception		macro id
+		trap	#15					; run error debugger
+		dc.w	\id					; include exception ID
+    endm
