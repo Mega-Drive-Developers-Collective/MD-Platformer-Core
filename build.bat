@@ -3,4 +3,5 @@
 type _out.log
 if not exist _out.md pause & exit
 "tools/fixheadr.exe" s1built.md
+"code/exceptions/ConvSym.exe" _out.lst _out.md -input asm68k_lst -inopt "/localSign=. /localJoin=. /ignoreMacroDefs+ /ignoreMacroExp- /addMacrosAsOpcodes+" -a
 del _out.log

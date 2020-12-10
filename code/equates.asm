@@ -126,21 +126,19 @@ dbit			rs.b 1					; starting bit of allocation
 dsize			rs.w 0					; size of dynamic art object
 ; ==============================================================
 ; --------------------------------------------------------------
-; Exception list
-; --------------------------------------------------------------
-
-	rsset 0
-exCreatePlat		rs.w 1					; exception when there are too many platforms
-exCreateTouch		rs.w 1					; exception when there are too many touch objects
-exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objects
-; ==============================================================
-; --------------------------------------------------------------
 ; RAM equate table
 ; --------------------------------------------------------------
 
 	rsset $FFFF0000
-			rs.b $8000				; idk what it would be used for
+			rs.b $7F00				; idk what it would be used for
+Hint			rs.w 10					; horizontal interrupt code
+			rs.w $80				; stack contents
 Stack			rs.w 0					; the bottom of stack data
+Vint			rs.w 3					; vertical interrupt handler code
+
+VscrollTable		rs.l 40/2				; vscroll data table
+HscrollTable		rs.l 224				; hscroll data table
+
 RespawnList		rs.w levelmaxobj/2			; max number of objects per level
 ObjList			rs.b objcount*size			; the RAM for every object
 TailPtr			rs.l 1					; pointer to tail object code
@@ -153,6 +151,8 @@ TouchList		rs.b touchcount*tsize			; the RAM for every touch object data
 DartList		rs.b dyncount*dsize			; the RAM for every touch object data
 DynAllocTable		rs.b dynallocbits/8+1			; the RAM for all the bits needed for dynamic allocator
 DynAllocTimer		rs.b 1					; timer for refactoring dynamic allocations
+
+Gamemode		rs.b 1					; the current game mode
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Exception macro
@@ -162,3 +162,13 @@ exception		macro id
 		trap	#15					; run error debugger
 		dc.w	\id					; include exception ID
     endm
+; ==============================================================
+; --------------------------------------------------------------
+; Exception list
+; --------------------------------------------------------------
+
+	rsset 0
+exChecksum		rs.w 1					; exception when checksum fails
+exCreatePlat		rs.w 1					; exception when there are too many platforms
+exCreateTouch		rs.w 1					; exception when there are too many touch objects
+exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objects

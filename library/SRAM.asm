@@ -159,6 +159,6 @@ SRAM_Default:
 ; Check the code fits before 2MB mark
 ; --------------------------------------------------------------
 
-	if $200000<=*
+	if $200000<=offset(*)
 		inform 2,"SRAM functions are past the SRAM load area!"
 	endif
