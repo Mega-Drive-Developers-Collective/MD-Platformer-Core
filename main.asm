@@ -10,6 +10,7 @@ Main		SECTION org(0)
 ; --------------------------------------------------------------
 
 		include "code/equates.asm"			; include equates
+		include "library/objects/macro.asm"		; include object macros
 		include "code/exceptions/Debugger.asm"		; include exception handler macros
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -50,10 +51,16 @@ CheckInit:	dc.l 0						; checksum init value
 		dc.b 'JUE             '
 ; ==============================================================
 ; --------------------------------------------------------------
+; Library fast functions
+; --------------------------------------------------------------
+
+		include "library/objects/fast.asm"		; include object fast routines
+; ==============================================================
+; --------------------------------------------------------------
 ; Library functions
 ; --------------------------------------------------------------
 
-		include "library/objects.asm"			; include object equates
+		include "library/objects/alloc.asm"		; include alloc routines
 		include "library/SRAM.asm"			; include SRAM routines
 ; ==============================================================
 ; --------------------------------------------------------------
