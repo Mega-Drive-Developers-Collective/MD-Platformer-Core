@@ -106,7 +106,7 @@ ErrorHandler:
 .skip
 		; print instruction
 		btst	#4,d6				; AF::	; check if instruction disassembly was requested
-	;	beq.s	.noins				; AF::	; if not, branch
+		beq.s	.noins				; AF::	; if not, branch
 
 		movem.l	d68k_store,-(sp)		; AF::	; push variables
 		sub.w	#d68k_StackSize,sp		; AF::	; give more space in stack
@@ -365,7 +365,7 @@ Error_DrawInterruptHandler:
 		blo.s	.ret				; AF::	; if not, branch
 
 		btst	#4,d6				; AF::	; check if instruction disassembly was requested
-	;	beq.s	.noins				; AF::	;	; if not, branch
+		beq.s	.noins				; AF::	;	; if not, branch
 ; ---------------------------------------------------------------
 
 		jsr	Console_Write(pc)		; AF::	; write interrupt line

@@ -27,7 +27,7 @@ _eh_align_offset	equ	$80
 ; ---------------------------------------------------------------
 
 ; Default screen configuration
-_eh_default			equ	0 ;_eh_show_sr_usp
+_eh_default			equ	_eh_disassemble ;_eh_show_sr_usp
 
 ; ---------------------------------------------------------------
 exBus:
