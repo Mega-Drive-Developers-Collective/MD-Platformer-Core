@@ -23,7 +23,7 @@ hex		equ		$80				; flag to display as hexadecimal number
 decm		equ		$90				; flag to display as decimal number
 bin		equ		$A0				; flag to display as binary number
 sym		equ		$B0				; flag to display as symbol (treat as offset, decode into symbol +displacement, if present)
-symdisp	equ		$C0				; flag to display as symbol's displacement alone (DO NOT USE, unless complex formatting is required, see notes below)
+symdisp		equ		$C0				; flag to display as symbol's displacement alone (DO NOT USE, unless complex formatting is required, see notes below)
 str		equ		$D0				; flag to display as string (treat as offset, insert string from that offset)
 
 ; NOTES:
@@ -63,7 +63,7 @@ long	equ		3
 
 ; Plain control flags: no arguments following
 endl	equ		$E0				; "End of line": flag for line break
-cr		equ		$E6				; "Carriage return": jump to the beginning of the line
+cr	equ		$E6				; "Carriage return": jump to the beginning of the line
 pal0	equ		$E8				; use palette line #0
 pal1	equ		$EA				; use palette line #1
 pal2	equ		$EC				; use palette line #2
@@ -74,7 +74,6 @@ setw	equ		$F0				; set line width: number of characters before automatic line br
 setoff	equ		$F4				; set tile offset: lower byte of base pattern, which points to tile index of ASCII character 00
 setpat	equ		$F8				; set tile pattern: high byte of base pattern, which determines palette flags and $100-tile section id
 setx	equ		$FA				; set x-position
-
 
 
 ; ---------------------------------------------------------------
@@ -115,13 +114,13 @@ Console &
 		__FSTRING_GenerateArgumentsCode \1
 		movem.l	a0-a2/d7, -(sp)
 		if (__sp>0)
-			lea		4*4(sp), a2
+			lea	4*4(sp), a2
 		endc
-		lea		.str\@(pc), a1
-		jsr		ErrorHandler.__global__console_\0\_formatted
+		lea	.str\@(pc), a1
+		jsr	ErrorHandler.__global__console_\0\_formatted
 		movem.l	(sp)+, a0-a2/d7
 		if (__sp>8)
-			lea		__sp(sp), sp
+			lea	__sp(sp), sp
 		elseif (__sp>0)
 			addq.w	#__sp, sp
 		endc
@@ -133,8 +132,8 @@ Console &
 	.instr_end\@:
 
 	elseif strcmp("\0","run")
-		jsr		ErrorHandler.__extern__console_only
-		jsr		\1
+		jsr	ErrorHandler.__extern__console_only
+		jsr	\1
 		if narg<=1		; HACK
 			bra.s	*
 		endif
@@ -144,14 +143,14 @@ Console &
 		movem.l	d0-d1, -(sp)
 		move.w	\2, -(sp)
 		move.w	\1, -(sp)
-		jsr		ErrorHandler.__global__console_setposasxy_stack
+		jsr	ErrorHandler.__global__console_setposasxy_stack
 		addq.w	#4, sp
 		movem.l	(sp)+, d0-d1
 		move.w	(sp)+, sr
 
 	elseif strcmp("\0","breakline")
 		move.w	sr, -(sp)
-		jsr		ErrorHandler.__global__console_startnewline
+		jsr	ErrorHandler.__global__console_startnewline
 		move.w	(sp)+, sr
 
 	else
@@ -164,7 +163,7 @@ Console &
 __ErrorMessage &
 	macro	string, opts
 		__FSTRING_GenerateArgumentsCode \string
-		jsr		ErrorHandler
+		jsr	ErrorHandler
 		__FSTRING_GenerateDecodedString \string
 		dc.b	\opts+0
 		even
@@ -183,8 +182,8 @@ __FSTRING_GenerateArgumentsCode &
 	while (__pos)
 
 		; Retrive expression in brackets following % char
-    	__endpos:	set		instr(__pos+1,\string,'>')
-    	__midpos:	set		instr(__pos+5,\string,' ')
+    	__endpos:	set	instr(__pos+1,\string,'>')
+    	__midpos:	set	instr(__pos+5,\string,' ')
     	if (__midpos<1)|(__midpos>__endpos)
 			__midpos: = __endpos
     	endc
@@ -217,7 +216,7 @@ __FSTRING_GenerateArgumentsCode &
 			endc
 		endc
 
-		__pos:	set		instr(__pos+1,\string,'%<')
+		__pos:	set	instr(__pos+1,\string,'%<')
 	endw
 
 	; Generate stack code
@@ -232,7 +231,7 @@ __FSTRING_GenerateArgumentsCode &
 __FSTRING_GenerateDecodedString &
 	macro string
 
-	__lpos:	set		1						; start position
+	__lpos:	set	1						; start position
 	__pos:	set 	instr(\string,'%<')		; token position
 
 	while (__pos)
@@ -242,8 +241,8 @@ __FSTRING_GenerateDecodedString &
 		dc.b	"\__substr"
 
 		; Retrive expression in brakets following % char
-    	__endpos:	set		instr(__pos+1,\string,'>')
-    	__midpos:	set		instr(__pos+5,\string,' ')
+    	__endpos:	set	instr(__pos+1,\string,'>')
+    	__midpos:	set	instr(__pos+5,\string,' ')
     	if (__midpos<1)|(__midpos>__endpos)
 			__midpos: = __endpos
     	endc
@@ -269,8 +268,8 @@ __FSTRING_GenerateDecodedString &
 			dc.b	\__substr
 		endc
 
-		__lpos:	set		__endpos+1
-		__pos:	set		instr(__pos+1,\string,'%<')
+		__lpos:	set	__endpos+1
+		__pos:	set	instr(__pos+1,\string,'%<')
 	endw
 
 	; Write part of string before the end

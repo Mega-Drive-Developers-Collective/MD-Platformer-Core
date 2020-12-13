@@ -104,7 +104,7 @@ Console_LoadPalette: __global
 		bpl.s	.0					; if color, branch
 
 		moveq	#0,d1
-		jsr	$10(a3,d2)				; fill the rest of cram by a clever jump (WARNING! Precision required!)
+		jsr	$10(a3,d2.w)				; fill the rest of cram by a clever jump (WARNING! Precision required!)
 		dbf	d3,.fill_palette_line
 
 	; Finalize
@@ -147,7 +147,7 @@ Console_SetPosAsXY: __global
 		move.l	(a3),VDP_Ctrl
 
 .quit
-		movem.l	(sp)+, d1-d2/a3
+		movem.l	(sp)+,d1-d2/a3
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -180,25 +180,25 @@ Console_GetPosAsXY: __global
 ; --------------------------------------------------------------
 
 Console_StartNewLine: __global
-	move.l	a3,-(sp)
-	move.l	usp,a3
-	cmp.b	#_ConsoleEnable, Console.Validator(a3)
-	bne.s	.quit
+		move.l	a3,-(sp)
+		move.l	usp,a3
+		cmp.b	#_ConsoleEnable,Console.Validator(a3)
+		bne.s	.quit
 
-	move.w	d0,-(sp)
-	move.w	(a3),d0
-	add.w	Console.ScreenRowSz(a3), d0
+		move.w	d0,-(sp)
+		move.w	(a3),d0
+		add.w	Console.ScreenRowSz(a3),d0
 
-	; TODO: Check if offset is out of plane boundaries
-	and.w	#$5FFF,d0					; make sure line stays within plane
-	move.w	d0,(a3)						; save new position
-	move.l	(a3)+,VDP_Ctrl
-	move.w	(a3)+,(a3)+					; reset characters on line counter (copy "CharsPerLine" to "CharsRemaining")
-	move.w	(sp)+,d0
+		; TODO: Check if offset is out of plane boundaries
+		and.w	#$5FFF,d0				; make sure line stays within plane
+		move.w	d0,(a3)					; save new position
+		move.l	(a3)+,VDP_Ctrl
+		move.w	(a3)+,(a3)+				; reset characters on line counter (copy "CharsPerLine" to "CharsRemaining")
+		move.w	(sp)+,d0
 
-.quit:
-	move.l	(sp)+,a3
-	rts
+.quit
+		move.l	(sp)+,a3
+		rts
 
 
 ; ==============================================================
@@ -272,7 +272,6 @@ Console_Write: __global
 	; Load console variables
 		move.l	(a3)+,d5				; d5 = VDP screen position request
 		movem.w	(a3),d2-d4/d6				; d2 = number of characters per line
-
 		swap	d6					; d3 = number of characters remaining until next line
 								; d4 = base pattern
 								; d6 = screen position increment value
@@ -311,7 +310,7 @@ Console_Write: __global
 		beq.s	.done					; if null-terminator, branch
 
 	; Process drawing flag
-.flag:
+.flag
 		and.w	#$1E,d1					; d2 = $00, $02, $04, $06, $08, $0A, $0C, $0E, $10, $12, $14, $16, $18, $1A, $1C, $1E
 		jmp	.CommandHandlers(pc,d1.w)
 ; --------------------------------------------------------------
@@ -336,6 +335,7 @@ Console_Write: __global
 		move.b	(a0)+,d1				; $1A	; codes FA-FB : set x-position
 		add.w	d1,d1					; $1C	; codes FC-FD : <<UNUSED>>
 		moveq	#-$80,d3				; $1E	; codes FE-FF : <<UNUSED>>
+
 		swap	d3					;
 		and.l	d3,d5					;
 		swap	d1					;
@@ -429,7 +429,7 @@ Console_Write_Formatted: __global
 ; WARNING: This function shouldn't modify d0-d4 / a1-a3!
 ; --------------------------------------------------------------
 
-.FlushBuffer:
+.FlushBuffer
 		clr.b	(a0)+					; finalize buffer
 
 		neg.w	d7

@@ -18,6 +18,7 @@ _white				equ 0
 _yellow 			equ 1<<13
 _blue				equ 2<<13
 _blue2				equ 3<<13
+checkall			equ 0
 ; ===============================================================
 ; ---------------------------------------------------------------
 ; Main error handler
@@ -589,6 +590,7 @@ Art1bpp_Font_End:
 	include	'Format String.asm'
 	include	'Console.asm'
 	include	'1bpp - Decompress.asm'
+	include	'Decode.asm'
 ; ---------------------------------------------------------------
 
 SymbolData:
