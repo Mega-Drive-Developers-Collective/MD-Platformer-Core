@@ -321,6 +321,7 @@ Console_Write: __global
 		moveq	#29,d1	 				; $02	; codes E2-E3 : <<UNUSED>>
 		bclr	d1,d5					; $04	; codes E4-E5 : <<UNUSED>>
 		bra.s	.reset_line				; $06	; codes E6-E7 : reset position to the beginning of line
+
 		bra.s	.set_palette_line_0			; $08	; codes E8-E9 : set palette line #0
 		bra.s	.set_palette_line_1			; $0A	; codes EA-EB : set palette line #1
 		bra.s	.set_palette_line_2			; $0C	; codes EC-ED : set palette line #2
@@ -329,9 +330,13 @@ Console_Write: __global
 	; For flags F0-FF (one-byte arguments)
 		move.b	(a0)+,d2				; $10	; codes F0-F1 : set characters per line, reset line
 		bra.s	.reset_line				; $12	; codes F2-F3 : <<UNUSED>>
+
 		move.b	(a0)+,d4				; $14	; codes F4-F5 : set low byte of base pattern (raw)
 		bra.s	.nextchar				; $16	; codes F6-F7 : <<UNUSED>>
+
 		bra.s	.set_base_pattern_high_byte		; $18	; codes F8-F9 : set high byte of base pattern (raw)
+; --------------------------------------------------------------
+
 		move.b	(a0)+,d1				; $1A	; codes FA-FB : set x-position
 		add.w	d1,d1					; $1C	; codes FC-FD : <<UNUSED>>
 		moveq	#-$80,d3				; $1E	; codes FE-FF : <<UNUSED>>

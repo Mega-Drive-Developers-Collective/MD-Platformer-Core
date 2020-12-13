@@ -1,4 +1,3 @@
-
 ; ===============================================================
 ; ---------------------------------------------------------------
 ; Error handling and debugging modules
@@ -8,7 +7,6 @@
 ; ---------------------------------------------------------------
 
 isAMPS =		1		; Set to 1
-
 ; ===============================================================
 ; ---------------------------------------------------------------
 ; Constants
@@ -74,8 +72,6 @@ setw	equ		$F0				; set line width: number of characters before automatic line br
 setoff	equ		$F4				; set tile offset: lower byte of base pattern, which points to tile index of ASCII character 00
 setpat	equ		$F8				; set tile pattern: high byte of base pattern, which determines palette flags and $100-tile section id
 setx	equ		$FA				; set x-position
-
-
 ; ---------------------------------------------------------------
 ; Macros
 ; ---------------------------------------------------------------

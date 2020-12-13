@@ -338,7 +338,12 @@ Error_DrawInterruptHandler:
 		move.l	d0,d1
 		swap	d1
 		cmp.b	#$E0,d1					; does handler address point to RAM (block $E0 to $FF)?
-		bhs.s	.ret					; if not, branch
+		blo.s	.ret					; if not, branch
+
+
+
+
+
 
 		subq.w	#8,sp
 		move.l	a0,(sp)					; Argument #0 : String pointer
