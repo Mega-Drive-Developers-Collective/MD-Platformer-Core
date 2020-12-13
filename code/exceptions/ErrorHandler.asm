@@ -122,21 +122,7 @@ TrapF:
 ; Import error handler global functions
 ; ---------------------------------------------------------------
 
-ErrorHandler.__global__error_initconsole equ ErrorHandler+$146
-ErrorHandler.__global__errorhandler_setupvdp equ ErrorHandler+$234
-ErrorHandler.__global__console_loadpalette equ ErrorHandler+$A1C
-ErrorHandler.__global__console_setposasxy_stack equ ErrorHandler+$A58
-ErrorHandler.__global__console_setposasxy equ ErrorHandler+$A5E
-ErrorHandler.__global__console_getposasxy equ ErrorHandler+$A8A
-ErrorHandler.__global__console_startnewline equ ErrorHandler+$AAC
-ErrorHandler.__global__console_setbasepattern equ ErrorHandler+$AD4
-ErrorHandler.__global__console_setwidth equ ErrorHandler+$AE8
-ErrorHandler.__global__console_writeline_withpattern equ ErrorHandler+$AFE
-ErrorHandler.__global__console_writeline equ ErrorHandler+$B00
-ErrorHandler.__global__console_write equ ErrorHandler+$B04
-ErrorHandler.__global__console_writeline_formatted equ ErrorHandler+$BB0
-ErrorHandler.__global__console_write_formatted equ ErrorHandler+$BB4
-
+	include "code/exceptions/source/ErrorHandler.Global.ASM68K.asm"
 
 ; ---------------------------------------------------------------
 ; Error handler external functions (compiled only when used)
@@ -151,8 +137,8 @@ ErrorHandler.__extern__scrollconsole:
 	if ref(ErrorHandler.__extern__console_only)
 ErrorHandler.__extern__console_only:
 	dc.l	$46FC2700, $4FEFFFF2, $48E7FFFE, $47EF003C
-	jsr		ErrorHandler.__global__errorhandler_setupvdp(pc)
-	jsr		ErrorHandler.__global__error_initconsole(pc)
+	jsr	ErrorHandler.__global__errorhandler_setupvdp(pc)
+	jsr	ErrorHandler.__global__error_initconsole(pc)
 	dc.l	$4CDF7FFF, $487A0008, $2F2F0012, $4E7560FE
 	endc
 
@@ -166,7 +152,7 @@ ErrorHandler.__extern__vsync:
 ; ---------------------------------------------------------------
 
 ErrorHandler:
-	incbin	"code/exceptions/ErrorHandler.bin"
+	incbin	"code/exceptions/source/ErrorHandler.bin"
 
 ; ---------------------------------------------------------------
 ; WARNING!

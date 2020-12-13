@@ -1,0 +1,14 @@
+ErrorHandler.__global__error_initconsole equ ErrorHandler+$146
+ErrorHandler.__global__errorhandler_setupvdp equ ErrorHandler+$236
+ErrorHandler.__global__console_loadpalette equ ErrorHandler+$A1E
+ErrorHandler.__global__console_setposasxy_stack equ ErrorHandler+$A5A
+ErrorHandler.__global__console_setposasxy equ ErrorHandler+$A60
+ErrorHandler.__global__console_getposasxy equ ErrorHandler+$A8C
+ErrorHandler.__global__console_startnewline equ ErrorHandler+$AAE
+ErrorHandler.__global__console_setbasepattern equ ErrorHandler+$AD6
+ErrorHandler.__global__console_setwidth equ ErrorHandler+$AEA
+ErrorHandler.__global__console_writeline_withpattern equ ErrorHandler+$B00
+ErrorHandler.__global__console_writeline equ ErrorHandler+$B02
+ErrorHandler.__global__console_write equ ErrorHandler+$B06
+ErrorHandler.__global__console_writeline_formatted equ ErrorHandler+$BB2
+ErrorHandler.__global__console_write_formatted equ ErrorHandler+$BB6

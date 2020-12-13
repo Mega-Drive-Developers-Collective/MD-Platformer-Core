@@ -24,7 +24,7 @@ Main		SECTION org(0)
 		dc.l exMisc, exMisc, exMisc, exMisc
 		dc.l exMisc, exMisc, exMisc, exMisc
 		dc.l exMisc, exMisc, exMisc, exMisc
-		dc.l Vint,   exMisc, Hint,   exMisc
+		dc.l Hint,   exMisc, Vint,   exMisc
 		dc.l Trap0,  Trap1,  Trap2,  Trap3
 		dc.l Trap4,  Trap5,  Trap6,  Trap7
 		dc.l Trap8,  Trap9,  TrapA,  TrapB
