@@ -19,17 +19,17 @@
 ; ---------------------------------------------------------------
 
 FormatSym_Handlers:
-	ext.l	d1						; $00		; handler for word
-	bra.s	FormatSym					; $02
+		ext.l	d1				; $00	; handler for word
+		bra.s	FormatSym			; $02
 
-	jmp		FormatSym(pc)				; $04		; handler for longword
+		jmp	FormatSym(pc)			; $04	; handler for longword
 
-	ext.w	d1						; $08		; handler for byte
-	ext.l	d1
+		ext.w	d1				; $08	; handler for byte
+		ext.l	d1
 ; ---------------------------------------------------------------
 
 FormatSym:
-		btst	#3, d3					; is "display just label part so far" bit set?
+		btst	#3,d3					; is "display just label part so far" bit set?
 		bne.s	.0					; if yes, branch
 		pea	FormatString_CodeHandlers+$40(pc)	; otherwise, display displacement after this routine is finished
 

@@ -16,11 +16,6 @@
 ; --------------------------------------------------------------
 ; equates
 
-d68k_white =			_white				; text color white
-d68k_green =			_yellow				; text color green
-d68k_blue =			_blue2				; text color blue
-d68k_red =			_blue				; text color red
-
 dcwhite =			_pal0				; white that can be included in a string
 dcgreen =			_pal1				; green that can be included in a string
 dcblue =			_pal3				; blue that can be included in a string
@@ -56,9 +51,8 @@ d68kn_Long			rs.w 1				; long number type
 ; --------------------------------------------------------------
 ; constants
 
-d68k_StoreSrc =			$FFFF8000			; stored source address
-d68k_StoreDst =			$FFFF8004			; stored destination address
-d68k_Stack =			$FFFF8100			; stack address
+d68k_StoreSrc =			$FF0000				; stored source address
+d68k_String =			$FF0004				; target address for string
 d68k_ShowAddr =			0				; set to 1 to enable printing address to output buffer
 ; --------------------------------------------------------------
 ; macros
@@ -196,7 +190,8 @@ d68k_Cmp	macro offset, check, addr
 ;
 ; input:
 ;   a0 = source instruction address
-;   a1 = destination buffer address
+;   a3 = stack address
+;   a1 = next buffer address
 ;
 ; output:
 ;   a0 = next instruction address
@@ -212,16 +207,14 @@ d68k_HighNibble:
 ; --------------------------------------------------------------
 
 Decode68k:
-		lea	d68k_Stack.w,a3				; load stack address
-
 	if d68k_ShowAddr
+		move.b	#dcred,(a1)+				; RED
 		move.l	a0,(a3)+				; copy ROM address to stack
 		jsr	d68k_PrintAddr(pc)			; print it
-		move.w	#dcred|' ',(a1)+			; write a space
+		move.b	#' ',(a1)+				; write a space
 	endif
 
-		move.l	a1,d68k_StoreDst.w			; copy destination address to RAM
-		move.l	a0,d68k_StoreSrc.w			; copy source address to RAM
+		move.l	a0,d68k_StoreSrc			; copy source address to RAM
 
 		move.w	(a0)+,d0				; load the next byte from source
 		move.w	d0,d1					; copy to d1
@@ -277,31 +270,19 @@ d68k_rPrint:
 
 d68k_rPrint3:
 		pea	d68k_RunScript(pc)			; run the script later
-
-d68k_rPrint2:
-		moveq	#0,d2					; set colour to default
-		bra.s	.print
 ; --------------------------------------------------------------
 
-.char
-		move.b	(a4)+,d2				; load character to d1
-		move.w	d2,(a1)+				; save into buffer
-
-.print
+d68k_rPrint2:
 		tst.b	(a4)					; check the next character
-		bgt.s	.char					; if positive, read character
 		beq.s	.null					; if null, its the end marker
-
-		moveq	#$7F,d2					; prepare AND value
-		and.b	(a4)+,d2				; get only the color component
-		lsl.w	#8,d2					; shift into place
-		bra.s	.print
+		move.b	(a4)+,(a1)+				; copy character into buffer
+		bra.s	d68k_rPrint2
 ; --------------------------------------------------------------
 
 .null
-		move.b	d1,d2					; copy extra parameter to d2
+		tst.b	d1					; check if there is an extre parameter
 		beq.s	.rts					; if was null, skip this
-		move.w	d2,(a1)+				; save into buffer
+		move.b	d1,(a1)+				; save into buffer
 
 .rts
 		rts
@@ -311,7 +292,7 @@ d68k_rPrint2:
 ; --------------------------------------------------------------
 
 d68k_rChar:
-		move.w	d1,(a1)+				; save into buffer
+		move.b	d1,(a1)+				; save into buffer
 		bra.s	d68k_JumpScript1
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -440,16 +421,15 @@ d68k_PrintWord:
 ; --------------------------------------------------------------
 
 d68k_PrintCom:
-		move.w	#d68k_red|'$',(a1)+			; write hex symbol
-		move.w	#d68k_red,d4				; prepare red colour to d4
+		move.b	#dcred,(a1)+				; RED
+		move.b	#'$',(a1)+				; print $
 
 .char
 		rol.l	#4,d1					; get first 4 bits into view
 		moveq	#$F,d2					; get bitmask to d2
 		and.w	d1,d2					; get only single digt
 
-		move.b	d68k_DigitTbl(pc,d2.w),d4		; load digit into d4
-		move.w	d4,(a1)+				; copy into buffer
+		move.b	d68k_DigitTbl(pc,d2.w),(a1)+		; load digit into buffer
 		dbf	d3,.char				; loop for every character
 		rts
 ; --------------------------------------------------------------
@@ -470,12 +450,10 @@ d68k_PrintAddrReg2:
 		pea	d68k_RunScript(pc)			; run the script later
 
 d68k_PrintAddrReg3:
-		move.w	#d68k_green|'a',(a1)+			; write a into buffer
-		move.w	#d68k_green,d1				; prepare green color
-
+		move.b	#dcgreen,(a1)+				; GREEN
+		move.b	#'d',(a1)+				; print a
 		and.w	#7,d2					; keep in range
-		move.b	d68k_DigitTbl(pc,d2.w),d1		; load number into d1
-		move.w	d1,(a1)+				; save into buffer
+		move.b	d68k_DigitTbl(pc,d2.w),(a1)+		; load number into buffer
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -492,12 +470,10 @@ d68k_PrintDataReg2:
 		pea	d68k_RunScript(pc)			; run the script later
 
 d68k_PrintDataReg3:
-		move.w	#d68k_green|'d',(a1)+			; write d into buffer
-		move.w	#d68k_green,d1				; prepare green color
-
+		move.b	#dcgreen,(a1)+				; GREEN
+		move.b	#'d',(a1)+				; print d
 		and.w	#7,d2					; keep in range
-		move.b	d68k_DigitTbl(pc,d2.w),d1		; load number into d2
-		move.w	d1,(a1)+				; save into buffer
+		move.b	d68k_DigitTbl(pc,d2.w),(a1)+		; load number into buffer
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -554,14 +530,14 @@ d68k_JumpScript2:
 
 d68k_rInsSz:
 		bsr.s	d68k_ShiftIns				; shift instruction into place
-		move.w	#d68k_blue,d6				; prepare green color
 		and.w	#3,d2					; keep in range
 		move.b	d68k_InsSize(pc,d2.w),d6		; load instruction size to d6
 
 d68k_rInsSz2:
 		beq.w	d68k_Data				; execute as data
-		move.w	#d68k_blue|'.',(a1)+			; print . into buffer
-		move.w	d6,(a1)+				; copy it to buffer
+		move.b	#dcblue,(a1)+				; BLUE
+		move.b	#'.',(a1)+				; print .
+		move.b	d6,(a1)+				; copy it to buffer
 		bra.s	d68k_JumpScript2
 
 d68k_InsSize:	dc.b 'bwl', 0
@@ -571,7 +547,6 @@ d68k_MoveSz:
 		moveq	#12,d1					; shift 12 bits
 		bsr.s	d68k_ShiftIns				; shift instruction into place
 
-		move.w	#d68k_blue,d6				; prepare green color
 		and.w	#3,d2					; keep in range
 		move.b	.size(pc,d2.w),d6			; load instruction size to d6
 		bra.s	d68k_rInsSz2				; execute common code
@@ -594,7 +569,7 @@ d68k_rMode:
 d68k_ModeCom:
 		tst.b	d1					; check character argument
 		beq.s	.skip					; if was null, skip this
-		move.w	d1,(a1)+				; save into buffer
+		move.b	d1,(a1)+				; save into buffer
 ; --------------------------------------------------------------
 
 .skip
@@ -658,7 +633,8 @@ d68k_rModeData2:
 ; --------------------------------------------------------------
 
 d68k_rModeAmind:
-		move.w	#d68k_white|'-',(a1)+			; write - into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'-',(a1)+				; print -
 		bra.s	d68k_rModeAind
 ; --------------------------------------------------------------
 
@@ -676,9 +652,11 @@ d68k_rModeAind:
 		pea	d68k_RunScript(pc)			; run the script later
 
 d68k_rModeAind2:
-		move.w	#d68k_white|'(',(a1)+			; write ( into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'(',(a1)+				; print (
 		jsr	d68k_PrintAddrReg3(pc)			; write the address register into buffer
-		move.w	#d68k_white|')',(a1)+			; write ) into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#')',(a1)+				; print )
 		rts
 ; --------------------------------------------------------------
 
@@ -689,7 +667,7 @@ d68k_ModeApind2:
 
 d68k_rModeApind:
 		bsr.s	d68k_rModeAind2				; write indirect data into buffer
-		move.w	#d68k_white|'+',(a1)+			; write + into buffer
+		move.b	#'+',(a1)+				; print +
 		bra.s	d68k_JumpScript3
 ; --------------------------------------------------------------
 
@@ -703,8 +681,7 @@ d68k_rModePind:
 		move.l	a4,d1					; copy result to d1
 		jsr	d68k_ResolveAddr(pc)			; print it
 
-		move.l	d68k_StrPC(pc),(a1)+			; write (p into buffer
-		move.l	d68k_StrPC+4(pc),(a1)+			; write c) into buffer
+		jsr	d68k_PrintPC(pc)			; print WHITE + (pc)
 		bra.s	d68k_JumpScript3
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -718,7 +695,8 @@ d68k_rModeANXN:
 		move.w	d5,(a3)+				; store it in stack
 		jsr	d68k_PrintByte(pc)			; print byte displacement
 
-		move.w	#d68k_white|'(',(a1)+			; write ( into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'(',(a1)+				; print (
 		move.w	a4,d2					; get regiser back
 		jsr	d68k_PrintAddrReg3(pc)			; print address register
 ; --------------------------------------------------------------
@@ -728,16 +706,22 @@ d68k_ModeCommXN:
 		and.w	#$700,d1				; check if any unused bits are set
 		bne.s	d68k_rModeData2				; if yes, its data nao
 
-		move.w	#d68k_white|',',(a1)+			; write , into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#',',(a1)+				; print ,
 		move.w	d5,d2					; copy extension to d2
 		rol.w	#4,d2					; get the register bits to low bits
 		jsr	d68k_PrintReg3(pc)			; print the register
 
 		btst	#11,d5					; check if this is a longword
 		sne	d1					; if yes, results in 4
-		and.w	#4,d1					; if not, results in 0
-		move.l	d68k_SizeXN(pc,d1.w),(a1)+		; read size into buffer
-		move.w	#d68k_white|')',(a1)+			; write ) into buffer
+		and.w	#2,d1					; if not, results in 0
+
+		move.b	#dcblue,(a1)+				; BLUE
+		move.b	d68k_SizeXN(pc,d1.w),(a1)+		; read size into buffer
+		move.b	d68k_SizeXN+1(pc,d1.w),(a1)+		;
+
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#')',(a1)+				; print )
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Go back to running the script
@@ -745,9 +729,19 @@ d68k_ModeCommXN:
 
 d68k_JumpScript3:
 		jmp	d68k_RunScript(pc)			; run the script now
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to print (pc) to buffer
 ; --------------------------------------------------------------
 
-d68k_StrPC:	dc.w d68k_white|'(', d68k_green|'p', d68k_green|'c', d68k_white|')'
+d68k_PrintPC:
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'(',(a1)+				; (pc)
+		move.b	#'p',(a1)+				;
+		move.b	#'c',(a1)+				;
+		move.b	#')',(a1)+				;
+		rts
+; --------------------------------------------------------------
 
 d68k_rModePCXN:
 		move.w	(a0)+,d1				; read extension word from source
@@ -763,12 +757,10 @@ d68k_rModePCXN:
 		add.l	a0,d1					; add current address to d1
 	endif
 		jsr	d68k_ResolveAddr(pc)			; print resulting address
-
-		move.l	d68k_StrPC(pc),(a1)+			; write (p into buffer
-		move.w	d68k_StrPC+4(pc),(a1)+			; write c into buffer
+		bsr.s	d68k_PrintPC				; print WHITE + (pc)
 		bra.s	d68k_ModeCommXN				; run the rest of the code the same
 
-d68k_SizeXN:	dc.w d68k_blue|'.', d68k_blue|'w', d68k_blue|'.', d68k_blue|'l'
+d68k_SizeXN:	dc.b '.w.l'
 ; ==============================================================
 ; --------------------------------------------------------------
 ; print direct address word and long
@@ -780,9 +772,9 @@ d68k_rPrintSmallSize:
 
 d68k_PrintSmallSize2:
 		sne	d6					; if yes, results in 4
-		and.w	#4,d6					; if not, results in 0
-		move.l	d68k_SizeXN(pc,d6.w),d6			; read size into d6
-		move.l	d6,(a1)+				; copy into buffer
+		and.w	#2,d6					; if not, results in 0
+		move.b	d68k_SizeXN(pc,d6.w),(a1)+		; read size into buffer
+		move.b	d68k_SizeXN+1(pc,d6.w),(a1)+		;
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -793,16 +785,21 @@ d68k_rModeAddrW:
 		move.w	(a0)+,d1				; load address into d1
 		ext.l	d1					; extend to longword
 		move.l	d1,(a3)+				; save into stack
-
 		jsr	d68k_PrintLong(pc)			; print it
-		move.l	d68k_SizeXN(pc),(a1)+			; write .w into buffer
+
+		move.b	#dcblue,(a1)+				; BLUE
+		move.b	d68k_SizeXN(pc),(a1)+			; write .w into buffer
+		move.b	d68k_SizeXN+1(pc),(a1)+			;
 		bra.s	d68k_JumpScript3
 ; --------------------------------------------------------------
 
 d68k_rModeAddrL:
-		move.l	(a0)+,(a3)+				; load address into stack
-		jsr	d68k_PrintLong(pc)			; print it
-		move.l	d68k_SizeXN+4(pc),(a1)+			; write .l into buffer
+		move.l	(a0)+,d1				; load address into d1
+		jsr	d68k_ResolveAddr(pc)			; print resulting address
+
+		move.b	#dcblue,(a1)+				; BLUE
+		move.b	d68k_SizeXN+2(pc),(a1)+			; write .l into buffer
+		move.b	d68k_SizeXN+3(pc),(a1)+			;
 		bra.s	d68k_JumpScript3
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -811,7 +808,8 @@ d68k_rModeAddrL:
 
 d68k_rModeImm:
 		pea	d68k_RunScript(pc)			; run the script later
-		move.w	#d68k_white|'#',(a1)+			; write # into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'#',(a1)+				; print #
 
 		cmp.b	#'l',d6					; check if this is a long instruction
 		bne.s	.ckbyte					; if not, check for byte
@@ -832,8 +830,8 @@ d68k_rModeImm:
 d68k_iData:	d68k_Exec	d68k_Data			; execute as assembly
 
 d68k_Data:
-		move.l	d68k_StoreDst.w,a1			; restore original destination address
-		move.l	d68k_StoreSrc.w,a0			; restore original source address
+		lea	d68k_String,a1				; load destination address to a1
+		move.l	d68k_StoreSrc,a0			; restore original source address
 
 		lea	.script2(pc),a2				; load secondary script to a2
 		jmp	d68k_RunScript(pc)			; run the script now
@@ -926,13 +924,14 @@ d68k_SpecialReg:
 		move.w	d0,d3					; copy instruction to d3
 		rol.w	#16-9,d3				; rotate register into place
 
-		move.w	#d68k_white|' ',(a1)+			; write a space
+		move.b	#' ',(a1)+				; print a space
 		btst	#3,d0					; check if this is DN,DN
 		bne.s	.anan					; if not, branch
 ; --------------------------------------------------------------
 
 		jsr	d68k_PrintDataReg3(pc)			; print source register
-		move.w	#d68k_white|',',(a1)+			; write a ,
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#',',(a1)+				; print a ,
 		move.w	d3,d2					; copy destination register to d2
 		jsr	d68k_PrintDataReg3(pc)			; print it
 		bra.s	.runs
@@ -941,7 +940,8 @@ d68k_SpecialReg:
 .anan
 		bsr.s	.printan				; write source register
 		move.w	d3,d2					; copy destination register to d1
-		move.w	#d68k_white|',',(a1)+			; write a ,
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#',',(a1)+				; print a ,
 		bsr.s	.printan				; write destination register
 
 .runs
@@ -949,9 +949,13 @@ d68k_SpecialReg:
 ; --------------------------------------------------------------
 
 .printan
-		move.l	#((d68k_white|'-')<<16)|d68k_white|'(',(a1)+; write -( into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'-',(a1)+				; print a -
+		move.b	#'(',(a1)+				; print a (
+
 		jsr	d68k_PrintAddrReg3(pc)			; print address register
-		move.w	#d68k_white|')',(a1)+			; write ) into buffer
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#')',(a1)+				; print a )
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -1213,16 +1217,15 @@ d68k_PrintBXXX:
 		and.w	#$C0,d1					; keep in range
 		lsr.w	#4,d1					; shift into place
 
-		move.w	#d68k_blue,d2				; prepare blue color to d2
+		move.b	#dcblue,(a1)+				; BLUE
 		lea	.ins(pc,d1.w),a4			; load table to a4
 		moveq	#4-1,d1					; load repeat count to d1
 
 .load
-		move.b	(a4)+,d2				; load character to d2
-		move.w	d2,(a1)+				; save to buffer
+		move.b	(a4)+,(a1)+				; copy to buffer
 		dbf	d1,.load				; print all characters
 
-		move.w	#d68k_white|' ',(a1)+			; write a space
+		move.b	#'-',(a1)+				; print a space
 		jmp	d68k_RunScript(pc)			; run the script now
 
 .ins		dc.b 'btstbchgbclrbset'
@@ -1421,23 +1424,17 @@ d68k_PrintCC3:
 		and.w	#$0F00,d1				; keep in range
 		lsr.w	#7,d1					; shift down
 
-		move.l	#(d68k_blue<<16)|d68k_blue,d3		; load color to d3
 		cmp.w	#4,d1					; check if this is the two first entries
 		blt.s	.a2					; read from a2
 
-		move.b	.cctbl-4(pc,d1.w),d2			; load first letter to d2
-		swap	d2					; swap words
-		move.b	.cctbl-3(pc,d1.w),d2			; load second letter to d2
-		bra.s	.c
+		move.b	.cctbl-3(pc,d1.w),(a1)+			; load first letter to buffer
+		move.b	.cctbl-4(pc,d1.w),(a1)+			; load second letter to buffer
+		rts
 ; --------------------------------------------------------------
 
 .a2
-		move.b	(a4,d1.w),d2				; load first alternate letter to d2
-		swap	d2					; swap words
-		move.b	1(a4,d1.w),d2				; load second alternate letter to d2
-
-.c
-		move.l	d2,(a1)+				; save to buffer
+		move.b	(a4,d1.w),(a1)+				; load first alternate letter to buffer
+		move.b	1(a4,d1.w),(a1)+			; load second alternate letter to buffer
 		rts
 ; --------------------------------------------------------------
 
@@ -1489,7 +1486,9 @@ d68k_iExxx:	d68k_ReadSrc	$20, $C0			; read the instruction from source
 ; --------------------------------------------------------------
 
 d68k_PrintTinyValue:
-		move.w	#d68k_white|'#',(a1)+			; write a #
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'#',(a1)+				; print a #
+		move.b	#dcred,(a1)+				; RED
 
 		move.w	d0,d1					; copy instruction to d1
 		rol.w	#16-9,d1				; rotate register into place
@@ -1498,8 +1497,8 @@ d68k_PrintTinyValue:
 		moveq	#8,d1					; set to 8 instead
 
 .not0
-		add.w	#d68k_red|'0',d1			; turn into digit
-		move.w	d1,(a1)+				; print it!
+		add.b	#'0',d1					; turn into digit
+		move.b	d1,(a1)+				; print it!
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Go back to running the script
@@ -1522,19 +1521,17 @@ d68k_PrintShift:
 
 		move.b	.insoffs(pc,d2.w),d2			; load the correct offset
 		lea	.insdata(pc,d2.w),a4			; load the array to a4
-		move.w	#d68k_blue,d2				; prepare color to d2
+		move.b	#dcblue,(a1)+				; BLUE
 
 .copyloop
-		move.b	(a4)+,d2				; load letter
-		move.w	d2,(a1)+				; write to buffer
+		move.b	(a4)+,(a1)+				; COPY letter
 		dbf	d3,.copyloop				; loop for all entries
 
 		btst	#8,d0					; check which direction to use
 		seq	d3					; if yes, results in 0
 		ext.w	d3					; if not, results in $FFFF
 
-		move.b	.direction+1(pc,d3.w),d2		; load direction character
-		move.w	d2,(a1)+				; print into buffer
+		move.b	.direction+1(pc,d3.w),(a1)+		; print direction character
 		bra.s	d68k_JumpScript4
 ; --------------------------------------------------------------
 
@@ -1781,7 +1778,8 @@ d68k_iMovem:	d68k_ReadSrc	$400, $380			; read the instruction from source
 .regs
 		move.w	-4(a3),d3				; copy register list to d3
 		bne.s	.notnull				; branch if 1 or more registers are used
-		move.w	#d68k_red|'0',(a1)+			; write a single red 0
+		move.b	#dcred,(a1)+				; WHITE
+		move.b	#0,(a1)+				; print a 0
 		bra.s	.cont
 ; --------------------------------------------------------------
 
@@ -1833,7 +1831,8 @@ d68k_iMovem:	d68k_ReadSrc	$400, $380			; read the instruction from source
 	; print separator
 		tas	d7					; check if we have written a register already
 		bpl.s	.nowrite				; branch if not
-		move.w	#d68k_white|'/',(a1)+			; write a /
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'/',(a1)+				; print a /
 
 	; print out an appropriate version of the bit string
 .nowrite
@@ -1842,7 +1841,8 @@ d68k_iMovem:	d68k_ReadSrc	$400, $380			; read the instruction from source
 		cmp.w	d5,a4					; check if the distance is 0 registers
 		beq.s	.reset					; branch if yes
 
-		move.w	#d68k_white|'-',(a1)+			; write a -
+		move.b	#dcwhite,(a1)+				; WHITE
+		move.b	#'-',(a1)+				; print a -
 		move.w	d5,d2					; copy ending register to d2
 		jsr	d68k_PrintReg3(pc)			; print it
 
@@ -1930,6 +1930,7 @@ d68k_i4E4X:	d68k_ReadSrc	$08, $30, $40			; read the instruction from source
 ; --------------------------------------------------------------
 
 .i4E7X
+;	bra.s	*
 		moveq	#7,d3					; load mask into d3
 		and.w	d0,d3					; AND instruction with d3
 		move.b	d68k_MiscInsTbl(pc,d3.w),d3		; load instruction offset to d3
@@ -1950,13 +1951,13 @@ d68k_i4E4X:	d68k_ReadSrc	$08, $30, $40			; read the instruction from source
 ; --------------------------------------------------------------
 
 d68k_rFinish:
-		clr.w	(a1)+					; set end token
+		clr.b	(a1)+					; set end token
 		rts
 ; --------------------------------------------------------------
 
 d68k_MiscInsTbl:
 		dc.b d68k_iReset-d68k_iStop,   d68k_iNop-d68k_iStop, 0, d68k_iRte-d68k_iStop
-		dc.b -2, d68k_iRts-d68k_iStop, d68k_iTrapv-d68k_iStop,  d68k_iRtr-d68k_iStop
+		dc.b -1, d68k_iRts-d68k_iStop, d68k_iTrapv-d68k_iStop,  d68k_iRtr-d68k_iStop
 
 d68k_iStop:	dc.b dcblue, 'stop', dcwhite, ' #', 0
 d68k_iReset:	dc.b dcblue, 'reset', 0
@@ -2029,6 +2030,70 @@ d68k_PrintAddr2:
 ; --------------------------------------------------------------
 
 d68k_ResolveAddr:
-		move.l	d1,(a3)+				; push the address onto stack
-		jmp	d68k_PrintAddr(pc)			; print it
+.buffer_size = $10
+		move.l	usp,a5					; load USP into d7
+		move.l	a1,usp					; store a1 in usp for now
+
+		movem.l	a0/a2/a4/a5,-(sp)			; push variables
+		lea	$C00000,a6				; load VDP data port to a6
+		lea	4(a6),a5				; load VDP control port to a5
+
+		move.l	a1,-(sp)				; Argument #0 : String pointer
+		move.l	d1,-(sp)				; Argument #1 : Target address
+
+		lea	.defaultformat(pc),a1			; load formatter address to a1
+		lea	(sp),a2					; load args to a2
+		lea	.FlushBuffer(pc),a4			; flushing function
+
+		lea	-.buffer_size(sp),sp			; allocate string buffer
+		lea	(sp),a0					; a0 = string buffer
+		moveq	#.buffer_size-2,d7			; d7 = number of characters before flush -1
+		jsr	FormatString(pc)			; print formatted string
+
+		lea	.buffer_size+8(sp),sp			; free string buffer
+		movem.l	(sp)+,a0/a2/a4/a5			; pop variables
+		move.l	usp,a1					; get the stuff back from usp
+		move.l	a5,usp					; reload USP From d7
+		rts
 ; --------------------------------------------------------------
+
+.defaultformat	dc.b dcwhite, _sym|long|split|forced
+		dc.b dcred, _disp|weak, 0, 0
+; ==============================================================
+; --------------------------------------------------------------
+; Flush buffer callback raised by d68k_ResolveAddr
+; --------------------------------------------------------------
+; INPUT:
+;		a0		Buffer position
+;		d7	.w	Number of characters remaining in buffer - 1
+;
+; OUTPUT:
+;		a0		Buffer position after flushing
+;		d7	.w	Number of characters before next flush - 1
+;		Carry		0 = continue operation
+;				1 = terminate FormatString with error condition
+;
+; WARNING: This function shouldn't modify d0-d4 / a1-a3!
+; --------------------------------------------------------------
+
+.FlushBuffer
+		clr.b	(a0)+					; finalize buffer
+
+		neg.w	d7
+		add.w	#.buffer_size-1,d7
+		sub.w	d7,a0					; a0 = start of the buffer
+
+		movem.l	a0/a1,-(sp)
+		move.l	usp,a1					; load text buffer from usp
+
+.loop
+		tst.b	(a0)					; check for null character
+		beq.s	.null					; branch if null
+		move.b	(a0)+,(a1)+				; copy next character
+		bra.s	.loop
+
+.null
+		move.l	a1,usp					; store text buffer
+		movem.l	(sp)+,a0/a1
+		moveq	#.buffer_size-2,d7			; d7 = number of characters before flush -1
+		rts						; WARNING! Must return Carry=0

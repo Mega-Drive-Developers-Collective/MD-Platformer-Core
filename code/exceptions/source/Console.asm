@@ -428,7 +428,7 @@ Console_Write_Formatted: __global
 ; OUTPUT:
 ;		a0		Buffer position after flushing
 ;		d7	.w	Number of characters before next flush - 1
-;		Carry	0 = continue operation
+;		Carry		0 = continue operation
 ;				1 = terminate FormatString with error condition
 ;
 ; WARNING: This function shouldn't modify d0-d4 / a1-a3!

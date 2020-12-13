@@ -144,35 +144,35 @@ FormatString_CodeHandlers:
 ;	the flow ...
 ; --------------------------------------------------------------
 
-.ArgumentFetchFlow:
-		addq.w	#8,a3					; $00 :$04	; code 0 : Display byte
-		move.w	(a2)+,d1				; $02 :$06	; code 1 : Display word
-		jmp	(a3)					; $04 :$08	; code 2 : ## invalid : displays garbage word
+.ArgumentFetchFlow
+		addq.w	#8,a3			; $00 :$04	; code 0 : Display byte
+		move.w	(a2)+,d1		; $02 :$06	; code 1 : Display word
+		jmp	(a3)			; $04 :$08	; code 2 : ## invalid : displays garbage word
 ; --------------------------------------------------------------
 
-		addq.w	#4,a3					; $06 :$0A	; code 3 : Display longword
-		move.l	(a2)+,d1				; $08 :$0C	; code 4 : ## invalid ##: displays word, but loads longword
-		jmp	(a3)					; $0A :$0E	; code 5 : ## invalid ##: displays garbage word
+		addq.w	#4,a3			; $06 :$0A	; code 3 : Display longword
+		move.l	(a2)+,d1		; $08 :$0C	; code 4 : ## invalid ##: displays word, but loads longword
+		jmp	(a3)			; $0A :$0E	; code 5 : ## invalid ##: displays garbage word
 ; --------------------------------------------------------------
 
 	; codes F0..FF : Drawing command, one-byte argument (ignore)
-		addq.w	#1,a0					; $0C :$00	; code 6 : ## invalid ##: restores control character and puts another one
-		bra.s	.AfterRestoreCharacter2			; $0E :$02	; code 7 : ## invalid ##: does nothing
+		addq.w	#1,a0			; $0C :$00	; code 6 : ## invalid ##: restores control character and puts another one
+		bra.s	.AfterRestoreCharacter2	; $0E :$02	; code 7 : ## invalid ##: does nothing
 ; --------------------------------------------------------------
 
-		addq.w	#8,a3					; $10		; code 8 : Display signed byte
-		move.w	(a2)+,d1				; $12		; code 9 : Display signed word
-		bra.s	.CheckValueSign				; $14		; code A : ## invalid ##: displays garbage signed word
+		addq.w	#8,a3			; $10		; code 8 : Display signed byte
+		move.w	(a2)+,d1		; $12		; code 9 : Display signed word
+		bra.s	.CheckValueSign		; $14		; code A : ## invalid ##: displays garbage signed word
 ; --------------------------------------------------------------
 
-		addq.w	#4,a3					; $16		; code B : Display signed longword
-		move.l	(a2)+,d1				; $18		; code C : ## invalid ##: displays signed word, but loads longword
+		addq.w	#4,a3			; $16		; code B : Display signed longword
+		move.l	(a2)+,d1		; $18		; code C : ## invalid ##: displays signed word, but loads longword
 ; --------------------------------------------------------------
 
 .CheckValueSign
-		bpl.s	.positive				; $1A		; code D : ## invalid ##: displays garbage signed word
-		neg.l	d1					; $1C		; code E : ## invalid ##: displays gargage pseudo-negative word
-		move.b	#'-',(a0)+				; $1E		; code F : ## invalid ##: displays gargage pseudo-non-negative word
+		bpl.s	.positive		; $1A		; code D : ## invalid ##: displays garbage signed word
+		neg.l	d1			; $1C		; code E : ## invalid ##: displays gargage pseudo-negative word
+		move.b	#'-',(a0)+		; $1E		; code F : ## invalid ##: displays gargage pseudo-non-negative word
 		subq.w	#1,d7					; are there characters left in the buffer?
 		bcs.s	.return2				; if not, stop output
 		jmp	(a3)					; draw the actual value using an appropriate handler
@@ -182,7 +182,6 @@ FormatString_CodeHandlers:
 		subq.w	#1,d7					; are there characters left in the buffer?
 		bcs.s	.return2				; if not, stop output
 		jmp	(a3)					; draw the actual value using an appropriate handler
-
 ; --------------------------------------------------------------
 
 .AfterRestoreCharacter2

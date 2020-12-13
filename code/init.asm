@@ -239,7 +239,7 @@ SoftInit:
 ; --------------------------------------------------------------
 
 	; reset RAM variables
-		move.w	#$4E75,Hint.l				; rte
+		move.w	#$4E73,Hint.l				; rte
 		move.w	#$4EF9,Vint.w				; jmp xxxxxx.l
 		move.l	#Vint_Main,Vint+2.w			; v-int handler address
 ; ==============================================================
@@ -260,5 +260,5 @@ SoftInit:
 ; --------------------------------------------------------------
 
 gmTest:
-		exception	0
+		move.w	#1,1.w
 		bra.s	*

@@ -10,6 +10,9 @@
 ; Constants
 ; ---------------------------------------------------------------
 
+d68k_Store			reg d1-d6/a0-a4/a6		; stored registers
+d68k_StackSize =		$18				; minimum stack size
+
 VRAM_Font			equ (('!'-1)*$20)
 VRAM_PlaneA 			equ $8000
 VRAM_PlaneB		 	equ VRAM_PlaneA
@@ -43,7 +46,7 @@ checkall			equ 0
 ;		bit #1: If set, displays SR and USP registers
 ;		bit #2:	<UNUSED>
 ;		bit #3:	<UNUSED>
-;		bit #4:	<UNUSED>
+;		bit #4:	If set, enables instruction disassembly for some parts
 ;		bit #5:	If set, displays full screen, but then calls
 ;				console program (via "jmp <ConsoleProgram>")
 ;		bit #6:	If set, displays error header only, then calls
@@ -98,8 +101,30 @@ ErrorHandler:
 		lea	2(a4),a2				; a2 = arguments buffer
 		jsr	Console_WriteLine_Formatted(pc)
 		addq.w	#8,a4					; skip extension part of the stack frame
+; ---------------------------------------------------------------
 
 .skip
+		; print instruction
+		btst	#4,d6				; AF::	; check if instruction disassembly was requested
+	;	beq.s	.noins				; AF::	; if not, branch
+
+		movem.l	d68k_store,-(sp)		; AF::	; push variables
+		sub.w	#d68k_StackSize,sp		; AF::	; give more space in stack
+		move.l	sp,a3				; AF::	; copy parameter stack address
+		move.l	2(a4),a0			; AF::	; copy instruction address to a0
+
+		lea	d68k_String,a1			; AF::	; load destination address to a1
+		move.b	#' ',(a1)+			; AF::	; write a single space
+		jsr	Decode68k(pc)			; AF::	; decode instruction
+
+		lea	d68k_String,a0			; AF::	; load string data to a0
+		jsr	Console_WriteLine(pc)		; AF::	; write to output
+
+		add.w	#d68k_StackSize,sp		; AF::	; restore stack
+		movem.l	(sp)+,d68k_store		; AF::	; pop variables
+; ---------------------------------------------------------------
+
+.noins
 		; Print error location
 		lea 	Str_Location(pc),a1			; a1 = formatted string
 		lea	2(a4),a2				; a2 = arguments buffer
@@ -155,7 +180,7 @@ ErrorHandler:
 		addq.w	#4,sp
 
 		; Display USP and SR (if requested)
-		btst	#1, d6
+		btst	#1,d6
 		beq.s	.skip2
 
 		; Draw 'USP'
@@ -203,7 +228,6 @@ ErrorHandler:
 		moveq	#28-3,d5
 		sub.w	d1,d5
 		bmi.s	.stack_done
-
 		bsr.s	Error_DrawStackRow_First
 
 .stack_loop
@@ -337,14 +361,31 @@ Error_DrawRegisters:
 Error_DrawInterruptHandler:
 		move.l	d0,d1
 		swap	d1
-		cmp.b	#$E0,d1					; does handler address point to RAM (block $E0 to $FF)?
-		blo.s	.ret					; if not, branch
+		cmp.b	#$E0,d1				; AF::	; does handler address point to RAM (block $E0 to $FF)?
+		blo.s	.ret				; AF::	; if not, branch
 
+		btst	#4,d6				; AF::	; check if instruction disassembly was requested
+	;	beq.s	.noins				; AF::	;	; if not, branch
+; ---------------------------------------------------------------
 
+		jsr	Console_Write(pc)		; AF::	; write interrupt line
 
+		movem.l	d68k_store,-(sp)		; AF::	; push variables
+		sub.w	#d68k_StackSize,sp		; AF::	; give more space in stack
+		move.l	sp,a3				; AF::	; copy parameter stack address
+		move.l	d0,a0				; AF::	; copy instruction address to a0
 
+		lea	d68k_String,a1			; AF::	; load destination address to a1
+		jsr	Decode68k(pc)			; AF::	; decode instruction
+		lea	d68k_String,a0			; AF::	; load string data to a0
+		jsr	Console_WriteLine(pc)		; AF::	; write to output
 
+		add.w	#d68k_StackSize,sp		; AF::	; restore stack
+		movem.l	(sp)+,d68k_store		; AF::	; pop variables
+		rts
+; ---------------------------------------------------------------
 
+.noins
 		subq.w	#8,sp
 		move.l	a0,(sp)					; Argument #0 : String pointer
 		movea.l	d0,a2					; a2 = handler routine
