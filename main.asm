@@ -6,13 +6,12 @@
 		opt ae+						; set automatic even's to on
 		opt w-						; disable warnings
 		opt l.						; local lable symbol is . (dot)
+		opt v+						; output local labels in .sym file
 		opt ws+						; allow white spaces in operand parsing
 		opt ow+						; optimize word addressing
 		opt op+						; optimize pc relative addressing
 		opt os+						; optimize short branches
 		opt oz+						; optimize zero displacement
-
-
 ; --------------------------------------------------------------
 
 		include "code/equates.asm"			; include equates

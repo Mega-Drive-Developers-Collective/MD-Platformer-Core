@@ -54,6 +54,7 @@ d68kn_Long			rs.w 1				; long number type
 d68k_StoreSrc =			$FF0000				; stored source address
 d68k_String =			$FF0004				; target address for string
 d68k_ShowAddr =			0				; set to 1 to enable printing address to output buffer
+d68k_CheckInvalid =		1				; set to 1 to enable checking for invalid addresses
 ; --------------------------------------------------------------
 ; macros
 
@@ -213,6 +214,38 @@ Decode68k:
 		jsr	d68k_PrintAddr(pc)			; print it
 		move.b	#' ',(a1)+				; write a space
 	endif
+; --------------------------------------------------------------
+
+	if d68k_CheckInvalid
+		move.w	a0,d0					; load address to d0
+		btst	#0,d0					; check if misaligned address
+		bne.s	.invalid				; branch if yes
+
+		cmp.l	#$E00000,a0				; check if this is in RAM
+		bhs.s	.valid					; branch if yes
+
+		move.l	$1A0.w,d0				; load start of ROM address
+		cmp.l	d0,a0					; check if before start of ROM (should never happen?)
+		blo.s	.invalid				; branch if yes
+
+		move.l	$1A4.w,d0				; load end of ROM address
+		cmp.l	d0,a0					; check if after end of ROM
+		blo.s	.valid					; branch if not
+; --------------------------------------------------------------
+
+.invalid
+	if ~d68k_ShowAddr
+		move.b	#dcred,(a1)+				; RED
+		move.l	a0,(a3)+				; copy ROM address to stack
+		jsr	d68k_PrintAddr(pc)			; print it
+	endif
+
+		lea	d68k_Invalid(pc),a2			; load invalid script to a2
+		jmp	d68k_RunScript(pc)			; run this script
+
+.valid
+	endif
+; --------------------------------------------------------------
 
 		move.l	a0,d68k_StoreSrc			; copy source address to RAM
 
@@ -2013,8 +2046,15 @@ d68k_sVal:	dc.b dcwhite, ' #', 0
 d68k_sUSP:	dc.b dcgreen, 'usp', 0
 d68k_sS2:	dc.b dcgreen, 's', 0
 d68k_sCC:	dc.b dcgreen, 'cc', 0
+d68k_sInvalid:	dc.b dcwhite, ': <invalid>', 0
 	even
+; ==============================================================
 ; --------------------------------------------------------------
+; Invalid address handler
+; --------------------------------------------------------------
+
+d68k_Invalid:	d68k_Print	' ', d68k_sInvalid		; print INVALID
+		d68k_Finish
 
 d68k_PrintAddr2:
 		move.l	-(a3),d1				; load address from stack. DO NOT CHANGE!
