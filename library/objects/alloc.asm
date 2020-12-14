@@ -66,7 +66,7 @@ AllocRefactor:
 		moveq	#0,d0					; prepare bit to d0
 		moveq	#0,d2					; prepare first free bit to d2
 
-	if dynallocbits<$81
+	if dynallocbits < $81
 		moveq	#dynallocbits-1,d1			; prepare max num of bits to d1
 	else
 		move.w	#dynallocbits-1,d1			; preapre max num of bits to d1
@@ -167,7 +167,7 @@ AllocRefactor:
 		add.w	d0,a2					; add byte offset
 ; --------------------------------------------------------------
 
-	if dynallocbits<$81
+	if dynallocbits < $81
 		moveq	#dynallocbits-1,d1			; prepare max num of bits to d1
 	else
 		move.w	#dynallocbits-1,d1			; preapre max num of bits to d1

@@ -114,10 +114,10 @@ ErrorHandler:
 		move.l	2(a4),a0			; AF::	; copy instruction address to a0
 
 		lea	d68k_String,a1			; AF::	; load destination address to a1
-		move.b	#' ',(a1)+			; AF::	; write a single space
 		jsr	Decode68k(pc)			; AF::	; decode instruction
 
-		lea	d68k_String,a0			; AF::	; load string data to a0
+		lea	d68k_String-2,a0		; AF::	; load string data to a0
+		move.w	#(' '<<8)|' ',(a0)		; AF::	; write a space first
 		jsr	Console_WriteLine(pc)		; AF::	; write to output
 
 		add.w	#d68k_StackSize,sp		; AF::	; restore stack

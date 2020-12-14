@@ -257,7 +257,7 @@ d68k_RunScript:
 
 d68k_rExec:
 		move.w	(a2)+,a4				; load next address as the base address
-		add.w	a2,a4					; add script address to it
+		add.l	a2,a4					; add script address to it
 		jmp	(a4)					; execute the code
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -266,7 +266,7 @@ d68k_rExec:
 
 d68k_rPrint:
 		move.w	(a2)+,a4				; load next address as the base address
-		add.w	a2,a4					; add script address to it
+		add.l	a2,a4					; add script address to it
 
 d68k_rPrint3:
 		pea	d68k_RunScript(pc)			; run the script later
@@ -451,7 +451,7 @@ d68k_PrintAddrReg2:
 
 d68k_PrintAddrReg3:
 		move.b	#dcgreen,(a1)+				; GREEN
-		move.b	#'d',(a1)+				; print a
+		move.b	#'a',(a1)+				; print a
 		and.w	#7,d2					; keep in range
 		move.b	d68k_DigitTbl(pc,d2.w),(a1)+		; load number into buffer
 		rts

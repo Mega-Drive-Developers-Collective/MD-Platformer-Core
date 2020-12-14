@@ -14,10 +14,10 @@ dynallocdelta =		$100/$40				; amount of frames until VRAM must be refactored
 dynallocsize =		2					; number of bits of tiles to allocate for every bit of alloc table
 dynallocstart =		$B000					; start VRAM address for dynamic allocator
 dynallocend =		$E000					; end VRAM address for dynamic allocator
-dynalloctiles =		(dynallocend-dynallocstart)/32		; number of tiles for dynamic allocator
-dynallocbits =		dynalloctiles/(1<<dynallocsize)		; number of bits for dynamic allocator
+dynalloctiles =		(dynallocend - dynallocstart) / 32	; number of tiles for dynamic allocator
+dynallocbits =		dynalloctiles / (1 << dynallocsize)	; number of bits for dynamic allocator
 
-	if dynallocbits>$100					; check if there are too many bits for allocator to work
+	if dynallocbits > $100					; check if there are too many bits for allocator to work
 		inform 3,"Too many tiles reserved for dynamic allocator!"; display error message
 	endif
 ; ==============================================================
@@ -129,30 +129,30 @@ dsize			rs.w 0					; size of dynamic art object
 ; RAM equate table
 ; --------------------------------------------------------------
 
-	rsset $FFFF0000
-			rs.b $7F00				; idk what it would be used for
-Hint			rs.w 10					; horizontal interrupt code
-			rs.w $80				; stack contents
-Stack			rs.w 0					; the bottom of stack data
-Vint			rs.w 3					; vertical interrupt handler code
+RAM		SECTION org($FFFF0000), size($10000), bss	; create RAM section from FF0000 to FFFFFF
+			ds.b $7F00				; idk what it would be used for
+Hint			ds.w 10					; horizontal interrupt code
+			ds.w $80				; stack contents
+Stack			ds.w 0					; the bottom of stack data
+Vint			ds.w 3					; vertical interrupt handler code
 
-VscrollTable		rs.l 40/2				; vscroll data table
-HscrollTable		rs.l 224				; hscroll data table
+VscrollTable		ds.l 40/2				; vscroll data table
+HscrollTable		ds.l 224				; hscroll data table
 
-RespawnList		rs.w levelmaxobj/2			; max number of objects per level
-ObjList			rs.b objcount*size			; the RAM for every object
-TailPtr			rs.l 1					; pointer to tail object code
-TailPrev		rs.w 1					; pointer to the last object in linked list
-TailNext		rs.w 1					; pointer to the first object in linked list
-FreeHead		rs.w 1					; pointer to the first object that is not loaded
-DisplayList		rs.b dislayercount*ddsize		; the RAM for every display layer data
-PlatformList		rs.b platformcount*psize		; the RAM for every platform object data
-TouchList		rs.b touchcount*tsize			; the RAM for every touch object data
-DartList		rs.b dyncount*dsize			; the RAM for every touch object data
-DynAllocTable		rs.b dynallocbits/8+1			; the RAM for all the bits needed for dynamic allocator
-DynAllocTimer		rs.b 1					; timer for refactoring dynamic allocations
+RespawnList		ds.w levelmaxobj/2			; max number of objects per level
+ObjList			ds.b objcount * size			; the RAM for every object
+TailPtr			ds.l 1					; pointer to tail object code
+TailPrev		ds.w 1					; pointer to the last object in linked list
+TailNext		ds.w 1					; pointer to the first object in linked list
+FreeHead		ds.w 1					; pointer to the first object that is not loaded
+DisplayList		ds.b dislayercount * ddsize		; the RAM for every display layer data
+PlatformList		ds.b platformcount * psize		; the RAM for every platform object data
+TouchList		ds.b touchcount * tsize			; the RAM for every touch object data
+DartList		ds.b dyncount * dsize			; the RAM for every touch object data
+DynAllocTable		ds.b dynallocbits / 8 + 1		; the RAM for all the bits needed for dynamic allocator
+DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 
-Gamemode		rs.b 1					; the current game mode
+Gamemode		ds.b 1					; the current game mode
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Exception macro
