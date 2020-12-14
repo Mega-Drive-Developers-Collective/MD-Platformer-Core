@@ -18,8 +18,8 @@
 
 dcwhite =			_pal0				; white that can be included in a string
 dcgreen =			_pal1				; green that can be included in a string
-dcblue =			_pal3				; blue that can be included in a string
-dcred =				_pal2				; red that can be included in a string
+dcblue =			_pal2				; blue that can be included in a string
+dcred =				_pal3				; red that can be included in a string
 
 		rsset 0
 d68ke_Exec			rs.w 1				; execute routine
@@ -52,7 +52,8 @@ d68kn_Long			rs.w 1				; long number type
 ; constants
 
 d68k_StoreSrc =			$FF0000				; stored source address
-d68k_String =			$FF0004				; target address for string
+d68k_Stack =			$FF0004				; stack address
+d68k_String =			$FF0020				; target address for string
 d68k_ShowAddr =			0				; set to 1 to enable printing address to output buffer
 d68k_CheckInvalid =		1				; set to 1 to enable checking for invalid addresses
 ; --------------------------------------------------------------
@@ -191,8 +192,6 @@ d68k_Cmp	macro offset, check, addr
 ;
 ; input:
 ;   a0 = source instruction address
-;   a3 = stack address
-;   a1 = next buffer address
 ;
 ; output:
 ;   a0 = next instruction address
@@ -208,6 +207,11 @@ d68k_HighNibble:
 ; --------------------------------------------------------------
 
 Decode68k:
+		lea	d68k_Stack,a3				; load stack address to a3
+		lea	d68k_String,a1				; load destination address to a1
+		move.b	#_setpat,(a1)+				; PATTERN
+		move.b	#(VRAM_Font2/$20)>>8,(a1)+		; $01xx
+
 	if d68k_ShowAddr
 		move.b	#dcred,(a1)+				; RED
 		move.l	a0,(a3)+				; copy ROM address to stack
@@ -714,7 +718,8 @@ d68k_rModePind:
 		move.l	a4,d1					; copy result to d1
 		jsr	d68k_ResolveAddr(pc)			; print it
 
-		jsr	d68k_PrintPC(pc)			; print WHITE + (pc)
+		jsr	d68k_PrintPC(pc)			; print WHITE + (pc
+		move.b	#')',(a1)+				; print )
 		bra.s	d68k_JumpScript3
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -764,15 +769,16 @@ d68k_JumpScript3:
 		jmp	d68k_RunScript(pc)			; run the script now
 ; ==============================================================
 ; --------------------------------------------------------------
-; Routine to print (pc) to buffer
+; Routine to print (pc to buffer
 ; --------------------------------------------------------------
 
 d68k_PrintPC:
 		move.b	#dcwhite,(a1)+				; WHITE
-		move.b	#'(',(a1)+				; (pc)
-		move.b	#'p',(a1)+				;
+		move.b	#'(',(a1)+				; (
+		move.b	#dcgreen,(a1)+				; GREEN
+		move.b	#'p',(a1)+				; pc
 		move.b	#'c',(a1)+				;
-		move.b	#')',(a1)+				;
+		move.b	#dcwhite,(a1)+				; WHITE
 		rts
 ; --------------------------------------------------------------
 
@@ -817,8 +823,7 @@ d68k_PrintSmallSize2:
 d68k_rModeAddrW:
 		move.w	(a0)+,d1				; load address into d1
 		ext.l	d1					; extend to longword
-		move.l	d1,(a3)+				; save into stack
-		jsr	d68k_PrintLong(pc)			; print it
+		jsr	d68k_ResolveAddr(pc)			; print resulting address
 
 		move.b	#dcblue,(a1)+				; BLUE
 		move.b	d68k_SizeXN(pc),(a1)+			; write .w into buffer
@@ -1963,7 +1968,6 @@ d68k_i4E4X:	d68k_ReadSrc	$08, $30, $40			; read the instruction from source
 ; --------------------------------------------------------------
 
 .i4E7X
-;	bra.s	*
 		moveq	#7,d3					; load mask into d3
 		and.w	d0,d3					; AND instruction with d3
 		move.b	d68k_MiscInsTbl(pc,d3.w),d3		; load instruction offset to d3
@@ -1984,6 +1988,8 @@ d68k_i4E4X:	d68k_ReadSrc	$08, $30, $40			; read the instruction from source
 ; --------------------------------------------------------------
 
 d68k_rFinish:
+		move.b	#_setpat,(a1)+				; PATTERN
+		move.b	#(VRAM_Font/$20)>>8,(a1)+		; $00xx
 		clr.b	(a1)+					; set end token
 		rts
 ; --------------------------------------------------------------
