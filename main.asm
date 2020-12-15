@@ -54,7 +54,7 @@ hPAD_Data2:	dc.l $A10005
 		dc.b 'J               '
 		dc.l 0
 EndOfROM:	dc.l -1						; filled automatically by fixheader
-		dc.l $FF0000, $FFFFFF
+hStartOfRAM:	dc.l $FF0000, $FFFFFF
 		dc.l $20202020, $20202020, $20202020
 Checksum:	dc.l 0						; checksum final result
 CheckInit:	dc.l 0						; checksum init value

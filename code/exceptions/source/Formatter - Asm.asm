@@ -34,11 +34,11 @@ FormatAsm_Handlers:
 
 FormatAsm:
 		movem.l	d68k_Store,d68k_StoreRegs		; push variables into temporary storage
-		move.l	d1,a0					; copy instruction address to a0
-		lea	d68k_String,a1				; load destination address to a1
+		move.l	d1,a1					; copy instruction address to a1
+		lea	d68k_String,a0				; load destination address to a0
 		jsr	Decode68k(pc)				; decode instruction
 
-		move.l	a1,d4					; copy end pointer to d4
+		move.l	a0,d4					; copy end pointer to d4
 		movem.l	d68k_StoreRegs,d68k_Store		; pop variables from temporary storage
 ; ---------------------------------------------------------------
 
