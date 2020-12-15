@@ -34,8 +34,14 @@ Header		SECTION org(0), word				; create header section
 		dc.l Trap4,  Trap5,  Trap6,  Trap7
 		dc.l Trap8,  Trap9,  TrapA,  TrapB
 		dc.l TrapC,  TrapD,  TrapE,  TrapF
-		dc.l exMisc, exMisc, exMisc, exMisc
-		dc.l exMisc, exMisc, exMisc, exMisc
+
+hVDP_Data:	dc.l $C00000
+hVDP_Control:	dc.l $C00004
+hZ80_Bus:	dc.l $A11100
+hZ80_Reset:	dc.l $A11200
+hPAD_Data1:	dc.l $A10003
+hPAD_Data2:	dc.l $A10005
+		dc.l exMisc, exMisc
 		dc.l exMisc, exMisc, exMisc, exMisc
 		dc.l exMisc, exMisc, exMisc, exMisc
 

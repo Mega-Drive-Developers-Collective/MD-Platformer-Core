@@ -3,8 +3,8 @@
 type _out.log
 if not exist _out.md pause & exit
 "tools/fixheadr.exe" s1built.md
-"code/exceptions/ConvSym.exe" _out.sym _out.md -input asm68k_sym -range 0 FFFFFF -a
-"code/exceptions/ConvSym.exe" _out.sym _out.debug.log -input asm68k_sym -range 0 FFFFFFFF -a -output log
+"code/exceptions/ConvSym.exe" _out.sym _out.md -input asm68k_sym -base FF000000 -range FF0000 FFFFFF -a
+rem "code/exceptions/ConvSym.exe" _out.sym _out.debug.log -input asm68k_sym -range 0 FFFFFFFF -a -output log
 del _out.log
 del _out.sym
 

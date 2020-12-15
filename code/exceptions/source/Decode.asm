@@ -2100,7 +2100,6 @@ d68k_ResolveAddr:
 
 		move.l	a1,a0					; a0 = string buffer
 		move.l	a1,-(sp)				; store buffer address temporarily
-		and.l	#$FFFFFF,d1
 		move.l	d1,-(sp)				; Argument #1 : Target address
 
 		lea	.defaultformat(pc),a1			; load formatter address to a1

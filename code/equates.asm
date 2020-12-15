@@ -130,7 +130,7 @@ dsize			rs.w 0					; size of dynamic art object
 ; --------------------------------------------------------------
 
 RAM		SECTION org($FFFF0000), size($10000), bss	; create RAM section from FF0000 to FFFFFF
-			ds.b $7F00				; idk what it would be used for
+StartOfRAM		ds.b $7F00				; idk what it would be used for
 Hint			ds.w 10					; horizontal interrupt code
 			ds.w $80				; stack contents
 Stack			ds.w 0					; the bottom of stack data
