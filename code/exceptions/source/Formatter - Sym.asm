@@ -50,7 +50,7 @@ FormatSym_UnknownSymbol:
 	  	btst	#2,d3					; is "draw <unknown> on error" bit set?
 		beq.s	FormatSym_ReturnNC			; if not, branch
 		lea	FormatSym_Str_Unknown(pc),a3
-		jmp	FormatString_CodeHandlers+$52(pc)	; jump to code D0 (string) handler, but skip instruction that sets A3
+		jmp	FormatString_CodeHandlers+$A8(pc)	; jump to code D0 (string) handler, but skip instruction that sets A3
 ; ---------------------------------------------------------------
 
 FormatSym_ReturnNC:

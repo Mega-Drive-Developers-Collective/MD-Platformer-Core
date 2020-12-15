@@ -260,4 +260,33 @@ SoftInit:
 ; --------------------------------------------------------------
 
 gmTest:
+	move.l	#gmTest,$FF0000
+	RaiseError	"TEST ERROR UWU", .prg, 0
+
+
+.prg
+	Console.WriteLine "Code!!! %<pal0>%<.l #gmTest|($10<<24) sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
+	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
 		bra.s	*

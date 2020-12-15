@@ -10,8 +10,6 @@
 ; Constants
 ; ---------------------------------------------------------------
 
-d68k_Store			reg d1-d6/a0-a4/a6		; stored registers
-
 VRAM_Font			equ (('!'-1)*$20)
 VRAM_Font2			equ (($100+'!'-1)*$20)
 VRAM_PlaneA 			equ $8000
@@ -108,15 +106,9 @@ ErrorHandler:
 		btst	#4,d6				; AF::	; check if instruction disassembly was requested
 		beq.s	.noins				; AF::	; if not, branch
 
-		movem.l	d68k_store,-(sp)		; AF::	; push variables
-		move.l	2(a4),a0			; AF::	; copy instruction address to a0
-		jsr	Decode68k(pc)			; AF::	; decode instruction
-
-		lea	d68k_String-2,a0		; AF::	; load string data to a0
-		move.w	#(' '<<8)|' ',(a0)		; AF::	; write a space first
-		jsr	Console_WriteLine(pc)		; AF::	; write to output
-
-		movem.l	(sp)+,d68k_store		; AF::	; pop variables
+		lea 	Str_Instruction(pc),a1			; a1 = formatted string
+		lea	2(a4),a2				; a2 = arguments buffer
+		jsr	Console_WriteLine_Formatted(pc)
 ; ---------------------------------------------------------------
 
 .noins
@@ -359,27 +351,20 @@ Error_DrawInterruptHandler:
 		cmp.b	#$E0,d1				; AF::	; does handler address point to RAM (block $E0 to $FF)?
 		blo.s	.ret				; AF::	; if not, branch
 
-		btst	#4,d6				; AF::	; check if instruction disassembly was requested
-		beq.s	.noins				; AF::	;	; if not, branch
-; ---------------------------------------------------------------
-
-		jsr	Console_Write(pc)		; AF::	; write interrupt line
-		movem.l	d68k_store,-(sp)		; AF::	; push variables
-		move.l	d0,a0				; AF::	; copy instruction address to a0
-
-		lea	d68k_String,a1			; AF::	; load destination address to a1
-		jsr	Decode68k(pc)			; AF::	; decode instruction
-		lea	d68k_String,a0			; AF::	; load string data to a0
-		jsr	Console_WriteLine(pc)		; AF::	; write to output
-
-		movem.l	(sp)+,d68k_store		; AF::	; pop variables
-		rts
-; ---------------------------------------------------------------
-
-.noins
 		subq.w	#8,sp
 		move.l	a0,(sp)					; Argument #0 : String pointer
 		movea.l	d0,a2					; a2 = handler routine
+
+		btst	#4,d6				; AF::	; check if instruction disassembly was requested
+		beq.s	.noins				; AF::	; if not, branch
+; ---------------------------------------------------------------
+
+		lea	Str_IntHandler_Asm(pc),a1	; AF::	; disassemble instruction
+		move.l	a2,4(sp)			; AF::	; Argument #1 : address
+		bra.s	.0				; AF::	; continue
+; ---------------------------------------------------------------
+
+.noins
 		lea	Str_IntHandler_Unknown(pc),a1
 
 		cmp.w	#$4EF9,(a2)+				; does routine include jmp (xxx).l opcode?
@@ -395,6 +380,9 @@ Error_DrawInterruptHandler:
 .ret
 		rts
 ; ---------------------------------------------------------------
+
+Str_IntHandler_Asm:
+	dc.b	_str, _asm|long, _newl, 0
 
 Str_IntHandler:
 	dc.b	_str, _pal0, _sym|long|split|forced, _pal2, _disp|weak, _newl, 0
@@ -569,6 +557,9 @@ Str_Address:
 Str_Location:
 	dc.b	_pal1, 'Location: ', _pal2, _hex|long, 0
 
+Str_Instruction:
+	dc.b	_pal0, '> ', _asm|long, 0
+
 Str_Module:
 	dc.b	_pal1, 'Module: ', _pal0, _sym|long|split|forced, _pal2, _disp|weak, 0
 
@@ -630,6 +621,7 @@ Art1bpp_Font_End:
 	include	'Formatter - Bin.asm'
 	include	'Formatter - Dec.asm'
 	include	'Formatter - Sym.asm'
+	include	'Formatter - Asm.asm'
 	include	'Format String.asm'
 	include	'Console.asm'
 	include	'1bpp - Decompress.asm'

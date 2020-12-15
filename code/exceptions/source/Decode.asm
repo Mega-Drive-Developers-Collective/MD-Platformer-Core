@@ -51,9 +51,12 @@ d68kn_Long			rs.w 1				; long number type
 ; --------------------------------------------------------------
 ; constants
 
-d68k_StoreSrc =			$FF0000				; stored source address
-d68k_Stack =			$FF0004				; stack address
-d68k_String =			$FF0020				; target address for string
+d68k_StoreIns =			$FF0000				; stored next instruction address
+d68k_StoreDst =			$FF0004				; stored source address
+d68k_StoreSrc =			$FF0008				; stored source address
+d68k_Stack =			$FF000C				; stack address
+d68k_StoreRegs =		$FF0028
+d68k_String =			$FF0028+d68k_StoreSz		; target address for string
 d68k_ShowAddr =			0				; set to 1 to enable printing address to output buffer
 d68k_CheckInvalid =		1				; set to 1 to enable checking for invalid addresses
 ; --------------------------------------------------------------
@@ -192,6 +195,7 @@ d68k_Cmp	macro offset, check, addr
 ;
 ; input:
 ;   a0 = source instruction address
+;   a1 = destination buffer address
 ;
 ; output:
 ;   a0 = next instruction address
@@ -206,9 +210,9 @@ d68k_HighNibble:
 	d68k_Ref d68k_iCxxx, d68k_iAdd,  d68k_iExxx, d68k_iData
 ; --------------------------------------------------------------
 
-Decode68k:
+Decode68k:	__global
+		move.l	a1,d68k_StoreDst			; store the buffer address (data needs this)
 		lea	d68k_Stack,a3				; load stack address to a3
-		lea	d68k_String,a1				; load destination address to a1
 		move.b	#_setpat,(a1)+				; PATTERN
 		move.b	#(VRAM_Font2/$20)>>8,(a1)+		; $01xx
 
@@ -220,20 +224,25 @@ Decode68k:
 	endif
 ; --------------------------------------------------------------
 
-	if d68k_CheckInvalid
-		move.w	a0,d0					; load address to d0
-		btst	#0,d0					; check if misaligned address
-		bne.s	.invalid				; branch if yes
+		move.w	#$F000,d1				; prepare high nibble mask to d1
 
-		cmp.l	#$E00000,a0				; check if this is in RAM
+	if d68k_CheckInvalid
+		move.l	#$FFFFFF,d2				; prepare high nibble mask to d2
+		move.l	a0,d3					; load address to d3
+
+		btst	d1,d3					; check if misaligned address
+		bne.s	.invalid				; branch if yes
+		cmp.l	#$E00000,d3				; check if this is in RAM
 		bhs.s	.valid					; branch if yes
 
-		move.l	$1A0.w,d0				; load start of ROM address
-		cmp.l	d0,a0					; check if before start of ROM (should never happen?)
+		move.l	d2,d0					; load nibble mask to d0
+		and.l	$1A0.w,d0				; AND start of ROM address
+		cmp.l	d0,d3					; check if before start of ROM (should never happen?)
 		blo.s	.invalid				; branch if yes
 
-		move.l	$1A4.w,d0				; load end of ROM address
-		cmp.l	d0,a0					; check if after end of ROM
+		move.l	d2,d0					; load nibble mask to d0
+		and.l	$1A4.w,d0				; AND end of ROM address
+		cmp.l	d0,d3					; check if after end of ROM
 		blo.s	.valid					; branch if not
 ; --------------------------------------------------------------
 
@@ -254,8 +263,7 @@ Decode68k:
 		move.l	a0,d68k_StoreSrc			; copy source address to RAM
 
 		move.w	(a0)+,d0				; load the next byte from source
-		move.w	d0,d1					; copy to d1
-		and.w	#$F000,d1				; get the highest nibble
+		and.w	d0,d1					; get the highest nibble
 		rol.w	#5,d1					; rotate 6 bits, so each nibble gets a long word
 		lea	d68k_HighNibble(pc,d1.w),a2		; load script data to a2
 ; ==============================================================
@@ -868,7 +876,7 @@ d68k_rModeImm:
 d68k_iData:	d68k_Exec	d68k_Data			; execute as assembly
 
 d68k_Data:
-		lea	d68k_String,a1				; load destination address to a1
+		move.l	d68k_StoreDst,a1			; load destination address to a1
 		move.l	d68k_StoreSrc,a0			; restore original source address
 
 		lea	.script2(pc),a2				; load secondary script to a2
@@ -914,7 +922,8 @@ d68k_iMove:	d68k_Print	0, d68k_sMove			; print MOVE
 		d68k_Exec	d68k_MoveSz			; load size from assembly
 		d68k_Push	$1FF, $FFF			; push check values into stack
 		d68k_Mode	' '				; print source addressing mode
-		d68k_Mode2	','				; print destination addressing mode
+		d68k_Print	0, d68k_sComma			; print ,
+		d68k_Mode2	0				; print destination addressing mode
 		d68k_Finish
 
 .printa		d68k_Print	0, d68k_sA			; print A
@@ -1037,7 +1046,7 @@ d68k_iExg:	d68k_Print	' ', d68k_sExg			; print EXG
 
 .dn1		d68k_DataReg	9				; print dreg
 
-.common1	d68k_Char	','				; print ,
+.common1	d68k_Print	0, d68k_sComma			; print ,
 		d68k_Cmp	0, $40, d68k_CommonIns9		; check if DN <-> DN, and if so, branch
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -1114,7 +1123,7 @@ d68k_CommonIns1:
 
 		d68k_Swap	-2				; swap the first entry out (use second entry for mode check)
 		d68k_DataReg	9				; print dreg
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 
 .skip	; stack: INS, EA, EA
 		d68k_Mode	0				; print addressing mode
@@ -1126,7 +1135,7 @@ d68k_CommonIns1:
 ; --------------------------------------------------------------
 
 d68k_WriteReg1:
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_DataReg	9				; print dreg
 
 d68k_Finish1:
@@ -1160,7 +1169,7 @@ d68k_iCmpa:	d68k_Print	'a', d68k_sCmp			; print CMPA
 ; --------------------------------------------------------------
 
 d68k_CommonIns6:
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_AddrReg	9				; print areg
 		d68k_Finish
 ; ==============================================================
@@ -1187,7 +1196,7 @@ d68k_iCmpm:	d68k_Print	'm', d68k_sCmp			; print CMPM
 
 		d68k_Push	0				; push shift count to stack
 		d68k_Exec	d68k_ModeApind2			; write source register
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_Push	9				; push shift count to stack
 		d68k_Exec	d68k_ModeApind2			; write destination register
 		d68k_Finish
@@ -1227,7 +1236,8 @@ d68k_CommonIns5:
 ; --------------------------------------------------------------
 
 d68k_CommonIns8:
-		d68k_Mode	','				; print source addressing mode
+		d68k_Print	0, d68k_sComma			; print ,
+		d68k_Mode	0				; print source addressing mode
 		d68k_Finish
 ; --------------------------------------------------------------
 
@@ -1263,7 +1273,7 @@ d68k_PrintBXXX:
 		move.b	(a4)+,(a1)+				; copy to buffer
 		dbf	d1,.load				; print all characters
 
-		move.b	#'-',(a1)+				; print a space
+		move.b	#' ',(a1)+				; print a space
 		jmp	d68k_RunScript(pc)			; run the script now
 
 .ins		dc.b 'btstbchgbclrbset'
@@ -1278,7 +1288,7 @@ d68k_iMovep:	d68k_Print	'p', d68k_sMove			; print MOVEP
 
 		d68k_Cmp	0, $00, .skip1			; check if this is EA -> DN, and brach if yes
 		d68k_DataReg	9				; print dreg
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 
 .skip1		d68k_Exec	d68k_ModeAoind2			; write d16(AN) part
 		d68k_Cmp	-2, $80, d68k_Finish1		; check if this is DN -> EA, and brach if yes
@@ -1298,7 +1308,7 @@ d68k_i00xx:	d68k_ReadSrc	$C0, $63F, $E00	 		; read the instruction from source
 		d68k_Char	' '				; print a space
 		d68k_Exec	d68k_rModeImm			; print data
 
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_Cmp	0, $03C, .srccr			; check if this to SR/CCR, and brach if yes
 		d68k_Cmp	0, $23C, .srccr			; check if this is SR/CCR, and brach if yes
 ; --------------------------------------------------------------
@@ -1388,7 +1398,7 @@ d68k_i5xxx:	d68k_ReadSrc	$38, $100, $C0 			; read the instruction from source
 		d68k_Char	' '				; print space
 		d68k_DataReg	0				; print dreg
 
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_Read	$FFFF	 			; read the offset from source
 		d68k_Push	-2				; push address offset to stack
 		d68k_Jump	d68k_iDoAddr			; run common instruction code
@@ -1509,7 +1519,7 @@ d68k_iExxx:	d68k_ReadSrc	$20, $C0			; read the instruction from source
 .imm	; shift #
 		d68k_Exec	d68k_PrintTinyValue		; print the value
 
-.common		d68k_Char	','				; print ,
+.common		d68k_Print	0, d68k_sComma			; print ,
 		d68k_Jump	d68k_CommonIns9			; common instruction type 9
 
 .ea	; shift EA
@@ -1644,7 +1654,7 @@ d68k_iMovetSRCCR:
 
 .sz		d68k_Push	$FFD				; push check value into stack
 		d68k_Mode	0				; print addressing mode
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 ; --------------------------------------------------------------
 
 		d68k_Cmp	-2, $200, .sr			; check for SR, and branch if so
@@ -1802,7 +1812,7 @@ d68k_iMovem:	d68k_ReadSrc	$400, $380			; read the instruction from source
 		d68k_Cmp	0, $000, .skip1			; check if ARG -> EA, and if so, branch
 		d68k_Push	$7EC				; push check value into stack
 		d68k_Mode	0				; print source addressing mode
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 
 .skip1		d68k_Exec	.regs				; print registers
 		d68k_Cmp	-2, $400, d68k_Finish1		; check if EA -> ARG, and if so, branch
@@ -1839,6 +1849,7 @@ d68k_iMovem:	d68k_ReadSrc	$400, $380			; read the instruction from source
 ; --------------------------------------------------------------
 
 .normal
+		move.w	d7,-(sp)				; push d7 to stack
 		moveq	#0,d6					; set current bit to 0
 		moveq	#-1,d2					; set starting bit to null
 		moveq	#0,d7					; no registers are written
@@ -1857,6 +1868,7 @@ d68k_iMovem:	d68k_ReadSrc	$400, $380			; read the instruction from source
 		ble.s	.loop					; if not, go to loop
 
 .cont
+		move.w	(sp)+,d7				; pop d7 from stack
 		jmp	d68k_RunScript(pc)			; run the script now
 ; --------------------------------------------------------------
 
@@ -1930,7 +1942,7 @@ d68k_iLink:	d68k_Pop	-2				; pop temporary value
 
 		d68k_Print	' ', d68k_sLink			; print link
 		d68k_AddrReg	0				; print areg
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_Char	'#'				; print #
 		d68k_Jump	d68k_CommonIns7
 ; --------------------------------------------------------------
@@ -1945,11 +1957,11 @@ d68k_iLink:	d68k_Pop	-2				; pop temporary value
 d68k_iMvUSP:	d68k_Print	' ', d68k_sMove			; print MOVE
 		d68k_Cmp	0, $08, .skip1			; check if USP -> AN, and if so, branch
 		d68k_AddrReg	0				; print areg
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 
 .skip1		d68k_Print	0, d68k_sUSP			; print USP
 		d68k_Cmp	-2, $00, d68k_Finish1		; check if AN -> USP, and if so, branch
-		d68k_Char	','				; print ,
+		d68k_Print	0, d68k_sComma			; print ,
 		d68k_Jump	d68k_CommonIns10		; go to standard handler
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -1991,6 +2003,8 @@ d68k_rFinish:
 		move.b	#_setpat,(a1)+				; PATTERN
 		move.b	#(VRAM_Font/$20)>>8,(a1)+		; $00xx
 		clr.b	(a1)+					; set end token
+
+		move.l	a0,d68k_StoreIns			; store the instruction address
 		rts
 ; --------------------------------------------------------------
 
@@ -2053,6 +2067,7 @@ d68k_sUSP:	dc.b dcgreen, 'usp', 0
 d68k_sS2:	dc.b dcgreen, 's', 0
 d68k_sCC:	dc.b dcgreen, 'cc', 0
 d68k_sInvalid:	dc.b dcwhite, ': <invalid>', 0
+d68k_sComma:	dc.b dcwhite, ',', 0
 	even
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -2076,35 +2091,51 @@ d68k_PrintAddr2:
 ; --------------------------------------------------------------
 
 d68k_ResolveAddr:
-.buffer_size = $10
-		move.l	usp,a5					; load USP into d7
-		move.l	a1,usp					; store a1 in usp for now
+		move.b	#_setpat,(a1)+				; PATTERN
+		move.b	#(VRAM_Font/$20)>>8,(a1)+		; $00xx
 
-		movem.l	a0/a2/a4/a5,-(sp)			; push variables
+		movem.l	d7/a0/a2/a4/a5,-(sp)			; push variables
 		lea	$C00000,a6				; load VDP data port to a6
 		lea	4(a6),a5				; load VDP control port to a5
 
-		move.l	a1,-(sp)				; Argument #0 : String pointer
+		move.l	a1,a0					; a0 = string buffer
+		move.l	a1,-(sp)				; store buffer address temporarily
+		and.l	#$FFFFFF,d1
 		move.l	d1,-(sp)				; Argument #1 : Target address
 
 		lea	.defaultformat(pc),a1			; load formatter address to a1
 		lea	(sp),a2					; load args to a2
 		lea	.FlushBuffer(pc),a4			; flushing function
 
-		lea	-.buffer_size(sp),sp			; allocate string buffer
-		lea	(sp),a0					; a0 = string buffer
-		moveq	#.buffer_size-2,d7			; d7 = number of characters before flush -1
+		moveq	#$7F,d7					; d7 = number of characters before flush -1
 		jsr	FormatString(pc)			; print formatted string
 
-		lea	.buffer_size+8(sp),sp			; free string buffer
-		movem.l	(sp)+,a0/a2/a4/a5			; pop variables
-		move.l	usp,a1					; get the stuff back from usp
-		move.l	a5,usp					; reload USP From d7
+		move.l	a0,a1					; fix buffer
+		move.l	(sp)+,d1				; pop target address
+
+		moveq	#2,d7					; prepare offset of 2 to d7
+		add.l	(sp)+,d7				; add the last address to d7
+		cmp.l	a1,d7					; check if any text was written
+		beq.s	.writenum				; branch if not
+
+		movem.l	(sp)+,d7/a0/a2/a4/a5			; pop variables
+		move.b	#_setpat,(a1)+				; PATTERN
+		move.b	#(VRAM_Font2/$20)>>8,(a1)+		; $01xx
 		rts
 ; --------------------------------------------------------------
 
-.defaultformat	dc.b dcwhite, _sym|long|split|forced
-		dc.b dcred, _disp|weak, 0, 0
+.defaultformat	dc.b _pal0, _sym|long|split
+		dc.b _pal2, _disp|weak, 0, 0
+; --------------------------------------------------------------
+
+.writenum
+		movem.l	(sp)+,d7/a0/a2/a4/a5			; pop variables
+		subq.w	#2,a1					; undo the color commands
+		move.b	#_setpat,(a1)+				; PATTERN
+		move.b	#(VRAM_Font2/$20)>>8,(a1)+		; $01xx
+
+		move.l	d1,(a3)+				; store number in stack
+		jmp	d68k_PrintLong(pc)			; print as longword
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Flush buffer callback raised by d68k_ResolveAddr
@@ -2123,23 +2154,5 @@ d68k_ResolveAddr:
 ; --------------------------------------------------------------
 
 .FlushBuffer
-		clr.b	(a0)+					; finalize buffer
-
-		neg.w	d7
-		add.w	#.buffer_size-1,d7
-		sub.w	d7,a0					; a0 = start of the buffer
-
-		movem.l	a0/a1,-(sp)
-		move.l	usp,a1					; load text buffer from usp
-
-.loop
-		tst.b	(a0)					; check for null character
-		beq.s	.null					; branch if null
-		move.b	(a0)+,(a1)+				; copy next character
-		bra.s	.loop
-
-.null
-		move.l	a1,usp					; store text buffer
-		movem.l	(sp)+,a0/a1
-		moveq	#.buffer_size-2,d7			; d7 = number of characters before flush -1
+		moveq	#$7F,d7					; d7 = number of characters before flush -1
 		rts						; WARNING! Must return Carry=0

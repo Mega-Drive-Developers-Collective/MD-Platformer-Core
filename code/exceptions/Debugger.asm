@@ -22,7 +22,8 @@ decm		equ		$90				; flag to display as decimal number
 bin		equ		$A0				; flag to display as binary number
 sym		equ		$B0				; flag to display as symbol (treat as offset, decode into symbol +displacement, if present)
 symdisp		equ		$C0				; flag to display as symbol's displacement alone (DO NOT USE, unless complex formatting is required, see notes below)
-str		equ		$D0				; flag to display as string (treat as offset, insert string from that offset)
+str		equ		$DF				; flag to display as string (treat as offset, insert string from that offset)
+asm		equ		$D0				; flag to display as code (treat as offset, decode from that offset)
 
 ; NOTES:
 ;	* By default, the "sym" flag displays both symbol and displacement (e.g.: "Map_Sonic+$2E")
@@ -35,6 +36,9 @@ str		equ		$D0				; flag to display as string (treat as offset, insert string fro
 ;	* When using "str" flag, the argument should point to string offset that will be inserted.
 ;		Arguments format flags CAN NOT be used in the string (as no arguments are meant to be here),
 ;		only console control flags (see below).
+;	* The "asm" flag will use "setpat" flag to switch text color, and will reset pattern to normal again.
+;		you must reapply any pattern you used before yourself.
+;	* The "asm" flag will overwrite $FF0000-$FF0080, so be careful when viewing RAM.
 
 
 ; Additional flags ...

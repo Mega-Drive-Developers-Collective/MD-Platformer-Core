@@ -25,7 +25,8 @@ _dec				equ $90
 _bin				equ $A0
 _sym				equ $B0
 _disp				equ $C0
-_str				equ $D0
+_str				equ $DF
+_asm				equ $D0
 
 byte				equ 0
 word				equ 1
@@ -54,7 +55,7 @@ FormatString:
 		beq.s	.quit					; if char $00 was fetched, quit
 
 .flag
-		; Process special character
+	; Process special character
 		move.b	-(a0),d3				; d3 = special character that was pushed out of the string
 		moveq	#$70,d2					; d2 = $00, $10, $20, $30, $40, $60, $70
 		and.b	d3,d2					; d2 = code offset based on character's code, aligned on $10-byte boundary
@@ -80,39 +81,45 @@ FormatString:
 ; --------------------------------------------------------------
 
 FormatString_CodeHandlers:
-		; codes 80..8F : Display hex number
+	; codes 80..8F : Display hex number
 		lea	FormatHex_Handlers(pc),a3		; $00
 		eor.b	d3,d2					; $04	; d2 = lower 4 bits of char code, encodes argument size (valid values are: 0, 1, 3, see below)
 		add.b	d2,d2					; $06	; multiply 4-bit code by 2 as instructions in the code handlers below are word-sized
 		jmp	.ArgumentFetchFlow(pc,d2.w)		; $08	; jump to an appropriate insturction (note that even invalid codes won't crash)
-		nop											; $0C
-		nop											; $0E
+		nop						; $0C
+		nop						; $0E
+; --------------------------------------------------------------
 
-		; codes 90..9F : Display decimal number
+	; codes 90..9F : Display decimal number
 		lea	FormatDec_Handlers(pc),a3		; $00
 		eor.b	d3,d2					; $04	; d2 = lower 4 bits of char code, encodes argument size (valid values are: 0, 1, 3, see below)
 		add.b	d2,d2					; $06	; multiply 4-bit code by 2 as instructions in the code handlers below are word-sized
 		jmp	.ArgumentFetchFlow(pc,d2.w)		; $08	; jump to an appropriate insturction (note that even invalid codes won't crash)
-		nop										; $0C
-		nop											; $0E
+		nop						; $0C
+		nop						; $0E
+; --------------------------------------------------------------
 
-		; codes A0..AF : Display binary number
+	; codes A0..AF : Display binary number
 		lea	FormatBin_Handlers(pc),a3		; $00
 		eor.b	d3,d2					; $04	; d2 = lower 4 bits of char code, encodes argument size (valid values are: 0, 1, 3, see below)
 		add.b	d2,d2					; $06	; multiply 4-bit code by 2 as instructions in the code handlers below are word-sized
 		jmp	.ArgumentFetchFlow(pc,d2.w)		; $08	; jump to an appropriate instruction (note that even invalid codes won't crash)
 
 .d0		subq.w	#1,a0					; $0C	; overwrite null-terminator (part of "String" section, see below)
-		rts											; $0E
+		rts						; $0E
+; --------------------------------------------------------------
 
-		; codes B0..BF : Display symbol
+	; codes B0..BF : Display symbol
 		lea	FormatSym_Handlers(pc),a3		; $00
+
+.HandleAsm
 		move.b	d3,d2					; $04
 		and.w	#3,d2					; $06	; d2 = 0, 1, 3 ... (ignore handlers for signed values)
 		add.w	d2,d2					; $0A	; multiply 4-bit code by 2 as instructions in the code handlers below are word-sized
 		jmp	.ArgumentFetchFlow(pc,d2.w)		; $0C	; jump to an appropriate instruction (note that even invalid codes won't crash)
+; --------------------------------------------------------------
 
-		; codes C0..CF : Display symbol's displacement (to be used after codes B0..BF, if extra formatting is due)
+	; codes C0..CF : Display symbol's displacement (to be used after codes B0..BF, if extra formatting is due)
 		tst.w	d0					; $00	; check "GetSymbolByOffset" (see "FormatSym" code)
 		bmi.s	.c0					; $02	; if return code is -1 (error), assume d1 is OFFSET, display it directly
 		tst.l	d1					; $04	; assume d1 is DISPLACEMENT, test it
@@ -120,16 +127,18 @@ FormatString_CodeHandlers:
 		jmp	FormatSym_Displacement(pc)		; $08
 
 .c0		jmp	FormatSym_Offset(pc)			; $0C
+; --------------------------------------------------------------
 
-	; codes D0..DF : String
-		movea.l	(a2)+,a3				; $00	; a3 = string ptr
-.d1		move.b	(a3)+,(a0)+				; $02	; copy char
-		dbeq	d7,.d1					; $04	; loop until either buffer ends or zero-terminator is met
-		beq.s	.d0					; $08	; if met zero-terminator, branch
-		jsr	(a4)					; $0A	; flush buffer
-		bcc.s	.d1					; $0C	; if buffer is ok, branch
-.return2:
+	; codes D0..DF : String + decode assembly
+		btst	#3,d3					; $00	; check if this is string drawing function
+		bne.w	.DrawString				; $04	; branch if yes
+
+		lea	FormatAsm_Handlers(pc),a3		; $08
+		bra.s	.HandleAsm				; $0C
+
+.return2
 		rts						; $0E	; return C
+; --------------------------------------------------------------
 
 	; codes E0..EF : Drawing command (ignore)
 		addq.w	#1,a0					; $00	; restore control character back
@@ -195,3 +204,17 @@ FormatString_CodeHandlers:
 .AfterRestoreCharacter:
 		dbf	d7,.return2
 		jmp	(a4)
+; --------------------------------------------------------------
+
+.DrawString
+		movea.l	(a2)+,a3				; $00	; a3 = string ptr
+
+.d1
+		move.b	(a3)+,(a0)+				; $02	; copy char
+		dbeq	d7,.d1					; $04	; loop until either buffer ends or zero-terminator is met
+		beq.w	.d0					; $08	; if met zero-terminator, branch
+
+		jsr	(a4)					; $0C	; flush buffer
+		bcc.s	.d1					; $0E	; if buffer is ok, branch
+		rts						; $10
+; --------------------------------------------------------------
