@@ -14,10 +14,10 @@
 ; Screen appearence flags
 _eh_address_error	equ	$01		; use for address and bus errors only (tells error handler to display additional "Address" field)
 _eh_show_sr_usp		equ	$02		; displays SR and USP registers content on error screen
+_eh_disassemble		equ	$10		; disassembles the instruction where the error happened + vint and hint handlers
 
 ; Advanced execution flags
 ; WARNING! For experts only, DO NOT USES them unless you know what you're doing
-_eh_disassemble		equ	$10
 _eh_return		equ	$20
 _eh_enter_console	equ	$40
 _eh_align_offset	equ	$80
@@ -55,10 +55,10 @@ exTrace:
 	__ErrorMessage "TRACE", _eh_default
 
 exLineA:
-	__ErrorMessage "LINE 1010 EMULATOR", _eh_default
+	__ErrorMessage "LINE A EMULATOR", _eh_default
 
 exLineF:
-	__ErrorMessage "LINE 1111 EMULATOR", _eh_default
+	__ErrorMessage "LINE F EMULATOR", _eh_default
 
 exMisc:
 	__ErrorMessage "MISC EXCEPTION", _eh_default
@@ -102,7 +102,13 @@ TrapF:
 
 .checksum
 		move.l	(sp)+,a0				; load item back from stack
-	__ErrorMessage "CHECKSUM FAILED", _eh_default
+	RaiseError	"CHECKSUM FAILED", .pchecksum, 0
+
+.pchecksum
+	Console.WriteLine "%<pal0>Expected checksum:   %<pal2>%<.l Checksum.w hex>"
+	Console.WriteLine "%<pal0>Calculated checksum: %<pal2>%<.l d0 hex>"
+	Console.WriteLine "%<pal0>End Address: %<.l d1 sym|split>%<pal2>%<symdisp>"
+		bra.s	*
 ; ---------------------------------------------------------------
 
 .createplat

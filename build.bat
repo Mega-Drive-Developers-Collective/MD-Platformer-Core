@@ -7,4 +7,3 @@ if not exist _out.md pause & exit
 rem "code/exceptions/ConvSym.exe" _out.sym _out.debug.log -input asm68k_sym -range 0 FFFFFFFF -a -output log
 del _out.log
 del _out.sym
-

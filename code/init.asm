@@ -194,7 +194,7 @@ SoftInit:
 
 		move.l	usp,a0					; get the end ROM address to a0
 		cmp.l	sp,a0					; check if we have passed the address
-		blo.s	.chkloop				; if not, go back to loop
+		bhs.s	.chkloop				; if not, go back to loop
 ; --------------------------------------------------------------
 
 		move.l	EndOfROM.w,a0				; load ROM end address to a0
@@ -202,9 +202,10 @@ SoftInit:
 .chkend
 		add.w	(sp)+,d0				; add remaining words to d0
 		cmp.l	sp,a0					; check if we have passed the address
-		blo.s	.chkend					; if not, go back to loop
+		bhs.s	.chkend					; if not, go back to loop
 ; --------------------------------------------------------------
 
+		move.l	sp,d1					; copy sp to d1
 		cmp.l	Checksum.w,d0				; check if the checksum matches
 		bra.s	.checksumok				; branch if checksum matches
 		lea	Stack.w,sp				; reset stack pointer
@@ -212,7 +213,8 @@ SoftInit:
 ; --------------------------------------------------------------
 
 .checksumok
-		clr.l	d1					; clear d1-d7
+		clr.l	d0					; clear d0-d7
+		clr.l	d1
 		clr.l	d2
 		clr.l	d3
 		clr.l	d4
@@ -232,8 +234,12 @@ SoftInit:
 		lea	0.w,sp					; load end of RAM to sp
 
 .clearloop
-		movem.l	d1-a6,-(sp)				; clear 52 ($34) bytes of RAM
-		move.l	sp,d0					; check if we have cleared entire RAM
+		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-d7,-(sp)				; clear 32 ($20) bytes of RAM
+
 		cmp.l	#$FFFF0000,sp				; check if past end of RAM
 		bhi.s	.clearloop				; if not, go back to loop
 ; --------------------------------------------------------------
@@ -248,11 +254,14 @@ SoftInit:
 ; --------------------------------------------------------------
 
 .mode
+		move.l	hVDP_Control.w,a6			; load VDP control port to a6
 		lea	Stack.w,sp				; reset stack pointer
+
 		moveq	#0,d0
 		move.b	Gamemode.w,d0				; load game mode to d0
 		move.l	.table(pc,d0.w),a0			; load game mode address to a0
-		jmp	(a0)					; jump to the routine
+		jsr	(a0)					; jump to the routine
+		bra.s	.mode					; run the next mode
 ; --------------------------------------------------------------
 
 .table
@@ -260,12 +269,11 @@ SoftInit:
 ; --------------------------------------------------------------
 
 gmTest:
-		move.l	#gmTest,$FF0000
+		move.l	#SoftInit,$FF0000
 	RaiseError	"TEST ERROR UWU", .prg, 0
 
-
 .prg
-	Console.WriteLine "Code!!! %<pal0>%<.l #gmTest sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "Code at %<pal2>%<.l $FF0000 hex>"
 	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
 	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
 	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"

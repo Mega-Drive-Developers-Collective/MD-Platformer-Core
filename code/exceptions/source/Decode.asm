@@ -2079,19 +2079,19 @@ d68k_sComma:	dc.b dcwhite, ',', 0
 
 d68k_Invalid:	d68k_Print	' ', d68k_sInvalid		; print INVALID
 		d68k_Finish
-
-d68k_PrintAddr2:
-		move.l	-(a3),d1				; load address from stack. DO NOT CHANGE!
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Handler for writing your own addresses into the buffer.
-; This could be used to handle reading from a listing file based on
-; the provided address
+; This could be used to handle reading from a listing file
+; based on the provided address
 ;
 ; input:
 ;   d1 = address to write
 ;   a0 = text buffer address
 ; --------------------------------------------------------------
+
+d68k_PrintAddr2:
+		move.l	-(a3),d1				; load address from stack. DO NOT CHANGE!
 
 d68k_ResolveAddr:
 		move.b	#_setpat,(a0)+				; PATTERN
