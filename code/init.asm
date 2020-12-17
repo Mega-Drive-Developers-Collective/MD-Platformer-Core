@@ -204,7 +204,7 @@ SoftInit:
 
 		move.l	usp,a0					; get the end ROM address to a0
 		cmp.l	sp,a0					; check if we have passed the address
-		bhs.s	.chkloop				; if not, go back to loop
+;		bhs.s	.chkloop				; if not, go back to loop
 ; --------------------------------------------------------------
 
 		move.l	EndOfROM.w,a0				; load ROM end address to a0
@@ -212,14 +212,14 @@ SoftInit:
 .chkend
 		add.w	(sp)+,d0				; add remaining words to d0
 		cmp.l	sp,a0					; check if we have passed the address
-		bhs.s	.chkend					; if not, go back to loop
+;		bhs.s	.chkend					; if not, go back to loop
 ; --------------------------------------------------------------
 
 		move.l	sp,d1					; copy sp to d1
 		cmp.l	Checksum.w,d0				; check if the checksum matches
-		bra.s	.checksumok				; branch if checksum matches
-		lea	Stack.w,sp				; reset stack pointer
-	exception	exChecksum				; cheksum fuckup
+; TODO:		beq.s	.checksumok				; branch if checksum matches
+;		lea	Stack.w,sp				; reset stack pointer
+;	exception	exChecksum				; cheksum fuckup
 ; --------------------------------------------------------------
 
 .checksumok

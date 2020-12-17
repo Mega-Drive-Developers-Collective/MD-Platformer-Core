@@ -96,7 +96,7 @@ layer EQUR	\reg						; convert register
 
 oRmvDisplay		macro	obj, fre, chk
 	if \chk
-		tst.w	ddnext(\reg)				; check if displayed already
+		tst.w	ddnext(\obj)				; check if displayed already
 		beq.s	.yes\@					; if not, skip
 	endif
 

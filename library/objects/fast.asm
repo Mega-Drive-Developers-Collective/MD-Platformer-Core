@@ -10,32 +10,6 @@
 
 ; ==============================================================
 ; --------------------------------------------------------------
-; Routine to delete an object safely
-;
-; in:
-;   a0 = target object
-;
-; thrash:
-;   a1
-; --------------------------------------------------------------
-
-oDelete:
-	oRmvDisplay	a0, a1, 1		; remove object display
-	oRmvPlat				; remove platform object stuff
-	oRmvTouch				; remove touch object stuff
-		jsr	RmvDynArt.w		; remove dynamic art allocation
-
-oDeleteUnsafe:
-		move.w	prev(a0),a1		; copy previous pointer to a1
-		move.w	next(a0),next(a1)	; copy next pointer to previous object
-		move.w	next(a0),a1		; get next object to a1
-		move.w	prev(a0),prev(a1)	; copy previous pointer
-
-		move.w	Free_Head.w,prev(a0)	; get the head of the free list to previous pointer of this object
-		move.w	a0,Free_Head.w		; save as the new head of free list
-		rts
-; ==============================================================
-; --------------------------------------------------------------
 ; Routine to create and remove platform objects
 ;
 ; in:
@@ -207,4 +181,30 @@ RmvDynArt:
 		clr.w	dyn(a0) 				; also clear dynamic art pointer
 
 .rts
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to delete an object safely
+;
+; in:
+;   a0 = target object
+;
+; thrash:
+;   a1
+; --------------------------------------------------------------
+
+oDelete:
+	oRmvDisplay	a0, a1, 1		; remove object display
+	oRmvPlat				; remove platform object stuff
+	oRmvTouch				; remove touch object stuff
+		jsr	RmvDynArt.w		; remove dynamic art allocation
+
+oDeleteUnsafe:
+		move.w	prev(a0),a1		; copy previous pointer to a1
+		move.w	next(a0),next(a1)	; copy next pointer to previous object
+		move.w	next(a0),a1		; get next object to a1
+		move.w	prev(a0),prev(a1)	; copy previous pointer
+
+		move.w	FreeHead.w,prev(a0)	; get the head of the free list to previous pointer of this object
+		move.w	a0,FreeHead.w		; save as the new head of free list
 		rts
