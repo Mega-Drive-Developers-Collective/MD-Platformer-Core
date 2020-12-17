@@ -1,5 +1,15 @@
 ; ==============================================================
 ; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   Fast ROM object library code and macros (16-bit access)
+; --------------------------------------------------------------
+
+; ==============================================================
+; --------------------------------------------------------------
 ; Routine to delete an object safely
 ;
 ; in:
@@ -42,7 +52,7 @@ oRmvPlat		macro
 oCreatePlat		macro map, flags, width, height
 		jsr	CreatePlatform.w			; jump to routine for creating platform data
 		dc.b \width, \height				; add width and height data
-		dc.l (\flags << 24) | \map			; add mappings and flags data
+		dc.l (\flags<<24) | \map			; add mappings and flags data
     endm
 ; --------------------------------------------------------------
 
@@ -121,8 +131,8 @@ CreateTouch:
 
 oCreateDynArt		macro art, map, width
 		jsr	CreateDynArt.w				; jump to routine for creating dynamic art data
-		dc.l ($FF << 24) | \art				; add art and last frame data
-		dc.l (\width << 24) | \map			; add vram size and mappings data
+		dc.l ($FF<<24) | \art				; add art and last frame data
+		dc.l (\width<<24) | \map			; add vram size and mappings data
     endm
 ; --------------------------------------------------------------
 

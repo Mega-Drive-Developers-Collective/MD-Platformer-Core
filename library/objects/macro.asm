@@ -1,5 +1,15 @@
 ; ==============================================================
 ; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   Object helper macros
+; --------------------------------------------------------------
+
+; ==============================================================
+; --------------------------------------------------------------
 ; Macro to run object lists
 ; --------------------------------------------------------------
 
@@ -21,10 +31,16 @@ oNext			macro
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Macro to add object to display list
+;
+;   layer =	The destination display layer
+;   obj =	The address register for the source object
+;   fre =	A free-to-user address register
+;   chk =	If 1, the code also checks if the object is
+;		  displayed already
 ; --------------------------------------------------------------
 
 oAddDisplay		macro	layer, obj, fre, chk
-	if layer>=dislayercount
+	if layer >= dislayercount
 		inform 2,"Invalid display layer!"
 	endif
 
@@ -33,16 +49,23 @@ oAddDisplay		macro	layer, obj, fre, chk
 		bne.s	.no\@					; if yes, skip
 	endif
 
-		move.w	#DisplayList + (\layer * ddsize),ddnext(\obj); put end marker as the next pointer
-		move.w	DisplayList + ddprev + (\layer * ddsize).w,\fre; copy the pointer from the end marker to dst register
+		move.w	#DisplayList + (\layer*ddsize),ddnext(\obj); put end marker as the next pointer
+		move.w	DisplayList + ddprev + (\layer*ddsize).w,\fre; copy the pointer from the end marker to dst register
 		move.w	\fre,ddprev(\obj)			; copy that to prev pointer
 		move.w	\obj,ddnext(\fre)			;
-		move.w	\obj,DisplayList + ddprev + (\layer * ddsize).w; copy the pointer from the end marker to dst register
+		move.w	\obj,DisplayList + ddprev + (\layer*ddsize).w; copy the pointer from the end marker to dst register
 .no\@
 	endm
 ; ==============================================================
 ; --------------------------------------------------------------
-; Macro to add object to display list using a register
+; Macro to add object to display list using an address register
+;
+;   reg =	The address regsister containing target
+;		  display layer
+;   obj =	The address register for the source object
+;   fre =	A free-to-user address register
+;   chk =	If 1, the code also checks if the object is
+;		  displayed already
 ; --------------------------------------------------------------
 
 oAddDisplayReg		macro	reg, obj, fre, chk
@@ -64,6 +87,11 @@ layer EQUR	\reg						; convert register
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Macro to remove object from display list
+;
+;   obj =	The address register for the source object
+;   fre =	A free-to-user address register
+;   chk =	If 1, the code also checks if the object is
+;		  displayed already
 ; --------------------------------------------------------------
 
 oRmvDisplay		macro	obj, fre, chk

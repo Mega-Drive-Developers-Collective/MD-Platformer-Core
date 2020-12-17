@@ -1,5 +1,15 @@
 ; ==============================================================
 ; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   Software & hardware initialization and main software loop
+; --------------------------------------------------------------
+
+; ==============================================================
+; --------------------------------------------------------------
 ; Hardware startup routine
 ; --------------------------------------------------------------
 
@@ -269,32 +279,4 @@ SoftInit:
 ; --------------------------------------------------------------
 
 gmTest:
-		move.l	#SoftInit,$FF0000
-	RaiseError	"TEST ERROR UWU", .prg, 0
-
-.prg
-	Console.WriteLine "Code at %<pal2>%<.l $FF0000 hex>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
-	Console.WriteLine "%<pal0>%<.l $FF0000 sym|split>%<pal2>%<symdisp>%<pal0>: %<.l $FF0000 asm>"
 		bra.s	*
