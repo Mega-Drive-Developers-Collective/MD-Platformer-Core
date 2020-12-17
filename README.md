@@ -1,2 +1,2 @@
-# MDDC-Engine
-Engine for making efficient platformer games om the Mega Drive
+# MD Platformer Core
+Engine for making efficient platformer games on the Mega Drive
