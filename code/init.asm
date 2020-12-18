@@ -279,4 +279,6 @@ SoftInit:
 ; --------------------------------------------------------------
 
 gmTest:
+		move.b	#4,VintRoutine.w			; enable screen v-int routine
+	vsync							; wait for the next frame
 		bra.s	*

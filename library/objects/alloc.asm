@@ -129,7 +129,7 @@ AllocRefactor:
 
 		move.w	d2,d3					; copy the bit offset we are in
 		lsl.w	#dynallocsize,d3			; multiply by number of bits for tile count
-		add.w	#dynallocstart/32,d3			; add the initial tile offset to d3
+		add.w	#vDynamic/32,d3				; add the initial tile offset to d3
 		or.w	d3,d4					; then save the tile address
 		move.w	d4,tile(a0)				; save as tile settings
 

@@ -1,0 +1,28 @@
+; ==============================================================
+; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   VRAM mappings file
+; --------------------------------------------------------------
+
+VRAMMAP		SECTION org(0), size($10000), bss		; create VRAM section from 0000 to FFFF
+		align $2000					; alignment needed for planes
+vPlaneB			ds.w $800				; plane B mappings
+vWindow			ds.w $40				; window plane mappings
+
+vStatic			ds.b $C4*32				; static art data
+vStaticEnd		ds.w 0					; end of static art data
+vDynamic		ds.b dynalloctiles*32			; dynamically allocated art
+vDynamicEnd		ds.w 0					; end of dynamically allocated art
+
+		align $2000					; alignment needed for planes
+vPlaneA			ds.w $800				; plane A mappings
+vSprites		ds.l 80*2				; sprite mappings data
+vExtra1			ds.b $4C*32				; extra static tiles
+
+		align $400					; alignment needed for scroll data
+vHscroll		ds.l 240				; hscroll table
+vExtra2			ds.b $02*32				; extra static tiles

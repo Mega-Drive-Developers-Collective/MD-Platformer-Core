@@ -1,0 +1,31 @@
+; ==============================================================
+; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   Main assembler macros file
+; --------------------------------------------------------------
+
+; ==============================================================
+; --------------------------------------------------------------
+; Align to next divisible offset
+; --------------------------------------------------------------
+
+align			macro alignment
+		cnop 0,\alignment
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; V-int synchronization macro
+; --------------------------------------------------------------
+
+vsync			macro
+		move.w	VintCount.w,d0				; load v-int counter to d0
+
+.sync\@
+		stop	#$2300					; wait for the next interrupt
+		cmp.w	VintCount.w,d0				; check if v-int happened
+		beq.s	.sync\@					; branch if no
+	endm

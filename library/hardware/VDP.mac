@@ -1,0 +1,121 @@
+; ==============================================================
+; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   VDP macro set
+; --------------------------------------------------------------
+
+; ==============================================================
+; --------------------------------------------------------------
+; VDP command generator
+;
+;   ins =	instruction to use for this vdp write
+;   addr =	destination VRAM/CRAM/VSRAM address
+;   type =	destination type: VRAM, CRAM or VSRAM
+;   rwd =	operation type: READ, WRITE or DMA
+;
+; if no end & end2 >
+;   end =	not used (for example if you want to use with dc.l)
+;   end2 =	not used
+;
+; if no end2 >
+;   end =	the destination for command data (not required, for example for dc.l)
+;   end2 =	not used
+;
+; if end2 >
+;   end =	can be used to modify the generated value (such as shift)
+;   end2 =	the destination for command data
+; --------------------------------------------------------------
+
+vdp			macro ins,addr,type,rwd,end,end2
+	if narg=5
+		\ins #(((\type&\rwd)&3)<<30)|(((\addr)&$3FFF)<<16)|(((\type&\rwd)&$FC)<<2)|(((\addr)&$C000)>>14), \end
+
+	elseif narg=6
+		\ins #(((((\type&\rwd)&3)<<30)|(((\addr)&$3FFF)<<16)|(((\type&\rwd)&$FC)<<2)|(((\addr)&$C000)>>14))\end, \end2
+
+	else
+		\ins (((\type&\rwd)&3)<<30)|(((\addr)&$3FFF)<<16)|(((\type&\rwd)&$FC)<<2)|(((\addr)&$C000)>>14)
+	endif
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; VDP command argument types
+; --------------------------------------------------------------
+
+; values for the "type" argument
+VRAM =			$21					; VRAM OP
+CRAM =			$2B					; CRAM OP
+VSRAM =			$25					; VSRAM OP
+
+; values for the "rwd" argument
+READ =			$0C					; VDP READ
+WRITE =			$07					; VDP WRITE
+WDMA =			$27					; VDP DMA
+; ==============================================================
+; --------------------------------------------------------------
+; VDP command to DMA stuff from ROM/RAM to VDP
+;
+;   source =	the 68000 data to start DMA from
+;   dest =	destination address in VRAM
+;   length =	length of the DMA
+;   type =	destination type: VRAM, CRAM or VSRAM
+; --------------------------------------------------------------
+
+dma			macro source,dest,length,type
+		move.l	#$94009400|((((\length)>>1)&$FF00)<<8)|(((\length)>>1)&$FF),(a6)
+		move.l	#$96009500|((((\source)>>1)&$FF00)<<8)|(((\source)>>1)&$FF),(a6)
+		move.w	#$9700|(((((\source)>>1)&$FF0000)>>16)&$7F),(a6)
+	vdp	move.l,\dest,\type,WDMA,(a6)			; start a DMA
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; VDP command to fill VRAM with a specific word
+;
+;   fill =	the word to fill VRAM with
+;   dest =	destination address in VRAM
+;   length =	length of the DMA
+;   wait =	if 1, the code waits until DMA ends
+; --------------------------------------------------------------
+
+vdpfill		macro fill,dest,length,wait
+		move.l	#$8F019400|((((\length)-1)&$FF00)>>8),(a6)
+		move.l	#$97809300|(((\length)-1)&$FF),(a6)
+	vdp	move.l,\dest,VRAM,WDMA,(a6)			; start a fill
+		move.w	#\fill,-4(a6)				; fill with this
+
+	if \wait
+.wait\@
+		move	(a6),ccr				; check if DMA is taking place
+		bvs.s	.wait\@					; if not, branch
+		move.w	#$8F02,(a6)				; restore the autoincrement
+	endif
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; VDP command to copy memory
+;
+;   source =	the VRAM address to start DMA from
+;   dest =	destination address in VRAM
+;   length =	length of the DMA
+;   type =	destination type: VRAM, CRAM or VSRAM
+;   wait =	if 1, the code waits until DMA ends
+; --------------------------------------------------------------
+
+vdpcopy			macro source,dest,length,type,wait
+		move.l	#$94009400|((((\length)>>1)&$FF00)<<8)|(((\length)>>1)&$FF),(a6)
+		move.l	#$96009500|((((\source)>>1)&$FF00)<<8)|(((\source)>>1)&$FF),(a6)
+		move.w	#$97C0,(a6)
+	vdp	move.l,\dest,\type,WDMA,(a6)			; start a fill
+		move.w	#\fill,-4(a6)				; fill with this
+
+	if \wait
+.wait\@
+		move	(a6),ccr				; check if DMA is taking place
+		bvs.s	.wait\@					; if not, branch
+		move.w	#$8F02,(a6)				; restore the autoincrement
+	endif
+	endm

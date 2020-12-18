@@ -6,6 +6,8 @@
 ;      AURORA FIELDS 2020/12
 ;
 ;   Main include file & ROM header
+;
+; Note: When writing code, leave a6 free for VDP control port
 ; --------------------------------------------------------------
 
 ; ==============================================================
@@ -24,8 +26,11 @@
 		opt oz+						; optimize zero displacement
 ; --------------------------------------------------------------
 
-		include "code/equates.asm"			; include equates
-		include "library/objects/macro.asm"		; include object macros
+		include "code/main.mac"				; include main assembler macros
+		include "code/equates.mac"			; include equates
+		include "library/objects/main.mac"		; include object macros
+		include "library/hardware/VDP.mac"		; include VDP macros
+		include "code/VRAM.mac"				; include VRAM macros
 		include "code/exceptions/Debugger.asm"		; include exception handler macros
 ; ==============================================================
 ; --------------------------------------------------------------

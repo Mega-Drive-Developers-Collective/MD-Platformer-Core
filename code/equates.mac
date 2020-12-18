@@ -5,7 +5,7 @@
 ;   by Mega Drive Developers Collective
 ;      AURORA FIELDS 2020/12
 ;
-;   Main euqates and RAM mappings file
+;   Main equates and RAM mappings file
 ; --------------------------------------------------------------
 
 ; ==============================================================
@@ -22,9 +22,7 @@ dyncount =		$20					; number of dynamic art objects
 
 dynallocdelta =		$100/$40				; amount of frames until VRAM must be refactored
 dynallocsize =		2					; number of bits of tiles to allocate for every bit of alloc table
-dynallocstart =		$B000					; start VRAM address for dynamic allocator
-dynallocend =		$E000					; end VRAM address for dynamic allocator
-dynalloctiles =		(dynallocend - dynallocstart) / 32	; number of tiles for dynamic allocator
+dynalloctiles =		$180					; number of tiles for dynamic allocator
 dynallocbits =		dynalloctiles / (1 << dynallocsize)	; number of bits for dynamic allocator
 
 	if dynallocbits > $100					; check if there are too many bits for allocator to work
@@ -47,7 +45,7 @@ ddsize			rs.w 0					; size of display layer
 ; --------------------------------------------------------------
 
 	rsset 0
-subtype			rs.b 0					; object subtype variable
+arg			rs.b 0					; object argument variable
 ptr			rs.l 1					; pointer to object code
 prev			rs.w 1					; pointer to the previous object in linked list
 next			rs.w 1					; pointer to the next object in linked list
@@ -139,15 +137,16 @@ dsize			rs.w 0					; size of dynamic art object
 ; RAM equate table
 ; --------------------------------------------------------------
 
-RAM		SECTION org($FFFF0000), size($10000), bss	; create RAM section from FF0000 to FFFFFF
+RAMMAP		SECTION org($FFFF0000), size($10000), bss	; create RAM section from FF0000 to FFFFFF
 StartOfRAM		ds.b $7F00				; idk what it would be used for
 Hint			ds.w 10					; horizontal interrupt code
 			ds.w $80				; stack contents
 Stack			ds.w 0					; the bottom of stack data
 Vint			ds.w 3					; vertical interrupt handler code
 
-VscrollTable		ds.l 40/2				; vscroll data table
+VscrollTable		ds.l 20					; vscroll data table
 HscrollTable		ds.l 224				; hscroll data table
+SpriteTable		ds.l 80*2				; sprite data table
 
 RespawnList		ds.w levelmaxobj/2			; max number of objects per level
 ObjList			ds.b objcount * size			; the RAM for every object
@@ -163,6 +162,8 @@ DynAllocTable		ds.b dynallocbits / 8 + 1		; the RAM for all the bits needed for 
 DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 
 Gamemode		ds.b 1					; the current game mode
+VintCount		ds.l 1					; number of vertical interrupts so far
+VintRoutine		ds.b 1					; vertical interrupt routine
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Exception macro
