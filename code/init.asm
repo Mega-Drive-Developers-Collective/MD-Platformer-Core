@@ -220,20 +220,20 @@ Init:
 ; --------------------------------------------------------------
 
 SoftInit:
-		clr.l	d0					; clear d0-d7
-		clr.l	d1
-		clr.l	d2
-		clr.l	d3
-		clr.l	d4
-		clr.l	d5
-		clr.l	d6
-		clr.l	d7
-		move.l	d1,a0					; clear a0-a5
-		move.l	d2,a1
-		move.l	d3,a2
-		move.l	d4,a3
-		move.l	d5,a4
-		move.l	d6,a5
+		moveq	#0,d0					; clear d0-d7
+		move.l	d0,d1
+		move.l	d1,d2
+		move.l	d2,d3
+		move.l	d3,d4
+		move.l	d4,d5
+		move.l	d5,d6
+		move.l	d6,d7
+		move.l	d7,a0					; clear a0-a5
+		move.l	a0,a1
+		move.l	a1,a2
+		move.l	a2,a3
+		move.l	a3,a4
+		move.l	a4,a5
 		move.l	a5,usp					; clear usp
 ; --------------------------------------------------------------
 
