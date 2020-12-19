@@ -28,8 +28,10 @@
 
 		include "code/main.mac"				; include main assembler macros
 		include "code/equates.mac"			; include equates
-		include "library/objects/main.mac"		; include object macros
-		include "library/hardware/VDP.mac"		; include VDP macros
+		include "code/objects/main.mac"			; include object macros
+		include "code/hardware/VDP.mac"			; include VDP macros
+		include "code/hardware/Z80.mac"			; include Z80 macros
+		include "code/hardware/misc.mac"		; include miscellaneous macros
 		include "code/VRAM.mac"				; include VRAM macros
 		include "code/exceptions/Debugger.asm"		; include exception handler macros
 ; ==============================================================
@@ -50,15 +52,18 @@ Header		SECTION org(0), word				; create header section
 		dc.l Trap8,  Trap9,  TrapA,  TrapB
 		dc.l TrapC,  TrapD,  TrapE,  TrapF
 
-hVDP_Data:	dc.l $C00000
-hVDP_Control:	dc.l $C00004
-hZ80_Bus:	dc.l $A11100
-hZ80_Reset:	dc.l $A11200
-hPAD_Data1:	dc.l $A10003
-hPAD_Data2:	dc.l $A10005
-		dc.l exMisc, exMisc
+hInitAregs:							; address registers for init routine
+hZ80_Bus:	dc.l Z80_Bus				; a1	; Z80 bus request
+hZ80_Reset:	dc.l Z80_Reset				; a2	; Z80 reset
+hZ80_RAM:	dc.l Z80_RAM				; a3	; Z80 RAM start
+hPAD_Control1:	dc.l PAD_Control1			; a4	; PAD 1 control
+hVDP_Data:	dc.l VDP_Data				; a5	; VDP data port
+hVDP_Control:	dc.l VDP_Control			; a6	; VDP control port
+
 		dc.l exMisc, exMisc, exMisc, exMisc
 		dc.l exMisc, exMisc, exMisc, exMisc
+		dc.l exMisc
+hPAD_Data1:	dc.l PAD_Data1					; PAD 1 data
 
 		dc.b 'SEGA MEGA DRIVE '
 		dc.b '(C)MDDC 2020.DEC'
@@ -81,15 +86,15 @@ CheckInit:	dc.l 0						; checksum init value
 ; --------------------------------------------------------------
 
 Fast		SECTION org($200), size($7E00), word		; create $200-$8000 word section
-		include "library/objects/fast.asm"		; include object fast routines
+		include "code/objects/fast.asm"			; include object fast routines
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Library functions
 ; --------------------------------------------------------------
 
 Library		SECTION						; create library section
-		include "library/objects/alloc.asm"		; include alloc routines
-		include "library/SRAM.asm"			; include SRAM routines
+		include "code/objects/alloc.asm"		; include alloc routines
+		include "code/SRAM.asm"				; include SRAM routines
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Game functions

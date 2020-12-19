@@ -1,0 +1,19 @@
+; ==============================================================
+; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   Z80 macros and equates
+; --------------------------------------------------------------
+
+Z80_Bus =		$A11100					; Z80 bus request
+Z80_Reset =		$A11200					; Z80 reset
+Z80_RAM =		$A00000					; start of Z80 RAM
+Z80_EndRAM =		$A02000					; end of Z80 RAM
+
+YM_Reg1 =		$A04000					; YM2612 register port 1
+YM_Data1 =		$A04001					; YM2612 data port 1
+YM_Reg2 =		$A04002					; YM2612 register port 2
+YM_Data2 =		$A04003					; YM2612 data port 2

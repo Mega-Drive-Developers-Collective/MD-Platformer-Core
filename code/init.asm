@@ -10,134 +10,23 @@
 
 ; ==============================================================
 ; --------------------------------------------------------------
-; Hardware startup routine
+; Hardware initialization data
 ; --------------------------------------------------------------
 
-Init:
-		tst.l	($A10008).l				; test port A and B control
-		bne.s	.aok
-		tst.w	($A1000C).l				; test port C control
+InitData:
+		dc.w .zdataend-.zdatastart-1		; d0	; driver length
+		dc.w $100				; d1	; value for Z80 reset
+		dc.w $40				; d2	; value for enabling pads
+		dc.w .endregs-.regs-1			; d3	; VDP registers list
+		dc.w $8000				; d4	; VDP register increment
+		dc.w 16*4/2				; d5	; number of colors to clear
+		dc.w 20					; d6	; number of scroll positions to clear
+		dc.w VDP_PSG-VDP_Data			; d7	; offset for a5 later on
 
-.aok
-		bne.s	.finish
-		lea	SetupValues(pc),a5
-		movem.w	(a5)+,d5-d7
-		movem.l	(a5)+,a0-a4
-; --------------------------------------------------------------
-
-		move.b	-$10FF(a1),d0				; get hardware version
-		andi.b	#$F,d0
-		beq.s	.skipsecurity
-		move.l	$100.w,$2F00(a1)
-
-.skipsecurity
-		move.w	(a4),d0					; check	if VDP works
-		moveq	#0,d0
-		movea.l	d0,a6
-		move.l	a6,usp					; set usp to $0
-; --------------------------------------------------------------
-
-		moveq	#$18-1,d1
-
-.vdp
-		move.b	(a5)+,d5				; add $8000 to value
-		move.w	d5,(a4)					; move value to	VDP register
-		add.w	d7,d5					; next register
-		dbf	d1,.vdp
-
-		move.l	(a5)+,(a4)
-		move.w	d0,(a3)					; clear	the screen
-; --------------------------------------------------------------
-
-		move.w	d7,(a1)					; stop the Z80
-		move.w	d7,(a2)					; reset	the Z80
-
-.waitz80
-		btst	d0,(a1)					; has the Z80 stopped?
-		bne.s	.waitz80				; if not, branch
-		moveq	#$26-1,d2
-
-.z80
-		move.b	(a5)+,(a0)+
-		dbf	d2,.z80
-		move.w	d0,(a2)
-		move.w	d0,(a1)					; start	the Z80
-		move.w	d7,(a2)					; reset	the Z80
-; --------------------------------------------------------------
-
-.ram
-		move.l	d0,-(a6)
-		dbf	d6,.ram					; clear	the entire RAM
-; --------------------------------------------------------------
-
-		move.l	(a5)+,(a4)				; set VDP display mode and increment
-		move.l	(a5)+,(a4)				; set VDP to CRAM write
-		moveq	#$20-1,d3
-
-.cram
-		move.l	d0,(a3)
-		dbf	d3,.cram				; clear	the CRAM
-; --------------------------------------------------------------
-
-		move.l	(a5)+,(a4)
-		moveq	#$14-1,d4
-
-.registers
-		move.l	d0,(a3)
-		dbf	d4,.registers
-; --------------------------------------------------------------
-
-		moveq	#4-1,d5
-
-.psg
-		move.b	(a5)+,$11(a3)				; reset	the PSG
-		dbf	d5,.psg
-		move.w	d0,(a2)
-
-; --------------------------------------------------------------
-		movem.l	(a6),d0-a6				; clear	all registers
-		move	#$2700,sr				; set the sr
-
-.finish
-		bra.s	SoftInit
-; --------------------------------------------------------------
-
-SetupValues:	dc.w $8000					; VDP register start number
-		dc.w $3FFF					; size of RAM/4
-		dc.w $100					; VDP register diff
-
-		dc.l $A00000					; start	of Z80 RAM
-		dc.l $A11100					; Z80 bus request
-		dc.l $A11200					; Z80 reset
-		dc.l $C00000					; VDP data
-		dc.l $C00004					; VDP control
-
-		dc.b 4						; VDP $80 - 8-colour mode
-		dc.b $14					; VDP $81 - Megadrive mode, DMA enable
-		dc.b ($C000>>10)				; VDP $82 - foreground nametable address
-		dc.b ($F000>>10)				; VDP $83 - window nametable address
-		dc.b ($E000>>13)				; VDP $84 - background nametable address
-		dc.b ($D800>>9)					; VDP $85 - sprite table address
-		dc.b 0						; VDP $86 - unused
-		dc.b 0						; VDP $87 - background colour
-		dc.b 0						; VDP $88 - unused
-		dc.b 0						; VDP $89 - unused
-		dc.b 255					; VDP $8A - HBlank register
-		dc.b 0						; VDP $8B - full screen scroll
-		dc.b $81					; VDP $8C - 40 cell display
-		dc.b ($DC00>>10)				; VDP $8D - hscroll table address
-		dc.b 0						; VDP $8E - unused
-		dc.b 1						; VDP $8F - VDP increment
-		dc.b 1						; VDP $90 - 64 cell hscroll size
-		dc.b 0						; VDP $91 - window h position
-		dc.b 0						; VDP $92 - window v position
-		dc.w $FFFF					; VDP $93/94 - DMA length
-		dc.w 0						; VDP $95/96 - DMA source
-		dc.b $80					; VDP $97 - DMA fill VRAM
-		dc.l $40000080					; VRAM address 0
-
+	; z80 sound driver data
+.zdatastart
 		dc.b $AF					; xor	a
-		dc.b $01, $D9, $1F				; ld	bc,1fd9h
+		dc.b $01, $D9, $1F				; ld	bc,1FD9h
 		dc.b $11, $27, $00				; ld	de,0027h
 		dc.b $21, $26, $00				; ld	hl,0026h
 		dc.b $F9					; ld	sp,hl
@@ -159,22 +48,68 @@ SetupValues:	dc.w $8000					; VDP register start number
 		dc.b $F9					; ld	sp,hl
 		dc.b $F3					; di
 		dc.b $ED, $56					; im	1
-		dc.b $36, $E9					; ld	(hl),e9h
+		dc.b $36, $E9					; ld	(hl),E9h
 		dc.b $E9					; jp	(hl)
+	even
+.zdataend
 
-		dc.w $8104					; VDP display mode
-		dc.w $8F02					; VDP increment
-		dc.l $C0000000					; CRAM write mode
-		dc.l $40000010					; VSRAM address 0
+	; VDP register dump
+.regs
+		dc.b $04				; $80	; 8-colour mode
+		dc.b $14				; $81	; enable DMA and MD mode
+		dc.b (vPlaneA>>10)			; $82	; plane A address
+		dc.b (vWindow>>10)			; $83	; window plane address
+		dc.b (vPlaneB>>13)			; $84	; plane B address
+		dc.b (vSprites>>9)			; $85	; sprite table address
+		dc.b $00				; $86	; use lower 64k VRAM for sprites
+		dc.b $00				; $87	; background colour line 0 index 0
+		dc.b $00				; $88	; unused
+		dc.b $00				; $89	; unused
+		dc.b $FF				; $8A	; h-int line count
+		dc.b $08				; $8B	; line hscroll, 2 tile vscroll
+		dc.b $81				; $8C	; 40 tile display, no S/H
+		dc.b (vHscroll>>10)			; $8D	; hscroll table address
+		dc.b $00				; $8E	; use lower 64k VRAM for planes
+		dc.b $02				; $8F	; auto-increment
+		dc.b $01				; $90	; 64x32 tile plane size
+		dc.b $00				; $91	; window horizontal size
+		dc.b $00				; $92	; window vertical size
+		dc.b $00				; $93	; filler
+.endregs
 
-		dc.b $9F, $BF, $DF, $FF				; values for PSG channel volumes
+	vdp	dc.l,0,CRAM,WRITE				; CRAM WRITE to 0
+	vdp	dc.l,0,VSRAM,WRITE				; VSRAM WRITE to 0
+		dc.b $9F, $BF, $DF, $FF				; PSG volume commands
 ; ==============================================================
 ; --------------------------------------------------------------
-; Software startup routine
+; Hardware startup routine
 ; --------------------------------------------------------------
 
-SoftInit:
-		move	#$2F00,sr				; we DO NOT want interrupts while we do this
+Init:
+		move	#$2F00,sr				; disable interrupts
+		move.l	hVDP_Control.w,a6			; load VDP control port to a6
+
+		tst.l	PAD_Control1-1				; test port A and B control
+		bne.s	.aok					; if enabled, branch
+		tst.w	PAD_ControlX-1				; test port C control
+
+.aok
+		bne.w	SoftInit				; if enabled, branch
+; --------------------------------------------------------------
+
+		move.l	hZ80_Bus.w,a1				; load Z80 bus request address to a1
+		moveq	#$F,d0					; prepare revision ID mask to d0
+		and.b	HW_Version-Z80_Bus(a1),d0		; AND with actual revision ID
+		beq.s	.rev0					; if 0, skip
+		move.l	$100.w,HW_TMSS-Z80_Bus(a1)		; satistify TMSS
+; --------------------------------------------------------------
+
+.rev0
+		move	(a6),ccr				; check if DMA is taking place and reset latch
+		bvs.s	.rev0					; if yes, branch
+	vdpfill	0, 0, $10000, 0					; fill entire VRAM with 0 but don't wait
+; --------------------------------------------------------------
+
 		move.l	EndOfROM.w,a0				; load ROM end address to a0
 		sub.w	#56-1,a0				; this will trip the detection before ROM ends (in case it would happen mid-transfer)
 		move.l	a0,usp					; store in usp
@@ -223,6 +158,68 @@ SoftInit:
 ; --------------------------------------------------------------
 
 .checksumok
+		movem.l	hInitAregs.w,a1-a6			; load initial register set to a1-a6
+		lea	InitData(pc),a0				; load initialization data to a0
+		movem.w	(a0)+,d0-d7				; load some register values
+
+		move.b	d2,(a4)					; enable pad1
+		move.b	d2,2(a4)				; enable pad2
+		move.b	d2,4(a4)				; enable padex
+; --------------------------------------------------------------
+
+		move.w	d1,(a1)					; request Z80 bus
+		move.w	d1,(a2)					; Z80 reset on
+
+.waitz80
+		btst	d1,(a1)					; check if the bus is free
+		bne.s	.waitz80				; branch if not
+
+.loadz80
+		move.b	(a0)+,(a3)+				; copy driver to Z80 RAM
+		dbf	d0,.loadz80				; loop for every byte
+; --------------------------------------------------------------
+
+		moveq	#0,d0					; clear d0
+		move.w	d0,(a2)					; Z80 reset off
+		move.w	d0,(a1)					; enable Z80
+		move.w	d1,(a2)					; Z80 reset on
+; --------------------------------------------------------------
+
+.fill
+		move	(a6),ccr				; check if DMA is taking place and reset latch
+		bvs.s	.fill					; if yes, branch
+
+.regs
+		move.b	(a0)+,d4				; load next register value
+		move.w	d4,(a6)					; send it to VDP control port
+		add.w	d1,d4					; go to next register address
+		dbf	d3,.regs				; loop for every register
+; --------------------------------------------------------------
+
+		move.l	(a0)+,(a6)				; load CRAM WRITE command to VDP
+
+.cram
+		move.l	d0,(a5)					; clear CRAM completely
+		dbf	d5,.cram				; loop for every entry
+; --------------------------------------------------------------
+
+		move.l	(a0)+,(a6)				; load VSRAM WRITE command to VDP
+
+.vsram
+		move.l	d0,(a5)					; clear VSRAM completely
+		dbf	d6,.vsram				; loop for every entry
+; --------------------------------------------------------------
+
+		add.w	d7,a5					; load PSG data port to a5
+	rept 4
+		move.b	(a0)+,(a5)				; mute PSG channel
+	endr
+; ==============================================================
+; --------------------------------------------------------------
+; Software startup routine
+; --------------------------------------------------------------
+
+SoftInit:
 		clr.l	d0					; clear d0-d7
 		clr.l	d1
 		clr.l	d2
@@ -231,24 +228,24 @@ SoftInit:
 		clr.l	d5
 		clr.l	d6
 		clr.l	d7
-		move.l	d1,a0					; clear a0-a6
+		move.l	d1,a0					; clear a0-a5
 		move.l	d2,a1
 		move.l	d3,a2
 		move.l	d4,a3
 		move.l	d5,a4
 		move.l	d6,a5
-		move.l	d7,a6
+		move.l	a5,usp					; clear usp
 ; --------------------------------------------------------------
 
 	; clear entire RAM
 		lea	0.w,sp					; load end of RAM to sp
 
 .clearloop
-		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
-		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
-		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
-		movem.l	d0-a6,-(sp)				; clear 56 ($38) bytes of RAM
-		movem.l	d0-d7,-(sp)				; clear 32 ($20) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
+		movem.l	d0-a4,-(sp)				; clear 32 ($30) bytes of RAM
 
 		cmp.l	#$FFFF0000,sp				; check if past end of RAM
 		bhi.s	.clearloop				; if not, go back to loop

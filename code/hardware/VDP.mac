@@ -5,9 +5,13 @@
 ;   by Mega Drive Developers Collective
 ;      AURORA FIELDS 2020/12
 ;
-;   VDP macro set
+;   VDP macros and equates
 ; --------------------------------------------------------------
 
+VDP_Data =		$C00000					; VDP data port
+VDP_Control =		$C00004					; VDP control port
+VDP_Counter =		$C00008					; VDP H/V counter port
+VDP_PSG =		$C00011					; PSG command port
 ; ==============================================================
 ; --------------------------------------------------------------
 ; VDP command generator
@@ -90,7 +94,7 @@ vdpfill		macro fill,dest,length,wait
 	if \wait
 .wait\@
 		move	(a6),ccr				; check if DMA is taking place
-		bvs.s	.wait\@					; if not, branch
+		bvs.s	.wait\@					; if yes, branch
 		move.w	#$8F02,(a6)				; restore the autoincrement
 	endif
 	endm
@@ -115,7 +119,7 @@ vdpcopy			macro source,dest,length,type,wait
 	if \wait
 .wait\@
 		move	(a6),ccr				; check if DMA is taking place
-		bvs.s	.wait\@					; if not, branch
+		bvs.s	.wait\@					; if yes, branch
 		move.w	#$8F02,(a6)				; restore the autoincrement
 	endif
 	endm
