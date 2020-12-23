@@ -68,7 +68,7 @@ flags			rs.w 1					; object flags bitfields
 xpos			rs.l 1					; object x-position in 16.8 fixed point format
 width =			__rs-1					; object display width in pixels
 ypos			rs.l 1					; object y-position in 16.8 fixed point format
-width =			__rs-1					; object display height in pixels
+height =		__rs-1					; object display height in pixels
 xvel			rs.w 1					; object x-velocity
 yvel			rs.w 1					; object y-velocity
 frame			rs.b 0					; current display frame
@@ -194,3 +194,4 @@ exChecksum		rs.w 1					; exception when checksum fails
 exCreatePlat		rs.w 1					; exception when there are too many platforms
 exCreateTouch		rs.w 1					; exception when there are too many touch objects
 exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objects
+exNoDebug		rs.w 1					; exception when DEBUG flag is off

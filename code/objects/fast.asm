@@ -184,7 +184,46 @@ RmvDynArt:
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
-; Routine to delete an object safely
+; Routine to load an object
+;
+; out:
+;   a1 = free object
+;   z=1 = all slots are full
+;   z=0 = object was loaded successfully
+;
+; thrash:
+;   a2
+; --------------------------------------------------------------
+
+oLoad:
+		move.w	FreeHead.w,a1				; load the next free object to a1
+		cmp.w	#0,a1					; check if its a null pointer
+		beq.s	.rts					; branch if so (z=1)
+		move.w	prev(a1),FreeHead.w			; copy the next free object pointer to list start
+; --------------------------------------------------------------
+
+	; clear object memory
+		lea	dprev(a1),a2				; load the first byte to clear to a2
+	if (size - dprev) & 2
+		clr.w	(a2)+					; clear a word of data
+	endif
+
+	rept (size - dprev) / 4					; repeat for every object property
+		clr.l	(a2)+					; clear a longword of data
+	endr
+; --------------------------------------------------------------
+
+		move.w	TailPrev.w,a2				; load last object to a2
+		move.w	a1,TailPrev.w				; save as the new last object
+		move.w	next(a2),next(a1)			; copy the next pointer from old tail to new object
+		move.w	a1,next(a2)				; save new object as next pointer for old tail
+		move.w	a2,prev(a1)				; save old tail as prev pointer for new object
+
+.rts
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to delete an object
 ;
 ; in:
 ;   a0 = target object

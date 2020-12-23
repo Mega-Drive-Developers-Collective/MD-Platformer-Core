@@ -118,5 +118,6 @@ TestScreen	SECTION						; create test screen section
 ; --------------------------------------------------------------
 
 Error		SECTION						; create error section
+		include "code/objects/debug.asm"			; include object debugging routines
 		include "code/exceptions/ErrorHandler.asm"	; include exception handler code
 		END

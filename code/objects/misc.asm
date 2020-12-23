@@ -30,16 +30,15 @@ oInitializeAll:
 	; setup free object list
 		lea	ObjList.w,a0				; load the objects list into a0
 		move.w	a0,FreeHead.w				; set the first object as the first free object
-		dbset	objcount,d0				; load object count to d0
-		move.w	#0,a1					; prev pointer object (end of list)
+		dbset	objcount-1,d0				; load object count to d0
 		moveq	#size,d1				; load object size to d1
 ; --------------------------------------------------------------
 
 .load
-		move.w	a1,prev(a0)				; save new previous pointer
-		move.w	a0,a1					; copy current object to a1
 		add.w	d1,a0					; go to the next object now
+		move.w	a0,prev-size(a0)			; save new previous pointer
 		dbf	d0,.load				; loop for every object
+		clr.w	prev(a0)				; set the last previos pointer to 0
 
 .rts
 		rts

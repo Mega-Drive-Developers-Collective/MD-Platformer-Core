@@ -95,7 +95,7 @@ TrapF:
 		dc.w .createplat-.errors		; 2	; exCreatePlat
 		dc.w .createtouch-.errors		; 4	; exCreateTouch
 		dc.w .createdart-.errors		; 6	; exCreateDynArt
-
+		dc.w .nodebug-.errors			; 8	; exNoDebug
 ; ---------------------------------------------------------------
 ; Software exception handlers
 ; ---------------------------------------------------------------
@@ -124,6 +124,15 @@ TrapF:
 .createdart
 		move.l	(sp)+,a0				; load item back from stack
 	__ErrorMessage "DYNART ARRAY FULL", _eh_default
+; ---------------------------------------------------------------
+
+.nodebug
+		move.l	(sp)+,a0				; load item back from stack
+	if DEBUG
+		__ErrorMessage "DEBUG EXCEPTION WHEN DEBUG=1 ???", _eh_default
+	else
+		__ErrorMessage "BUILD WITH DEBUG=1", _eh_default
+	endif
 
 ; ---------------------------------------------------------------
 ; Import error handler global functions
