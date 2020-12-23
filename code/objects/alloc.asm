@@ -20,7 +20,7 @@ ProcAlloc:
 		lea	DartList.w,a1				; load dynamic art list to a1
 		add.b	#dynallocdelta,DynAllocTimer.w		; update dynamic allocator timer
 		bcs.s	AllocRefactor				; if overflowed, force a refactor
-		moveq	#dyncount-1,d0				; load number of dynamic objects to d0
+		dbset	dyncount-1,d0				; load number of dynamic objects to d0
 ; --------------------------------------------------------------
 
 .dloop
@@ -75,19 +75,14 @@ AllocRefactor:
 		lea	DynAllocTable.w,a0			; load alloc table to a0
 		moveq	#0,d0					; prepare bit to d0
 		moveq	#0,d2					; prepare first free bit to d2
-
-	if dynallocbits < $81
-		moveq	#dynallocbits-1,d1			; prepare max num of bits to d1
-	else
-		move.w	#dynallocbits-1,d1			; preapre max num of bits to d1
-	endif
+		dbset	dynallocbits-1,d1			; prepare max num of bits to d1
 ; --------------------------------------------------------------
 
 .ckclr
 		btst	d0,(a0)					; check if bit is set
 		beq.s	.ckset					; if not, find if there are any set bits
 		addq.b	#1,d0					; go to next bit
-		addq.b	#1,d2					; go to next bit
+		addq.b	#1,d2					;
 
 		bclr	#4,d0					; check if the byte is now all done
 		sne	d2					; if yes, set d2
@@ -112,7 +107,7 @@ AllocRefactor:
 
 	; this actually refactors all the art
 .refac
-		moveq	#dyncount-1,d0				; load number of dynamic objects to d0
+		dbset	dyncount-1,d0				; load number of dynamic objects to d0
 		move.w	d2,d1					; copy free bit to d1
 
 .reloop
@@ -177,12 +172,7 @@ AllocRefactor:
 		add.w	d0,a2					; add byte offset
 ; --------------------------------------------------------------
 
-	if dynallocbits < $81
-		moveq	#dynallocbits-1,d1			; prepare max num of bits to d1
-	else
-		move.w	#dynallocbits-1,d1			; preapre max num of bits to d1
-	endif
-
+		dbset	dynallocbits-1,d1			; prepare max num of bits to d1
 		sub.w	d2,d1					; sub the number of bits done from d1
 		and.w	#7,d2					; get only the bit to d0
 ; --------------------------------------------------------------

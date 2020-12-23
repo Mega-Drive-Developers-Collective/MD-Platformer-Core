@@ -272,10 +272,4 @@ SoftInit:
 ; --------------------------------------------------------------
 
 .table
-		dc.l gmTest
-; --------------------------------------------------------------
-
-gmTest:
-		move.b	#4,VintRoutine.w			; enable screen v-int routine
-	vsync							; wait for the next frame
-		bra.s	*
+		dc.l gmTest				; $00	; test game mode

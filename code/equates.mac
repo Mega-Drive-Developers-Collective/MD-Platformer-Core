@@ -10,6 +10,14 @@
 
 ; ==============================================================
 ; --------------------------------------------------------------
+; Assembly equates
+; --------------------------------------------------------------
+
+DEBUG EQU		1					; If 1, enables assembling debugging code
+SAFE EQU		1					; If 1, enables assembly safety checks in code. Much slower.
+SOUND EQU		1					; If 1, enables sound driver.
+; ==============================================================
+; --------------------------------------------------------------
 ; Level data equates
 ; --------------------------------------------------------------
 
@@ -24,6 +32,7 @@ dynallocdelta =		$100/$40				; amount of frames until VRAM must be refactored
 dynallocsize =		2					; number of bits of tiles to allocate for every bit of alloc table
 dynalloctiles =		$180					; number of tiles for dynamic allocator
 dynallocbits =		dynalloctiles / (1 << dynallocsize)	; number of bits for dynamic allocator
+dynallocbytes =		((dynallocbits / 8 + 1) + 1) & $FFE	; number of bytes for dynamic allocator (next even value)
 
 	if dynallocbits > $100					; check if there are too many bits for allocator to work
 		inform 3,"Too many tiles reserved for dynamic allocator!"; display error message
@@ -150,6 +159,8 @@ SpriteTable		ds.l 80*2				; sprite data table
 
 RespawnList		ds.w levelmaxobj/2			; max number of objects per level
 ObjList			ds.b objcount * size			; the RAM for every object
+ObjListEnd		ds.w 0					; end of object list
+
 TailPtr			ds.l 1					; pointer to tail object code
 TailPrev		ds.w 1					; pointer to the last object in linked list
 TailNext		ds.w 1					; pointer to the first object in linked list

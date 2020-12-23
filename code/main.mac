@@ -18,6 +18,114 @@ align			macro alignment
 	endm
 ; ==============================================================
 ; --------------------------------------------------------------
+; Macro for dbf loop count calculation
+;
+;   loops =	Number of dbf loops to do
+;   dst =	Destination register
+; --------------------------------------------------------------
+
+dbset			macro loops, dst
+	if ((\loops) <= 0) | ((\loops) > $10000)
+		inform 2,"DBcc loop counter is \loops. This result looks unintentional."
+
+	elseif (\loops) <= $80
+		moveq	#(\loops) - 1,\dst			; loop counter is between 0 and $80
+
+	else
+		move.w	#(\loops) - 1,\dst			; loop counter is between $81 and $10000
+	endif
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; Macro for setting memory to specific register
+;
+;   start =	Start address to start setting from
+;   reg =	Data register with the value
+;   len =	The length of the operation
+;   dfree =	A free data register the macro can thrash
+;   afree =	A free address register the macro can thrash
+; --------------------------------------------------------------
+
+memset			macro start, reg, len, dfree, afree
+	if strcmp("\0","l") + strcmp("\0","w") = 0
+		inform 2,"Invalid memset type \0"		; invalid memset type
+	endif
+
+	local arx, drx						; drx and arx are only scoped within this macro
+	if narg >= 4
+drx		equr \dfree					; use argument instead
+	else
+drx		equr d0						; default dreg
+	endif
+
+	if narg >= 5
+arx		equr \afree					; use argument instead
+	else
+arx		equr a1						; default areg
+	endif
+
+		lea	\start,arx				; load start address to arx
+	if strcmp("\0","l")
+		dbset	(\len) / 4,drx				; load longword loop count to drx
+	else
+		dbset	(\len) / 2,drx				; load word loop count to drx
+	endif
+
+.loop\@
+		move.\0	\reg,(arx)+				; set a single entry
+		dbf	drx, .loop\@				; loop for every single entry in range
+
+	if strcmp("\0","l") & ((\len) & 2)			; check if there is a word to set
+		move.w	\reg,(arx)+				; set a single word
+	endif
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; Macro for clearing memory area
+;
+;   start =	Start address to start clearing from
+;   len =	The length of the operation
+;   dfree =	A free data register the macro can thrash
+;   afree =	A free address register the macro can thrash
+; --------------------------------------------------------------
+
+memclr			macro start, len, dfree, afree
+	if strcmp("\0","l") + strcmp("\0","w") + strcmp("\0","b") = 0
+		inform 2,"Invalid memclr type \0"		; invalid memclr type
+	endif
+
+	local arx, drx						; drx and arx are only scoped within this macro
+	if narg >= 4
+drx		equr \dfree					; use argument instead
+	else
+drx		equr d0						; default dreg
+	endif
+
+	if narg >= 5
+arx		equr \afree					; use argument instead
+	else
+arx		equr a1						; default areg
+	endif
+
+		lea	\start,arx				; load start address to arx
+	if strcmp("\0","l")
+		dbset	(\len) / 4,drx				; load longword loop count to drx
+	elseif strcmp("\0","w")
+		dbset	(\len) / 2,drx				; load word loop count to drx
+	else
+		dbset	(\len),drx				; load byte loop count to drx
+	endif
+
+.clr\@
+		clr.\0	(arx)+					; clear a single entry
+		dbf	drx, .clr\@				; loop for every single entry in range
+
+	if strcmp("\0","l") & ((\len) & 2)			; check if there is a word to clear
+		clr.w	(arx)+					; clear a single word
+	endif
+	endm
+; ==============================================================
+; --------------------------------------------------------------
 ; V-int synchronization macro
 ; --------------------------------------------------------------
 

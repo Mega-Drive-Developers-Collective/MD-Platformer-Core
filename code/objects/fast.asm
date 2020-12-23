@@ -34,7 +34,7 @@ CreatePlatform:
 		lea	PlatformList.w,a1			; load platform list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		moveq	#platformcount-2,d0			; prepare platform count to d0
+		dbset	platformcount-2,d0			; prepare platform count to d0
 ; --------------------------------------------------------------
 
 .next
@@ -78,7 +78,7 @@ CreateTouch:
 		lea	TouchList.w,a1				; load touch list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		moveq	#touchcount-2,d0			; prepare touch count to d0
+		dbset	touchcount-2,d0				; prepare touch count to d0
 ; --------------------------------------------------------------
 
 .next
@@ -114,7 +114,7 @@ CreateDynArt:
 		lea	DartList.w,a1				; load dynamic art list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		moveq	#dyncount-2,d0				; prepare touch count to d0
+		dbset	dyncount-2,d0				; prepare touch count to d0
 ; --------------------------------------------------------------
 
 .next

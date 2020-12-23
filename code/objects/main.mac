@@ -14,7 +14,7 @@
 ; --------------------------------------------------------------
 
 RunObjects		macro
-		lea	ObjList.w,a0				; load first object slot into a0
+		move.w	TailNext.w,a0				; load first object slot into a0
 		move.l	ptr(a0),a1				; load its pointer to a1
 		jsr	(a1)					; jump to its code
 	endm

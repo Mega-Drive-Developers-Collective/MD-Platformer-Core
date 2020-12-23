@@ -94,6 +94,7 @@ Fast		SECTION org($200), size($7E00), word		; create $200-$8000 word section
 
 Library		SECTION						; create library section
 		include "code/objects/alloc.asm"		; include alloc routines
+		include "code/objects/misc.asm"			; include misc object routines
 		include "code/SRAM.asm"				; include SRAM routines
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -103,6 +104,13 @@ Library		SECTION						; create library section
 Main		SECTION						; create main section
 		include "code/init.asm"				; include init routine
 		include "code/vint.asm"				; include V-int routines
+; ==============================================================
+; --------------------------------------------------------------
+; Test screen mode
+; --------------------------------------------------------------
+
+TestScreen	SECTION						; create test screen section
+		include "screens/test/main.asm"			; include test screen main code
 
 ; ==============================================================
 ; --------------------------------------------------------------
