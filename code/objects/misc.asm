@@ -11,15 +11,17 @@
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Object list and property intiailization routine
+;
+; thrash: d0-d1/a0
 ; --------------------------------------------------------------
 
 oInitializeAll:
-	memclr.l DisplayList.w, dislayercount * ddsize		; clear display lists
-	memclr.l PlatformList.w, platformcount * psize		; clear platform objects list
-	memclr.l TouchList.w, touchcount * tsize		; clear touch objects list
-	memclr.l DartList.w, dyncount * dsize			; clear dynamic objects list
-	memclr.l DynAllocTable.w, dynallocbytes			; clear allocations table
-	memclr.l RespawnList.w, ObjListEnd - RespawnList	; clear respawn and object table
+	memclr.l DisplayList.w, dislayercount * ddsize, d0, a0	; clear display lists
+	memclr.l PlatformList.w, platformcount * psize, d0, a0	; clear platform objects list
+	memclr.l TouchList.w, touchcount * tsize, d0, a0	; clear touch objects list
+	memclr.l DartList.w, dyncount * dsize, d0, a0		; clear dynamic objects list
+	memclr.l DynAllocTable.w, dynallocbytes, d0, a0		; clear allocations table
+	memclr.l RespawnList.w, ObjListEnd - RespawnList, d0, a0; clear respawn and object table
 ; --------------------------------------------------------------
 
 	; setup tail object

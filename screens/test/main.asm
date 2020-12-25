@@ -25,7 +25,7 @@ gmTest:
 
 .test
 	oAttributes	.map, 1	, 0, 64, 16			; setup attributes
-	oCreatePlat	.pmap, (1<<ptop) | (1<<plrb), 64, 16	; setup platform
+	oCreatePlat	.pmap, (1<<pactive) | (1<<ptop) | (1<<plrb), 64, 16; setup platform
 	oCreateTouch	0, 0, 64, 16				; setup touch
 	oCreateDynArt	.dart, .dmap, 8
 		oNext						; run next object

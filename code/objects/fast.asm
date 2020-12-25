@@ -14,6 +14,8 @@
 ;
 ; in:
 ;   a0 = target object
+;
+; thrash: d0/a1-a2
 ; --------------------------------------------------------------
 
 oRmvPlat		macro
@@ -26,7 +28,7 @@ oRmvPlat		macro
 oCreatePlat		macro map, flags, width, height
 		jsr	CreatePlatform.w			; jump to routine for creating platform data
 		dc.b \width, \height				; add width and height data
-		dc.l (\flags<<24) | \map			; add mappings and flags data
+		dc.l ((\flags) << 24) | \map			; add mappings and flags data
 	endm
 ; --------------------------------------------------------------
 
@@ -58,6 +60,8 @@ CreatePlatform:
 ;
 ; in:
 ;   a0 = target object
+;
+; thrash: d0/a1-a2
 ; --------------------------------------------------------------
 
 oRmvTouch		macro
@@ -101,12 +105,14 @@ CreateTouch:
 ;
 ; in:
 ;   a0 = target object
+;
+; thrash: d0/a1-a2
 ; --------------------------------------------------------------
 
 oCreateDynArt		macro art, map, width
 		jsr	CreateDynArt.w				; jump to routine for creating dynamic art data
-		dc.l ($FF<<24) | \art				; add art and last frame data
-		dc.l (\width<<24) | \map			; add vram size and mappings data
+		dc.l ($FF << 24) | \art				; add art and last frame data
+		dc.l ((\width) << 24) | \map			; add vram size and mappings data
 	endm
 ; --------------------------------------------------------------
 
@@ -114,7 +120,7 @@ CreateDynArt:
 		lea	DartList.w,a1				; load dynamic art list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		dbset	dyncount-1,d0				; prepare touch count to d0
+		dbset	dyncount-1,d0				; prepare dymart count to d0
 ; --------------------------------------------------------------
 
 .next
@@ -122,7 +128,7 @@ CreateDynArt:
 		tst.w	(a1)					; check if object exists
 		dbeq	d0,.next				; if yes, keep looping for all objects
 		beq.s	.create					; if it didn't exist, branch
-	exception	exCreateDynArt				; handle touch exception
+	exception	exCreateDynArt				; handle dynart exception
 ; --------------------------------------------------------------
 
 .create
@@ -142,6 +148,8 @@ CreateDynArt:
 ; in:
 ;   a0 = target object
 ;   a1 = data array
+;
+; thrash: a1
 ; --------------------------------------------------------------
 
 oAttributes		macro map, frame, flags, width, height, tile
@@ -166,7 +174,7 @@ xarg =		narg						; uhh this looks like a asm68k bug? why does I have to do this
 	endif
 
 	if narg >= 2
-		dc.l (\frame<<24) | \map			; include mappings data with initial frame
+		dc.l ((\frame) << 24) | \map			; include mappings data with initial frame
 	elseif narg >= 1
 		dc.l \map					; include mappings data
 	endif
@@ -196,6 +204,8 @@ ObjAttributes0:
 ;
 ; in:
 ;   a0 = target object
+;
+; thrash: d0-d2/a1-a2
 ; --------------------------------------------------------------
 
 RmvDynArt:
@@ -244,8 +254,7 @@ RmvDynArt:
 ; in:
 ;   a0 = target object
 ;
-; thrash:
-;   a1
+; thrash: a1
 ; --------------------------------------------------------------
 
 oDelete:
@@ -269,13 +278,12 @@ oDeleteUnsafe:
 ; Causes an exception when no free slots are found
 ;
 ; in:
-;   a3 = object rountine pointer
+;   a3 = object routine pointer
 ;
 ; out:
 ;   a1 = free object
 ;
-; thrash:
-;   a2
+; thrash: a2
 ; --------------------------------------------------------------
 
 oLoadImportant:
@@ -296,8 +304,7 @@ oLoadImportant:
 ;   z=1 = all slots are full
 ;   z=0 = object was loaded successfully
 ;
-; thrash:
-;   a2
+; thrash: a2
 ; --------------------------------------------------------------
 
 oLoad:

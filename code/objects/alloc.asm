@@ -14,6 +14,8 @@
 ;
 ; in:
 ;   a0 = target object
+;
+; thrash: d0-d6/a0-a1/a3
 ; --------------------------------------------------------------
 
 ProcAlloc:
@@ -47,6 +49,8 @@ ProcAlloc:
 ;   a0 = object
 ;   a1 = dynamic art address
 ;   d4 = frame
+;
+; thrash: d5-d6/a3
 ; --------------------------------------------------------------
 
 AllocUpdate:
@@ -70,10 +74,14 @@ AllocUpdate:
 ;
 ; in:
 ;   a0 = target object
+;
+; thrash: d0-d6/a0-a1/a3
 ; --------------------------------------------------------------
 
 AllocRefactor:
+		lea	DartList.w,a1				; load dynamic art list to a1
 		lea	DynAllocTable.w,a0			; load alloc table to a0
+
 		moveq	#0,d0					; prepare bit to d0
 		moveq	#0,d2					; prepare first free bit to d2
 		dbset	dynallocbits,d1				; prepare max num of bits to d1
@@ -131,7 +139,6 @@ AllocRefactor:
 
 		moveq	#0,d4
 		move.b	frame(a0),d4				; load display frame to d4
-		move.b	d4,dlast(a1)				; copy as the last frame
 		bsr.w	AllocUpdate				; update art
 ; --------------------------------------------------------------
 
