@@ -15,7 +15,7 @@
 
 oDebugList:
 		if DEBUG
-	RaiseError	"OBJECT DEBUG", .rt, 0
+	RaiseError	"OBJECT LIST DEBUG", .rt, 0
 
 .rt								; bit0 = free, bit1 = next, bit2 = prev
 		move.w	#ObjList,d7				; load object list start address to d7
@@ -136,7 +136,7 @@ oDebugList:
 		bhs.s	.ndend					; branch if not
 
 		bsr.w	.writeptr				; write object pointer
-	Console.Write ">"					; write a >
+	Console.Write "%<pal1>>%<pal2>"				; write a >
 
 		move.w	next(a0),a0				; load next object to a0
 		bra.s	.dnext					; continue loop
@@ -165,7 +165,7 @@ oDebugList:
 		bhs.s	.dfend					; branch if not
 
 		bsr.s	.writeptr				; write object pointer
-	Console.Write "<"					; write a >
+	Console.Write "%<pal1><%<pal2>"				; write a <
 
 		move.w	prev(a0),a0				; load next object to a0
 		bra.s	.dfree					; continue loop
@@ -263,11 +263,10 @@ oDebug:
 		bsr.w	.writeptr				; write ptr info
 ; --------------------------------------------------------------
 
-	Console.WriteLine "%<pal0>Dyn Art:   %<pal2>%<.w dyn(a0) hex>"
 	Console.WriteLine "%<pal0>Respawn:   %<pal2>%<.w resp(a0) hex>"
 	Console.WriteLine "%<pal0>Flags:     %<pal2>%<.w flags(a0) hex>"
 	Console.WriteLine "%<pal0>Position:  %<pal2>%<.w xpos(a0) hex>.%<.b xpos+2(a0) hex>  %<.w ypos(a0) hex>.%<.b ypos+2(a0) hex>"
-	Console.WriteLine "%<pal0>Disp size: %<pal2>%<.b width(a0) hex>x%<.b height(a0) hex>"
+	Console.WriteLine "%<pal0>Disp size: %<pal2>%<.b width(a0) dem>x%<.b height(a0) dem>"
 	Console.WriteLine "%<pal0>Map/frame: %<pal0>%<.l map(a0) sym|split>%<pal2>%<symdisp> / %<.b frame(a0) hex>"
 	Console.WriteLine "%<pal0>Tile:      %<pal2>%<.w tile(a0) hex>"
 ; --------------------------------------------------------------
@@ -309,17 +308,17 @@ oDebug:
 ; --------------------------------------------------------------
 
 .writeplat
-	Console.WriteLine "%<pal2>%<.b pwidth(a1) hex>x%<.b pheight(a1) hex> %<.b pflags(a1) hex> %<pal0>%<.l pmap(a1) sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "%<pal2>%<.b pwidth(a1) dem>x%<.b pheight(a1) dem> %<.b pflags(a1) hex> %<pal0>%<.l pmap(a1) sym|split>%<pal2>%<symdisp>"
 		rts
 ; --------------------------------------------------------------
 
 .writetouch
-	Console.WriteLine "%<pal2>%<.b twidth(a1) hex>x%<.b theight(a1) hex> %<.b tflags(a1) hex> %<.b textra(a1) hex>"
+	Console.WriteLine "%<pal2>%<.b twidth(a1) dem>x%<.b theight(a1) dem> %<.b tflags(a1) hex> %<.b textra(a1) hex>"
 		rts
 ; --------------------------------------------------------------
 
 .writedart
-	Console.WriteLine "%<pal2>%<.b dwidth(a1) hex> %<.b dbit(a1) hex> %<.b dlast(a1) hex>"
+	Console.WriteLine "%<pal2>%<.b dwidth(a1) dem> %<.b dbit(a1) hex> %<.b dlast(a1) hex>"
 	Console.WriteLine "%<pal0>Dart art:  %<pal0>%<.l dart(a1) sym|split>%<pal2>%<symdisp>"
 	Console.WriteLine "%<pal0>Dart map:  %<pal0>%<.l dmap(a1) sym|split>%<pal2>%<symdisp>"
 		rts

@@ -95,7 +95,8 @@ TrapF:
 		dc.w .createplat-.errors		; 2	; exCreatePlat
 		dc.w .createtouch-.errors		; 4	; exCreateTouch
 		dc.w .createdart-.errors		; 6	; exCreateDynArt
-		dc.w .nodebug-.errors			; 8	; exNoDebug
+		dc.w .createobj-.errors			; 8	; exCreateObj
+		dc.w .nodebug-.errors			; A	; exNoDebug
 ; ---------------------------------------------------------------
 ; Software exception handlers
 ; ---------------------------------------------------------------
@@ -124,6 +125,12 @@ TrapF:
 .createdart
 		move.l	(sp)+,a0				; load item back from stack
 	__ErrorMessage "DYNART ARRAY FULL", _eh_default
+; ---------------------------------------------------------------
+
+.createobj
+		move.l	(sp)+,a0				; load item back from stack
+		move.l	6(sp),2(sp)				; copy previous routine pointer as the debug routine. Hax I know.
+	__ErrorMessage "OBJECT ARRAY FULL", _eh_default
 ; ---------------------------------------------------------------
 
 .nodebug

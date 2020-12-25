@@ -88,7 +88,7 @@ singlesprite		rs.b 1					; set if object displays only a single sprite. Used for
 			rs.b 4					; unused
 onscreen		rs.b 1					; set if object was displayed last frame
 
-	rsset 0		; byte 1
+	rsset 8		; byte 1
 			rs.b 8					; unused
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -194,4 +194,5 @@ exChecksum		rs.w 1					; exception when checksum fails
 exCreatePlat		rs.w 1					; exception when there are too many platforms
 exCreateTouch		rs.w 1					; exception when there are too many touch objects
 exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objects
+exCreateObj		rs.w 1					; exception when an important object failed to load
 exNoDebug		rs.w 1					; exception when DEBUG flag is off

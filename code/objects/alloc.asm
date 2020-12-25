@@ -20,7 +20,7 @@ ProcAlloc:
 		lea	DartList.w,a1				; load dynamic art list to a1
 		add.b	#dynallocdelta,DynAllocTimer.w		; update dynamic allocator timer
 		bcs.s	AllocRefactor				; if overflowed, force a refactor
-		dbset	dyncount-1,d0				; load number of dynamic objects to d0
+		dbset	dyncount,d0				; load number of dynamic objects to d0
 ; --------------------------------------------------------------
 
 .dloop
@@ -50,6 +50,7 @@ ProcAlloc:
 ; --------------------------------------------------------------
 
 AllocUpdate:
+		move.b	d4,dlast(a1)				; save d4 as the new last frame
 		move.l	dart(a1),d6				; load art data to d6
 		move.l	dmap(a1),a3				; load art mappings to a3
 
@@ -75,7 +76,7 @@ AllocRefactor:
 		lea	DynAllocTable.w,a0			; load alloc table to a0
 		moveq	#0,d0					; prepare bit to d0
 		moveq	#0,d2					; prepare first free bit to d2
-		dbset	dynallocbits-1,d1			; prepare max num of bits to d1
+		dbset	dynallocbits,d1				; prepare max num of bits to d1
 ; --------------------------------------------------------------
 
 .ckclr
@@ -85,29 +86,29 @@ AllocRefactor:
 		addq.b	#1,d2					;
 
 		bclr	#4,d0					; check if the byte is now all done
-		sne	d2					; if yes, set d2
-		ext.w	d2					; extend to word
-		sub.w	d2,a0					; sub from the alloc pointer
+		sne	d3					; if yes, set d3
+		ext.w	d3					; extend to word
+		sub.w	d3,a0					; sub from the alloc pointer
 		dbf	d1,.ckclr				; loop until we find a bit that is clear
 		rts						; no free tiles anywhere, refactoring is not necessary
 ; --------------------------------------------------------------
 
-.ckset
-		btst	d0,(a0)					; check if bit is set
-		bne.s	.refac					; if yes, we must refactor
-		addq.b	#1,d0					; go to next bit
+.ckset	; TODO: broken
+	;	btst	d0,(a0)					; check if bit is set
+	;	bne.s	.refac					; if yes, we must refactor
+	;	addq.b	#1,d0					; go to next bit
 
-		bclr	#4,d0					; check if the byte is now all done
-		sne	d2					; if yes, set d2
-		ext.w	d2					; extend to word
-		sub.w	d2,a0					; sub from the alloc pointer
-		dbf	d1,.ckset				; loop until we find a bit that is clear
-		rts						; no refactoring needed
+	;	bclr	#4,d0					; check if the byte is now all done
+	;	sne	d3					; if yes, set d3
+	;	ext.w	d3					; extend to word
+	;	sub.w	d3,a0					; sub from the alloc pointer
+	;	dbf	d1,.ckset				; loop until we find a bit that is clear
+	;	rts						; no refactoring needed
 ; --------------------------------------------------------------
 
 	; this actually refactors all the art
 .refac
-		dbset	dyncount-1,d0				; load number of dynamic objects to d0
+		dbset	dyncount,d0				; load number of dynamic objects to d0
 		move.w	d2,d1					; copy free bit to d1
 
 .reloop
@@ -172,7 +173,7 @@ AllocRefactor:
 		add.w	d0,a2					; add byte offset
 ; --------------------------------------------------------------
 
-		dbset	dynallocbits-1,d1			; prepare max num of bits to d1
+		dbset	dynallocbits,d1				; prepare max num of bits to d1
 		sub.w	d2,d1					; sub the number of bits done from d1
 		and.w	#7,d2					; get only the bit to d0
 ; --------------------------------------------------------------

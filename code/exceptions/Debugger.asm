@@ -18,7 +18,7 @@ isAMPS =		1		; Set to 1
 
 ; General arguments format flags
 hex		equ		$80				; flag to display as hexadecimal number
-decm		equ		$90				; flag to display as decimal number
+dem		equ		$90				; flag to display as decimal number
 bin		equ		$A0				; flag to display as binary number
 sym		equ		$B0				; flag to display as symbol (treat as offset, decode into symbol +displacement, if present)
 symdisp		equ		$C0				; flag to display as symbol's displacement alone (DO NOT USE, unless complex formatting is required, see notes below)

@@ -20,21 +20,21 @@ oRmvPlat		macro
 		move.w	plat(a0),a1				; load platform pointer to a1
 		clr.w	(a1)					; clear parent pointer
 		clr.w	plat(a0)				; also clear platform pointer
-    endm
+	endm
 ; --------------------------------------------------------------
 
 oCreatePlat		macro map, flags, width, height
 		jsr	CreatePlatform.w			; jump to routine for creating platform data
 		dc.b \width, \height				; add width and height data
 		dc.l (\flags<<24) | \map			; add mappings and flags data
-    endm
+	endm
 ; --------------------------------------------------------------
 
 CreatePlatform:
 		lea	PlatformList.w,a1			; load platform list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		dbset	platformcount-2,d0			; prepare platform count to d0
+		dbset	platformcount-1,d0			; prepare platform count to d0
 ; --------------------------------------------------------------
 
 .next
@@ -64,21 +64,21 @@ oRmvTouch		macro
 		move.w	touch(a0),a1				; load touch pointer to a1
 		clr.w	(a1)					; clear parent pointer
 		clr.w	touch(a0)				; also clear touch pointer
-    endm
+	endm
 ; --------------------------------------------------------------
 
 oCreateTouch		macro flags, extra, width, height
 		jsr	CreateTouch.w				; jump to routine for creating touch data
 		dc.b \width, \height				; add width and height data
 		dc.b \flags, \extra				; add flags data
-    endm
+	endm
 ; --------------------------------------------------------------
 
 CreateTouch:
 		lea	TouchList.w,a1				; load touch list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		dbset	touchcount-2,d0				; prepare touch count to d0
+		dbset	touchcount-1,d0				; prepare touch count to d0
 ; --------------------------------------------------------------
 
 .next
@@ -107,14 +107,14 @@ oCreateDynArt		macro art, map, width
 		jsr	CreateDynArt.w				; jump to routine for creating dynamic art data
 		dc.l ($FF<<24) | \art				; add art and last frame data
 		dc.l (\width<<24) | \map			; add vram size and mappings data
-    endm
+	endm
 ; --------------------------------------------------------------
 
 CreateDynArt:
 		lea	DartList.w,a1				; load dynamic art list to a1
 		tst.w	(a1)					; check if object exists
 		beq.s	.create					; branch if not
-		dbset	dyncount-2,d0				; prepare touch count to d0
+		dbset	dyncount-1,d0				; prepare touch count to d0
 ; --------------------------------------------------------------
 
 .next
@@ -135,6 +135,61 @@ CreateDynArt:
 		move.l	(a2)+,(a1)+				; load vram size and mappings data
 		move.w	#$FF00,(a1)+				; reset bit address
 		jmp	(a2)					; jump to the address after the data
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to set object attributes
+;
+; in:
+;   a0 = target object
+;   a1 = data array
+; --------------------------------------------------------------
+
+oAttributes		macro map, frame, flags, width, height, tile
+	local xarg						; use lbl only inside the macro
+xarg =		narg						; uhh this looks like a asm68k bug? why does I have to do this
+		lea	.data\@(pc),a1				; load data to a1
+		jmp	ObjAttributes\#xarg			; jump to routine for setting attributes
+
+.data\@:
+	if narg >= 6
+		dc.w \tile					; include tile data
+	endif
+
+	if narg >= 5
+		dc.b \height, \width				; include width + height data
+	elseif narg >= 4
+		dc.b \width, \width				; include width + height data
+	endif
+
+	if narg >= 3
+		dc.w \flags					; include flags data
+	endif
+
+	if narg >= 2
+		dc.l (\frame<<24) | \map			; include mappings data with initial frame
+	elseif narg >= 1
+		dc.l \map					; include mappings data
+	endif
+	endm
+; --------------------------------------------------------------
+
+ObjAttributes6:
+		move.w	(a1)+,tile(a0)				; set tile pattern
+
+ObjAttributes5:
+ObjAttributes4:
+		move.b	(a1)+,height(a0)			; set object height
+		move.b	(a1)+,width(a0)				; set object width
+
+ObjAttributes3:
+		move.w	(a1)+,flags(a0)				; set object flags
+
+ObjAttributes2:
+ObjAttributes1:
+		move.l	(a1)+,map(a0)				; set mappings data
+
+ObjAttributes0:
+		jmp	(a1)					; jump back to code
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to remove dynamic art objects
@@ -184,6 +239,56 @@ RmvDynArt:
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
+; Routine to delete an object
+;
+; in:
+;   a0 = target object
+;
+; thrash:
+;   a1
+; --------------------------------------------------------------
+
+oDelete:
+	oRmvDisplay	a0, a1, 1		; remove object display
+	oRmvPlat				; remove platform object stuff
+	oRmvTouch				; remove touch object stuff
+		jsr	RmvDynArt.w		; remove dynamic art allocation
+
+oDeleteUnsafe:
+		move.w	prev(a0),a1		; copy previous pointer to a1
+		move.w	next(a0),next(a1)	; copy next pointer to previous object
+		move.w	next(a0),a1		; get next object to a1
+		move.w	prev(a0),prev(a1)	; copy previous pointer
+
+		move.w	FreeHead.w,prev(a0)	; get the head of the free list to previous pointer of this object
+		move.w	a0,FreeHead.w		; save as the new head of free list
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to load an important object with a specific pointer
+; Causes an exception when no free slots are found
+;
+; in:
+;   a3 = object rountine pointer
+;
+; out:
+;   a1 = free object
+;
+; thrash:
+;   a2
+; --------------------------------------------------------------
+
+oLoadImportant:
+		bsr.s	oLoad					; load an object
+		bne.s	.free					; branch if a free slot was found
+	exception	exCreateObj				; signal an exception
+; --------------------------------------------------------------
+
+.free
+		move.l	a3,ptr(a1)				; copy pointer value
+		rts
+; ==============================================================
+; --------------------------------------------------------------
 ; Routine to load an object
 ;
 ; out:
@@ -220,30 +325,4 @@ oLoad:
 		move.w	a2,prev(a1)				; save old tail as prev pointer for new object
 
 .rts
-		rts
-; ==============================================================
-; --------------------------------------------------------------
-; Routine to delete an object
-;
-; in:
-;   a0 = target object
-;
-; thrash:
-;   a1
-; --------------------------------------------------------------
-
-oDelete:
-	oRmvDisplay	a0, a1, 1		; remove object display
-	oRmvPlat				; remove platform object stuff
-	oRmvTouch				; remove touch object stuff
-		jsr	RmvDynArt.w		; remove dynamic art allocation
-
-oDeleteUnsafe:
-		move.w	prev(a0),a1		; copy previous pointer to a1
-		move.w	next(a0),next(a1)	; copy next pointer to previous object
-		move.w	next(a0),a1		; get next object to a1
-		move.w	prev(a0),prev(a1)	; copy previous pointer
-
-		move.w	FreeHead.w,prev(a0)	; get the head of the free list to previous pointer of this object
-		move.w	a0,FreeHead.w		; save as the new head of free list
 		rts
