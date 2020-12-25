@@ -18,7 +18,7 @@ gmTest:
 		jsr	ProcAlloc				; update allocations
 
 		move.w	TailNext.w,a0				; load first object slot into a0
-		jsr	oDebug					; debug it nao
+		jsr	DebugDynArts				; debug it nao
 	vsync							; wait for the next frame
 		bra.s	*
 ; --------------------------------------------------------------
@@ -27,7 +27,7 @@ gmTest:
 	oAttributes	.map, 1	, 0, 64, 16			; setup attributes
 	oCreatePlat	.pmap, (1<<pactive) | (1<<ptop) | (1<<plrb), 64, 16; setup platform
 	oCreateTouch	0, 0, 64, 16				; setup touch
-	oCreateDynArt	.dart, .dmap, 8
+	oCreateDynArt	.dart, .dmap, 8				; setup dynamic art
 		oNext						; run next object
 
 .map

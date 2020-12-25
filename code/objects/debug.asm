@@ -13,7 +13,7 @@
 ; Debug object lists
 ; --------------------------------------------------------------
 
-oDebugList:
+DebugList:
 		if DEBUG
 	RaiseError	"OBJECT LIST DEBUG", .rt, 0
 
@@ -182,7 +182,7 @@ oDebugList:
 ; --------------------------------------------------------------
 
 .not2il
-		bra.s	*					; done!
+		rts						; done!
 ; --------------------------------------------------------------
 ; function to write object pointer
 ;
@@ -232,17 +232,17 @@ oDebugList:
 ; Debug single objects
 ;
 ; input:
-;    a0 = object ID
+;    a0 = object ptr
 ; --------------------------------------------------------------
 
-oDebug:
+DebugOne:
 		if DEBUG
 	RaiseError	"OBJECT %<pal2>%<.w a0 hex> %<pal1>DEBUG", .rt, 0
 
 .rt
 	Console.WriteLine "%<pal0>Ptr:       %<pal2>%<.l ptr(a0) hex>"
 	Console.WriteLine "%<pal0>%<.l ptr(a0) sym|split>%<pal2>%<symdisp>"
-	Console.WriteLine "%<pal0>Display:   %<pal2>%<.w dprev(a0) hex> %<pal2>%<.w dnext(a0) hex>"
+	Console.WriteLine "%<pal0>Disp layer:%<pal2>%<.w dprev(a0) hex> %<pal2>%<.w dnext(a0) hex>"
 ; --------------------------------------------------------------
 
 	Console.Write     "%<pal0>Platform:  "
@@ -263,11 +263,29 @@ oDebug:
 		bsr.w	.writeptr				; write ptr info
 ; --------------------------------------------------------------
 
-	Console.WriteLine "%<pal0>Respawn:   %<pal2>%<.w resp(a0) hex>"
-	Console.WriteLine "%<pal0>Flags:     %<pal2>%<.w flags(a0) hex>"
+		tst.w	resp(a0)				; check if respawn address was set
+		bne.s	.respawn				; branch if yes
+	Console.Write    "%<pal0>Respawn:   "
+		bsr.w	.null					; write null text
+		bra.s	.flags
+
+.respawn
+		move.w	resp(a0),a1				; load respawn address to a1
+	Console.WriteLine "%<pal0>Respawn:   %<pal2>%<.w a1 hex>%<pal0> - %<pal2>%<.b (a1) hex>"
+; --------------------------------------------------------------
+
+.flags
+	; write flags
+	Console.Write     "%<pal0>Flags:     "
+		lea	.flagsarray(pc),a5			; load flags array to a5
+		dbset	16,d6					; load flags length to d6
+		move.w	flags(a0),d7				; load flags to d7
+		jsr	DebugPrintFlags(pc)			; print flags
+	Console.BreakLine					; create a line break
+
 	Console.WriteLine "%<pal0>Position:  %<pal2>%<.w xpos(a0) hex>.%<.b xpos+2(a0) hex>  %<.w ypos(a0) hex>.%<.b ypos+2(a0) hex>"
-	Console.WriteLine "%<pal0>Disp size: %<pal2>%<.b width(a0) dem>x%<.b height(a0) dem>"
-	Console.WriteLine "%<pal0>Map/frame: %<pal0>%<.l map(a0) sym|split>%<pal2>%<symdisp> / %<.b frame(a0) hex>"
+	Console.WriteLine "%<pal0>Display:   %<pal2>%<.b width(a0) dem>x%<.b height(a0) dem> %<pal0>frame %<pal2>%<.b frame(a0) hex>"
+	Console.WriteLine "%<pal0>Mappings:  %<pal0>%<.l map(a0) sym|split>%<pal2>%<symdisp>"
 	Console.WriteLine "%<pal0>Tile:      %<pal2>%<.w tile(a0) hex>"
 ; --------------------------------------------------------------
 
@@ -288,7 +306,32 @@ oDebug:
 	Console.Write "%<.b (a0)+ hex> "			; write next part
 		addq.b	#3,d0					; mark as written
 		dbf	d1,.exram				; loop for all of exram
-		bra.s	*
+		rts
+; --------------------------------------------------------------
+
+.flagsarray
+		dc.b .b15-.flagsarray-0, .b14-.flagsarray-1, .b13-.flagsarray-2, .b12-.flagsarray-3
+		dc.b .b11-.flagsarray-4, .b10-.flagsarray-5, .b9-.flagsarray-6,  .b8-.flagsarray-7
+		dc.b .b7-.flagsarray-8,  .b6-.flagsarray-9,  .b5-.flagsarray-10, .b4-.flagsarray-11
+		dc.b .b3-.flagsarray-12, .b2-.flagsarray-13, .b1-.flagsarray-14, .b0-.flagsarray-15
+
+.b7		dc.b "onscreen", 0
+.b15
+.b14
+.b13
+.b12
+.b11
+.b10
+.b9
+.b8
+.b6
+.b5
+.b4
+.b3		dc.b "?", 0
+.b2		dc.b "singlesprite", 0
+.b1		dc.b "yflip", 0
+.b0		dc.b "xflip", 0
+	even
 ; --------------------------------------------------------------
 ; function to write pointer info
 ;
@@ -323,8 +366,211 @@ oDebug:
 	Console.WriteLine "%<pal0>Dart map:  %<pal0>%<.l dmap(a1) sym|split>%<pal2>%<symdisp>"
 		rts
 	endif
+; ==============================================================
+; --------------------------------------------------------------
+; Debug all platform objects
+; --------------------------------------------------------------
+
+DebugPlatforms:
+	RaiseError	"PLATFORM DEBUG", .rt, 0
+
+.rt
+		lea	PlatformList.w,a1			; load platform list to a1
+		dbset	platformcount,d0			; load list size to d0
+; --------------------------------------------------------------
+
+.plat
+		move.w	(a1),a0					; load parent to a0
+		cmp.w	#0,a0					; check if no parent is loaded
+		bne.s	.hasparent				; branch if some is
+; --------------------------------------------------------------
+
+	Console.WriteLine "%<pal0>Platform %<pal2>%<.w a1 hex> %<pal1>free"
+		bra.w	.next					; skip over to next platform
+; --------------------------------------------------------------
+
+.hasparent
+	Console.WriteLine "%<pal0>Platform %<pal2>%<.w a1 hex> %<pal0>with parent %<pal2>%<.w a0 hex>"
+	Console.WriteLine "%<pal0>%<.l ptr(a0) sym|split>%<pal2>%<symdisp>"
+	Console.Write "%<pal0>Size: %<pal2>%<.b pwidth(a1) dem>x%<.b pheight(a1) dem> %<pal0>Flags: %<pal2>"
+
+	; write flags
+		lea	.flagsarray(pc),a5			; load flags array to a5
+		dbset	8,d6					; load flags length to d6
+		move.b	pflags(a1),d7				; load flags to d7
+		jsr	DebugPrintFlags(pc)			; print flags
+	Console.WriteLine "%<endl>%<pal0>%<.l map(a1) sym|split>%<pal2>%<symdisp>%<endl>"
+; --------------------------------------------------------------
+
+.next
+		add.w	#psize,a1				; go to next platform
+		dbf	d0,.plat				; loop for all platforms
+		rts
+; --------------------------------------------------------------
+
+.flagsarray
+		dc.b .b7-.flagsarray-0, .b6-.flagsarray-1, .b5-.flagsarray-2, .b4-.flagsarray-3
+		dc.b .b3-.flagsarray-4, .b2-.flagsarray-5, .b1-.flagsarray-6, .b0-.flagsarray-7
+
+.b7		dc.b "pactive", 0
+.b6		dc.b "?", 0
+.b5		dc.b "plrb", 0
+.b4		dc.b "ptop", 0
+.b3		dc.b "ppushp2", 0
+.b2		dc.b "ppushp1", 0
+.b1		dc.b "pstandp2", 0
+.b0		dc.b "pstandp1", 0
+	even
+; ==============================================================
+; --------------------------------------------------------------
+; Debug all touch objects
+; --------------------------------------------------------------
+
+DebugTouchs:
+	RaiseError	"TOUCH DEBUG", .rt, 0
+
+.rt
+		lea	TouchList.w,a1				; load platform list to a1
+		dbset	touchcount,d0				; load list size to d0
+; --------------------------------------------------------------
+
+.plat
+		move.w	(a1),a0					; load parent to a0
+		cmp.w	#0,a0					; check if no parent is loaded
+		bne.s	.hasparent				; branch if some is
+; --------------------------------------------------------------
+
+	Console.WriteLine "%<pal0>Touch %<pal2>%<.w a1 hex> %<pal1>free"
+		bra.w	.next					; skip over to next platform
+; --------------------------------------------------------------
+
+.hasparent
+	Console.WriteLine "%<pal0>Touch %<pal2>%<.w a1 hex> %<pal0>with parent %<pal2>%<.w a0 hex>"
+	Console.WriteLine "%<pal0>%<.l ptr(a0) sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "%<pal0>Size: %<pal2>%<.b twidth(a1) dem>x%<.b theight(a1) dem> %<pal0>Extra: %<pal2>%<.b textra(a1) hex>"
+	Console.Write "%<pal0>Flags: %<pal2>"
+
+	; write flags
+		lea	.flagsarray(pc),a5			; load flags array to a5
+		dbset	8,d6					; load flags length to d6
+		move.b	tflags(a1),d7				; load flags to d7
+		jsr	DebugPrintFlags(pc)			; print flags
+	Console.BreakLine					; make a line break
+	Console.BreakLine					; make a line break
+; --------------------------------------------------------------
+
+.next
+		add.w	#tsize,a1				; go to next platform
+		dbf	d0,.plat				; loop for all platforms
+		rts
+; --------------------------------------------------------------
+
+.flagsarray
+		dc.b .b7-.flagsarray-0, .b6-.flagsarray-1, .b5-.flagsarray-2, .b4-.flagsarray-3
+		dc.b .b3-.flagsarray-4, .b2-.flagsarray-5, .b1-.flagsarray-6, .b0-.flagsarray-7
+
+.b7
+.b6
+.b5
+.b4
+.b3
+.b2
+.b1
+.b0		dc.b "?", 0
+	even
+; ==============================================================
+; --------------------------------------------------------------
+; Debug all dynamic art objects
+; --------------------------------------------------------------
+
+DebugDynArts:
+	RaiseError	"DYNART DEBUG", .rt, 0
+
+.rt
+		lea	DartList.w,a1				; load platform list to a1
+		dbset	dyncount,d0				; load list size to d0
+; --------------------------------------------------------------
+
+.plat
+		move.w	(a1),a0					; load parent to a0
+		cmp.w	#0,a0					; check if no parent is loaded
+		bne.s	.hasparent				; branch if some is
+; --------------------------------------------------------------
+
+	Console.WriteLine "%<pal0>DynArt %<pal2>%<.w a1 hex> %<pal1>free"
+		bra.w	.next					; skip over to next platform
+; --------------------------------------------------------------
+
+.hasparent
+	Console.WriteLine "%<pal0>DynArt %<pal2>%<.w a1 hex> %<pal0>with parent %<pal2>%<.w a0 hex>"
+	Console.WriteLine "%<pal0>%<.l ptr(a0) sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "%<pal0>Art: %<.l dart(a1) sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "%<pal0>Map: %<.l dmap(a1) sym|split>%<pal2>%<symdisp>"
+	Console.WriteLine "%<pal0>Last: %<pal2>%<.b dlast(a1) hex> %<pal0>Bit: %<pal2>%<.b dbit(a1) hex> %<pal0>Width: %<pal2>%<.b dwidth(a1) hex>"
+
+	; calculate the allocation
+		moveq	#0,d2
+		move.b	dbit(a1),d2				; load starting bit to d2
+		lsl.w	#dynallocsize,d2			; shift up by bit count
+
+		moveq	#0,d1
+		move.b	dwidth(a1),d1				; load width to d1
+		lsl.w	#dynallocsize,d1			; shift up by bit count
+		move.w	d1,d3					; copy to d3
+
+		add.w	#vDynamic/32,d2				; add start of VRAM allocation to d2
+		add.w	d2,d1					; and to d1 too
+		subq.w	#1,d1					; decrement 1 from last tile
+	Console.WriteLine "%<pal0>Alloc: %<pal2>%<.w d3 hex> %<pal0>tiles; %<pal2>%<.w d2 hex>%<pal1>-%<pal2>%<.w d1 hex> %<pal0>in VRAM%<endl>"
+; --------------------------------------------------------------
+
+.next
+		add.w	#dsize,a1				; go to next platform
+		dbf	d0,.plat				; loop for all platforms
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to print a set of flags based on bit patterns
+;
+; input:
+;   d6 = loop counter (how many bits to check)
+;   d7 = register that stores the bit pattern
+;   a5 = table to read strings from
+;
+; thrash: d4-d7/a4-a5
+; --------------------------------------------------------------
+
+DebugPrintFlags:
+	Console.Write "%<pal2>"					; switch palette
+		moveq	#0,d5					; reset flip-flop
+		moveq	#0,d4					; clear offset
+; --------------------------------------------------------------
+
+.writeflags
+		move.b	(a5)+,d4				; load flags offset to d4
+
+		btst	d6,d7					; check if flags are set
+		beq.s	.nowrite				; branch if not
+		tas	d5					; check if the first flag was already written
+		beq.s	.nosep					; branch if not
+	Console.Write "%<pal1>|%<pal2>"				; write a separator
+
+.nosep
+		lea	-1(a5,d4.w),a4				; load flags text to a4
+	Console.Write "%<.l a4 str>"				; write a string
+
+.nowrite
+		dbf	d6,.writeflags				; loop for all flags
+; --------------------------------------------------------------
+
+		tst.b	d5					; check if any bits were set
+		bne.s	.rts					; branch if yes
+	Console.Write "%<pal0>none%<pal2>"			; write null flags
+
+.rts
+		rts
 ; --------------------------------------------------------------
 
 	if DEBUG=0
-		exception	exNoDebug			; throw an exception instead
+		exception	exNDebug			; throw an exception instead
 	endif

@@ -143,20 +143,20 @@ AllocRefactor:
 ; --------------------------------------------------------------
 
 		moveq	#0,d4
-		move.b	dwidth(a0),d4				; load number of bits to reserve
+		move.b	dwidth(a1),d4				; load number of bits to reserve
 
 		lea	DynAllocTable.w,a0			; load alloc table to a0
 		move.w	d2,d3					; copy bit to d3
 		lsr.w	#3,d3					; divide by 8 (8 bits per byte)
 		add.w	d3,a0					; add byte offset
 
-		move.w	d2,d3					; copy bit to d3
-		and.w	#7,d3					; get only the bit to d3
+		moveq	#7,d3					; get only the bit to d3
+		and.w	d2,d3					; and bit with d3
 		add.w	d4,d2					; go to the bit after this object
 ; --------------------------------------------------------------
 
 .setbit
-		bset	d0,(a0)					; set the bit
+		bset	d3,(a0)					; set the bit
 		addq.b	#1,d3					; go to next bit
 
 		bclr	#4,d3					; check if the byte is now all done
