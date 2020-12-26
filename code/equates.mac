@@ -33,6 +33,7 @@ dynallocsize =		2					; number of bits of tiles to allocate for every bit of all
 dynalloctiles =		$180					; number of tiles for dynamic allocator
 dynallocbits =		dynalloctiles / (1 << dynallocsize)	; number of bits for dynamic allocator
 dynallocbytes =		((dynallocbits / 8 + 1) + 1) & $FFE	; number of bytes for dynamic allocator (next even value)
+dmaqueueentries =	$20					; how many separate DMA queue entries to have
 
 	if dynallocbits > $100					; check if there are too many bits for allocator to work
 		inform 3,"Too many tiles reserved for dynamic allocator!"; display error message
@@ -176,6 +177,10 @@ DisplayList		ds.b dislayercount * ddsize		; the RAM for every display layer data
 PlatformList		ds.b platformcount * psize		; the RAM for every platform object data
 TouchList		ds.b touchcount * tsize			; the RAM for every touch object data
 DartList		ds.b dyncount * dsize			; the RAM for every touch object data
+
+DMAQueueAddr		ds.w 1					; address of the next free DMA queue slot
+DMAQueueBuf		ds.w dmaqueueentries * 7		; DMA queue buffer
+DMAQueueEnd		ds.w 1					; end of DMA queue (also a must-be-null word)
 DynAllocTable		ds.b dynallocbits / 8 + 1		; the RAM for all the bits needed for dynamic allocator
 DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 
@@ -203,3 +208,4 @@ exCreateTouch		rs.w 1					; exception when there are too many touch objects
 exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objects
 exCreateObj		rs.w 1					; exception when an important object failed to load
 exNoDebug		rs.w 1					; exception when DEBUG flag is off
+exFullDMA		rs.w 1					; exception when DMA queue is full

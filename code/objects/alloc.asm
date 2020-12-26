@@ -15,7 +15,7 @@
 ; in:
 ;   a0 = target object
 ;
-; thrash: d0-d6/a0-a1/a3
+; thrash: d0-d6/a0-a1/a3-a4
 ; --------------------------------------------------------------
 
 ProcAlloc:
@@ -46,11 +46,11 @@ ProcAlloc:
 ; Routine to update dynamic art object in VRAM
 ;
 ; in:
+;   d4 = frame ID
 ;   a0 = object
 ;   a1 = dynamic art address
-;   d4 = frame
 ;
-; thrash: d5-d6/a3
+; thrash: d3-d6/a3-a4
 ; --------------------------------------------------------------
 
 AllocUpdate:
@@ -62,11 +62,97 @@ AllocUpdate:
 		move.w	tile(a0),d5				; load tile settings to d5
 		and.w	#$7FF,d5				; get only the settings part
 		lsl.w	#5,d5					; get the VRAM offset to d5
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to add mappings frame to DMA queue
+;
+; in:
+;   d4 = frame ID (must be word!!)
+;   d5 = destination VRAM address
+;   d6 = art data address
+;   a3 = mappings data address
+;
+; thrash: d3-d6/a3-a4
 ; --------------------------------------------------------------
 
-	; add specifics of the code here
+dmaQueueMaps:
+		add.w	d4,d4					; double offset
+		add.w	(a3,d4.w),a3				; add table offset to get mappings data to a3
+; --------------------------------------------------------------
 
+dmaQueueMapData:
+		bra.s	.checktoken
+; --------------------------------------------------------------
 
+.proctoken
+		moveq	#$F,d3					; load the num of tiles to d3
+		and.w	d4,d3					; and with the read word
+		addq.w	#1,d3					; +1 for 1 to 16 tiles
+		lsl.w	#4,d3					; multiply by 16 (half of a tile size)
+
+		and.l	#$FF0,d4				; get only the tile offset portion to d4
+		add.l	d4,d4					; double offset, totaling the size of a tile
+		add.l	d6,d4					; add art address to d4
+
+		bsr.s	dmaQueueAdd				; add this to DMA queue
+		add.w	d3,d5					; add tile length to VRAM destination address
+		add.w	d3,d5					; twice because it was / 2
+
+.checktoken
+		moveq	#-1,d4					; set up data so that range from 0 to $FFFE is possible only
+		add.w	(a3)+,d4				; add next data to d4
+		bcs.s	.proctoken				; if not end marker, process token
+		rts						; end of list
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to queue DMA entries
+;
+; in:
+;   d3 = transfer length
+;   d4 = source ROM address
+;   d5 = destination VRAM address
+;   a3 = mappings data address
+;
+; thrash:  d4/a4
+; --------------------------------------------------------------
+
+dmaQueueAdd:
+		move.w	DMAQueueAddr.w,a4			; load DMA queue buffer address to a4
+		cmp.w	#DMAQueueEnd,a4				; check if this is the end of DMA queue
+		beq.s	.full					; branch if so
+; --------------------------------------------------------------
+
+		move.b	#$93,(a4)				; load the first command to buffer
+		movep.l	#$94959697,2(a4)			; fill every other byte with commands
+		movep.w	d3,1(a4)				; fill transfer lenth
+
+		lsr.l	#1,d4					; halve source address
+		movep.l	d4,5(a4)				; fill in the source address
+		add.w	#10,a4					; skip to the VDP command portion
+; --------------------------------------------------------------
+
+		moveq	#0,d4					; clear entirity of d4
+		move.w	d5,d4					; copy VRAM address to d4
+		lsl.l	#2,d4					; shift the 2 upper bits to upper word
+		lsr.w	#2,d4					; shift rest of the bits in place
+
+		swap	d4					; swap words
+	vdp	or.l,0,VRAM,DMA,d4				; enable VRAM DMA mode
+		move.l	d4,(a4)+				; put the command into DMA queue
+; --------------------------------------------------------------
+
+		move.w	a4,DMAQueueAddr.w			; save the new DMA queue address
+		clr.w	(a4)					; set an end token
+; --------------------------------------------------------------
+
+	if DEBUG
+		rts
+
+.full
+		exception	exFullDMA			; DMA queue is full
+	else
+.full
+	endif
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -75,7 +161,7 @@ AllocUpdate:
 ; in:
 ;   a0 = target object
 ;
-; thrash: d0-d6/a0-a1/a3
+; thrash: d0-d6/a0-a1/a3-a4
 ; --------------------------------------------------------------
 
 AllocRefactor:

@@ -97,6 +97,7 @@ TrapF:
 		dc.w .createdart-.errors		; 6	; exCreateDynArt
 		dc.w .createobj-.errors			; 8	; exCreateObj
 		dc.w .nodebug-.errors			; A	; exNoDebug
+		dc.w .fulldma-.errors			; C	; exFullDMA
 ; ---------------------------------------------------------------
 ; Software exception handlers
 ; ---------------------------------------------------------------
@@ -139,6 +140,13 @@ TrapF:
 		__ErrorMessage "DEBUG EXCEPTION WHEN DEBUG=1 ???", _eh_default
 	else
 		__ErrorMessage "BUILD WITH DEBUG=1", _eh_default
+	endif
+; ---------------------------------------------------------------
+
+.fulldma
+	if DEBUG
+		move.l	(sp)+,a0				; load item back from stack
+	__ErrorMessage "DMA QUEUE FULL", _eh_default
 	endif
 
 ; ---------------------------------------------------------------
