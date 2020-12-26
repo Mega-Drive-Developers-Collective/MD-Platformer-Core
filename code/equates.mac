@@ -178,9 +178,8 @@ PlatformList		ds.b platformcount * psize		; the RAM for every platform object da
 TouchList		ds.b touchcount * tsize			; the RAM for every touch object data
 DartList		ds.b dyncount * dsize			; the RAM for every touch object data
 
-DMAQueueAddr		ds.w 1					; address of the next free DMA queue slot
 DMAQueueBuf		ds.w dmaqueueentries * 7		; DMA queue buffer
-DMAQueueEnd		ds.w 1					; end of DMA queue (also a must-be-null word)
+DMAQueueAddr		ds.w 1					; address of the next free DMA queue slot (must be at the end of queue)
 DynAllocTable		ds.b dynallocbits / 8 + 1		; the RAM for all the bits needed for dynamic allocator
 DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 

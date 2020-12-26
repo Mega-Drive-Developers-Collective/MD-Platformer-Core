@@ -62,6 +62,30 @@ AllocUpdate:
 		move.w	tile(a0),d5				; load tile settings to d5
 		and.w	#$7FF,d5				; get only the settings part
 		lsl.w	#5,d5					; get the VRAM offset to d5
+
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to initialize DMA queue
+;
+; thrash:  d0-d2/a0
+; --------------------------------------------------------------
+dmaQueueInit:
+	lea		DMAQueueAddr.w,a0			; load DMA queue address to a0
+	dbset	dmaqueueentries,d0			; load amount of DMA queue entries to d0			
+	; If somebody reads this,
+	; please add constants for VDP commands.
+	; Thank you!
+	move.w	#$9300,d1			; load the low register part of DMA length command to d1
+	move.l	#$94959697,d2		; load other register parts of DMA commands to d2 (1st byte - register, 2nd byte - value; routine updates only register part)
+.initloop:
+	; I'm not going to explain this again, read what I said above
+	move.w	d1,(a0)
+	movep.l	d2,2(a0)		; movep moves each byte of source to each other byte of destination
+	lea		14(a0),a0		; go to the next DMA entry
+	dbf		.initloop,d0	; iterate through all DMA queue entries	
+	move.w	#DMAQueueBuf,DMAQueueAddr.w	; reset DMA queue free entry pointer
+	rts
+
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to add mappings frame to DMA queue
@@ -117,18 +141,21 @@ dmaQueueMapData:
 ; --------------------------------------------------------------
 
 dmaQueueAdd:
-		move.w	DMAQueueAddr.w,a4			; load DMA queue buffer address to a4
-		cmp.w	#DMAQueueEnd,a4				; check if this is the end of DMA queue
+		move.w	DMAQueueAddr.w,a4		; load DMA queue free entry pointer to a4
+		;	if DMA queue free entry pointer is cleared, then there isn't any free DMA queue entries
+		;	benefit of this is that overflow check(next 2 instructions) isn't necessary,
+		;	because if DMA queue overflow happen, new DMA entries will be written start of ROM, which is safe 
+	if	DEBUG
+		tst.w	a4						; check if DMA queue free entry pointer is cleared
 		beq.s	.full					; branch if so
+	endif
 ; --------------------------------------------------------------
-
-		move.b	#$93,(a4)				; load the first command to buffer
-		movep.l	#$94959697,2(a4)			; fill every other byte with commands
-		movep.w	d3,1(a4)				; fill transfer lenth
+		; all registers part of commands were set in dmaQueue initialization routine
+		movep.w	d3,1(a4)				; fill transfer length
 
 		lsr.l	#1,d4					; halve source address
 		movep.l	d4,5(a4)				; fill in the source address
-		add.w	#10,a4					; skip to the VDP command portion
+		lea		10(a4),a4				; skip to the VDP command portion
 ; --------------------------------------------------------------
 
 		moveq	#0,d4					; clear entirity of d4
@@ -136,12 +163,18 @@ dmaQueueAdd:
 		lsl.l	#2,d4					; shift the 2 upper bits to upper word
 		lsr.w	#2,d4					; shift rest of the bits in place
 
-		swap	d4					; swap words
+		swap	d4						; swap words
 	vdp	or.l,0,VRAM,DMA,d4				; enable VRAM DMA mode
 		move.l	d4,(a4)+				; put the command into DMA queue
 ; --------------------------------------------------------------
 
-		move.w	a4,DMAQueueAddr.w			; save the new DMA queue address
+		move.w	a4,DMAQueueAddr.w		; save the new DMA queue free entry pointer
+		; Next instruction is a bit tricky
+		; It does 2 things:
+		; 1 - sets an end token
+		; 2	- if this was last free DMA entry, a4 will point to DMA queue free entry pointer,
+		; so it becomes cleared.
+		; and as you might remember overflow check consists of checking is DMA queue free entry pointer cleared
 		clr.w	(a4)					; set an end token
 ; --------------------------------------------------------------
 
