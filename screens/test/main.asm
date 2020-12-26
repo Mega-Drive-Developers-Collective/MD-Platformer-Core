@@ -11,7 +11,7 @@
 gmTest:
 		move.b	#4,VintRoutine.w			; enable screen v-int routine
 		jsr	oInitializeAll				; initialize all objects
-		move.w	#DMAQueueBuf,DMAQueueAddr.w		; reset DMA queue
+		jsr	dmaQueueInit				; initialize DMA queue
 
 		lea	.test(pc),a3				; load object pointer to a3
 		jsr	oLoadImportant.w			; load an important object
