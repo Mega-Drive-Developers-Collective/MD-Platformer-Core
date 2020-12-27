@@ -96,6 +96,7 @@ Fast		SECTION org($200), size($7E00), word		; create $200-$8000 word section
 Library		SECTION						; create library section
 		include "code/objects/alloc.asm"		; include alloc routines
 		include "code/objects/misc.asm"			; include misc object routines
+		include "code/objects/render.asm"		; include object rendering routines
 		include "code/SRAM.asm"				; include SRAM routines
 ; ==============================================================
 ; --------------------------------------------------------------

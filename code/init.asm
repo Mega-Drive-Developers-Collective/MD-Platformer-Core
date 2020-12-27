@@ -57,10 +57,10 @@ InitData:
 .regs
 		dc.b $04				; $80	; 8-colour mode
 		dc.b $14				; $81	; enable DMA and MD mode
-		dc.b (vPlaneA>>10)			; $82	; plane A address
-		dc.b (vWindow>>10)			; $83	; window plane address
-		dc.b (vPlaneB>>13)			; $84	; plane B address
-		dc.b (vSprites>>9)			; $85	; sprite table address
+		dc.b (vPlaneA >> 10)			; $82	; plane A address
+		dc.b (vWindow >> 10)			; $83	; window plane address
+		dc.b (vPlaneB >> 13)			; $84	; plane B address
+		dc.b (vSprites >> 9)			; $85	; sprite table address
 		dc.b $00				; $86	; use lower 64k VRAM for sprites
 		dc.b $00				; $87	; background colour line 0 index 0
 		dc.b $00				; $88	; unused
@@ -68,7 +68,7 @@ InitData:
 		dc.b $FF				; $8A	; h-int line count
 		dc.b $08				; $8B	; line hscroll, 2 tile vscroll
 		dc.b $81				; $8C	; 40 tile display, no S/H
-		dc.b (vHscroll>>10)			; $8D	; hscroll table address
+		dc.b (vHscroll >> 10)			; $8D	; hscroll table address
 		dc.b $00				; $8E	; use lower 64k VRAM for planes
 		dc.b $02				; $8F	; auto-increment
 		dc.b $01				; $90	; 64x32 tile plane size

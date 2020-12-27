@@ -70,9 +70,9 @@ WDMA =			$27					; VDP DMA
 ; --------------------------------------------------------------
 
 dma			macro source,dest,length,type
-		move.l	#$94009400|((((\length)>>1)&$FF00)<<8)|(((\length)>>1)&$FF),(a6)
+		move.l	#$94009300|((((\length)>>1)&$FF00)<<8)|(((\length)>>1)&$FF),(a6)
 		move.l	#$96009500|((((\source)>>1)&$FF00)<<8)|(((\source)>>1)&$FF),(a6)
-		move.w	#$9700|(((((\source)>>1)&$FF0000)>>16)&$7F),(a6)
+		move.w	#$9700|(((\source)>>17)&$7F),(a6)
 	vdp	move.l,\dest,\type,WDMA,(a6)			; start a DMA
 	endm
 ; ==============================================================

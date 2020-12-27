@@ -298,7 +298,7 @@ dmaQueueInit:
 
 .initloop
 		movep.l	d1,2(a0)				; fill every other byte with the rest of the registers (do not modify value!!)
-		lea	2*7(a0),a0					; go to the next DMA entry
+		lea	2*7(a0),a0				; go to the next DMA entry
 		dbf	d0,.initloop				; iterate through all DMA queue entries
 		rts
 ; ==============================================================

@@ -12,15 +12,17 @@ gmTest:
 		move.b	#4,VintRoutine.w			; enable screen v-int routine
 		jsr	oInitializeAll				; initialize all objects
 		jsr	dmaQueueInit				; initialize DMA queue
+		move.w	#$8174,(a6)				; enable ints
 
 		lea	.test(pc),a3				; load object pointer to a3
 		jsr	oLoadImportant.w			; load an important object
 	RunObjects						; run all objects
 		jsr	ProcAlloc				; update allocations
+		jsr	ProcMaps				; update sprite table
 
 		move.w	TailNext.w,a0				; load first object slot into a0
-		jsr	DebugLayers				; debug it nao
 	vsync							; wait for the next frame
+	;	jsr	DebugLayers				; debug it nao
 		bra.w	*
 ; --------------------------------------------------------------
 
@@ -33,7 +35,10 @@ gmTest:
 		oNext						; run next object
 
 .map
-	dc.w 0
+	dc.w .frame1-.map
+
+.frame1		sprite $0000, 4, 4, $0000, $0020
+		spritt $0000, 2, 1, $0008,-$0008
 
 .pmap
 	dc.w 0

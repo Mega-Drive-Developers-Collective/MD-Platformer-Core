@@ -83,10 +83,11 @@ size			rs.w 0					; size of object
 ; --------------------------------------------------------------
 
 	rsset 0		; byte 0
+singlesprite		rs.b 1					; set if object displays only a single sprite. Used for some special objects
+			rs.b 1					; unused
 xflip			rs.b 1					; set if object is x-flipped
 yflip			rs.b 1					; set if object is y-flipped
-singlesprite		rs.b 1					; set if object displays only a single sprite. Used for some special objects
-			rs.b 4					; unused
+			rs.b 3					; unused
 onscreen		rs.b 1					; set if object was displayed last frame
 
 	rsset 8		; byte 1
@@ -186,6 +187,9 @@ DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 Gamemode		ds.b 1					; the current game mode
 VintCount		ds.l 1					; number of vertical interrupts so far
 VintRoutine		ds.b 1					; vertical interrupt routine
+
+CameraX			ds.l 1					; camera x-position
+CameraY			ds.l 1					; camera y-position
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Exception macro
