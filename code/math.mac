@@ -1,0 +1,243 @@
+; ==============================================================
+; --------------------------------------------------------------
+; MD Platformer Core
+;
+;   by Mega Drive Developers Collective
+;      AURORA FIELDS 2020/12
+;
+;   Math macros assembler file
+; --------------------------------------------------------------
+
+; ==============================================================
+; --------------------------------------------------------------
+; Macro for easy multiplication with shifts
+; warning: Can generate large code
+;
+;   mult =	multiplication factor
+;   dst =	Destination register
+;   fre =	Any free register
+; --------------------------------------------------------------
+
+fmulu			macro mult, dst, fre
+		case \mult					; switch-case with mult
+=0		clr.\0	\dst					; clear
+=1								; no-op
+=2		add.\0	\dst,\dst				; 2x the value
+; --------------------------------------------------------------
+	; 12  cycles
+=3		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\dst			; 4	; add fre to dst
+		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+; --------------------------------------------------------------
+	; 8 cycles
+=4		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+; --------------------------------------------------------------
+	; 16 cycles
+=5		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (5x total)
+; --------------------------------------------------------------
+	; 16 cycles
+=6		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (6x total)
+; --------------------------------------------------------------
+	; 20 cycles
+=7		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (7x total)
+; --------------------------------------------------------------
+	; 12 cycles
+=8		lsl.\0	#3,\dst				; 12	; multiply by 8
+; --------------------------------------------------------------
+	; 20 cycles
+=9		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\dst				; 12	; multiply by 8
+		add.\0	\fre,\dst			; 4	; add fre to dst (9x total)
+; --------------------------------------------------------------
+	; 20 cycles
+=10		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (10x total)
+; --------------------------------------------------------------
+	; 24 cycles
+=11		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (11x total)
+; --------------------------------------------------------------
+	; 20 cycles
+=12		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy 4x dst to fre
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (12x total)
+; --------------------------------------------------------------
+	; 24 cycles
+=13		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (5x total)
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (13x total)
+; --------------------------------------------------------------
+	; 24 cycles
+=14		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (6x total)
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (14x total)
+; --------------------------------------------------------------
+	; 28 cycles
+=15		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (7x total)
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (15x total)
+; --------------------------------------------------------------
+	; 14 cycles
+=16		lsl.\0	#4,\dst				; 14	; multiply by 16
+; --------------------------------------------------------------
+	; 22 cycles
+=17		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\dst				; 14	; multiply by 16
+		add.\0	\fre,\dst			; 4	; add fre to dst (17x total)
+; --------------------------------------------------------------
+	; 24 cycles
+=18		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		lsl.\0	#3,\dst				; 12	; multiply by 8 (16x)
+		add.\0	\fre,\dst			; 4	; add fre to dst (18x total)
+; --------------------------------------------------------------
+	; 30 cycles
+=19		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\dst,\fre			; 4	; 3x the value
+		lsl.\0	#4,\dst				; 14	; multiply by 8 (16x)
+		add.\0	\fre,\dst			; 4	; add fre to dst (19x total)
+; --------------------------------------------------------------
+	; 24 cycles
+=20		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy 4x dst to fre
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (20x total)
+; --------------------------------------------------------------
+	; 28 cycles
+=21		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\fre			; 4	; 5x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (21x total)
+; --------------------------------------------------------------
+	; 28 cycles
+=22		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\fre			; 4	; 6x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (22x total)
+; --------------------------------------------------------------
+	; 32 cycles
+=23		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\fre			; 4	; 3x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\fre			; 4	; 7x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (23x total)
+; --------------------------------------------------------------
+	; 24 cycles
+=24		lsl.\0	#3,\dst				; 12	; multiply by 8
+		move.\0	\dst,\fre			; 4	; copy 8x dst to fre
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (24x total)
+; --------------------------------------------------------------
+	; 28 cycles
+=25		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\dst				; 12	; multiply by 8
+		add.\0	\dst,\fre			; 4	; 9x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (25x total)
+; --------------------------------------------------------------
+	; 28 cycles
+=26		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\fre			; 4	; 10x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (26x total)
+; --------------------------------------------------------------
+	; 32 cycles
+=27		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\fre			; 4	; 3x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\fre			; 4	; 11x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (27x total)
+; --------------------------------------------------------------
+	; 28 cycles
+=28		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy 4x dst to fre
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\fre			; 4	; 12x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (28x total)
+; --------------------------------------------------------------
+	; 32 cycles
+=29		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\fre			; 4	; 5x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\fre			; 4	; 13x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (29x total)
+; --------------------------------------------------------------
+	; 32 cycles
+=30		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		add.\0	\dst,\dst			; 4	; 4x the value
+		add.\0	\dst,\fre			; 4	; 6x the value
+		add.\0	\dst,\dst			; 4	; 8x the value
+		add.\0	\dst,\fre			; 4	; 14x the value
+		add.\0	\dst,\dst			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; add fre to dst (30x total)
+; --------------------------------------------------------------
+	; 16 cycles
+=32		lsl.\0	#5,\dst				; 16	; multiply by 32
+; --------------------------------------------------------------
+	; 18 cycles
+=64		lsl.\0	#6,\dst				; 16	; multiply by 64
+; --------------------------------------------------------------
+	; 20 cycles
+=128		lsl.\0	#7,\dst				; 16	; multiply by 128
+; --------------------------------------------------------------
+	; 22 cycles
+=256		lsl.\0	#8,\dst				; 16	; multiply by 256
+; --------------------------------------------------------------
+	; 70+ cycles
+=?		mulu	#\mult,\dst				; just do a simple multiply
+		endcase						; end of switch-case
+	endm

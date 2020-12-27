@@ -28,6 +28,7 @@
 
 		include "code/main.mac"				; include main assembler macros
 		include "code/equates.mac"			; include equates
+		include "code/math.mac"				; include math macros
 		include "code/objects/main.mac"			; include object macros
 		include "code/hardware/VDP.mac"			; include VDP macros
 		include "code/hardware/Z80.mac"			; include Z80 macros

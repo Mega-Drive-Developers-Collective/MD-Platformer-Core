@@ -38,7 +38,7 @@ ProcAlloc:
 ; --------------------------------------------------------------
 
 .skip
-		add.w	#dsize,a1				; go to next object
+		lea	dsize(a1),a1				; go to next object
 		dbf	d0,.dloop				; loop for all objects
 		rts
 ; ==============================================================
@@ -127,7 +127,7 @@ dmaQueueAdd:
 		movep.w	d3,1(a4)				; fill transfer length
 		lsr.l	#1,d4					; halve source address
 		movep.l	d4,5(a4)				; fill in the source address
-		add.w	#2*5,a4					; skip to VDP command portion
+		lea	2*5(a4),a4				; skip to VDP command portion
 ; --------------------------------------------------------------
 
 		moveq	#0,d4					; clear entirity of d4
@@ -217,7 +217,7 @@ AllocRefactor:
 		and.w	#$F800,d4				; get only the settings part
 
 		move.w	d2,d3					; copy the bit offset we are in
-		lsl.w	#dynallocsize,d3			; multiply by number of bits for tile count
+		fmulu.w	dynallocsize,d3,d5			; multiply by number of tiles
 		add.w	#vDynamic/32,d3				; add the initial tile offset to d3
 		or.w	d3,d4					; then save the tile address
 		move.w	d4,tile(a0)				; save as tile settings
@@ -252,7 +252,7 @@ AllocRefactor:
 ; --------------------------------------------------------------
 
 .skip
-		add.w	#dsize,a1				; go to next object
+		lea	dsize(a1),a1				; go to next object
 		dbf	d0,.reloop				; loop for all objects
 ; --------------------------------------------------------------
 
@@ -293,12 +293,12 @@ dmaQueueInit:
 		clr.w	(a0)					; set the first word as the end token
 
 		dbset	dmaqueueentries,d0			; load amount of DMA queue entries to d0
-		move.l	#$94959697,d2				; load all other registers to d2 (only every other byte is written)
+		move.l	#$94959697,d1				; load all other registers to d1 (only every other byte is written)
 ; --------------------------------------------------------------
 
 .initloop
-		movep.l	d2,2(a0)				; fill every other byte with the rest of the registers (do not modify value!!)
-		add.w	#2*7,a0					; go to the next DMA entry
+		movep.l	d1,2(a0)				; fill every other byte with the rest of the registers (do not modify value!!)
+		lea	2*7(a0),a0					; go to the next DMA entry
 		dbf	d0,.initloop				; iterate through all DMA queue entries
 		rts
 ; ==============================================================

@@ -79,7 +79,7 @@ DebugList:
 .proc
 		move.b	(a1),d1					; load object attributes to d1
 		bset	d1,d5					; enable attributes
-		add.w	#size,a1				; go to next object
+		lea	size(a1),a1				; go to next object
 		dbf	d2,.proc				; loop for every object
 ; --------------------------------------------------------------
 
@@ -221,8 +221,8 @@ DebugList:
 	Console.Write " "					; write a space
 
 .nomatch
-		add.w	#size,a0				; go to next object
-		add.w	#size,a1				; go to next object
+		lea	size(a0),a0				; go to next object
+		lea	size(a1),a1				; go to next object
 		dbf	d2,.proca				; loop for every object
 	Console.BreakLine					; insert a line break
 		rts
@@ -511,11 +511,11 @@ DebugDynArts:
 	; calculate the allocation
 		moveq	#0,d2
 		move.b	dbit(a1),d2				; load starting bit to d2
-		lsl.w	#dynallocsize,d2			; shift up by bit count
+		fmulu	dynallocsize,d2,d3			; shift up by bit count
 
 		moveq	#0,d1
 		move.b	dwidth(a1),d1				; load width to d1
-		lsl.w	#dynallocsize,d1			; shift up by bit count
+		fmulu.w	dynallocsize,d1,d3			; shift up by bit count
 		move.w	d1,d3					; copy to d3
 
 		add.w	#vDynamic/32,d2				; add start of VRAM allocation to d2
@@ -525,7 +525,7 @@ DebugDynArts:
 ; --------------------------------------------------------------
 
 .next
-		add.w	#dsize,a1				; go to next platform
+		lea	dsize(a1),a1				; go to next platform
 		dbf	d0,.plat				; loop for all platforms
 		rts
 ; ==============================================================
@@ -569,6 +569,81 @@ DebugPrintFlags:
 
 .rts
 		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Debug all display layers
+; --------------------------------------------------------------
+
+DebugLayers:
+	RaiseError	"DISPLAY LAYER DEBUG", .rt, 0
+
+.rt
+		lea	DisplayList.w,a0			; load start of list to a0
+		moveq	#0,d0					; load current layer to d0
+
+.layer
+	Console.Write "%<pal0>Layer %<.w d0 dem>:%<pal2>"
+		moveq	#6,d3					; set remaining space to 6
+		move.w	ddnext(a0),a1				; load first object to a1
+; --------------------------------------------------------------
+
+.objloop
+		move.w	a1,d2					; copy the pointer to d2
+		sub.w	#ObjList,d2				; sub the start of object list from d2
+		cmp.w	#ObjListEnd-ObjList,d2			; check if this is inside of the list
+		bhs.s	.outside				; branch if not
+
+.ptr
+		bsr.s	.writeptr				; write this pointer
+		move.w	dnext(a1),a1				; load next object
+	Console.Write ">%<pal2>"				; write the separator
+		bra.s	.objloop
+; --------------------------------------------------------------
+
+.outside
+		lea	.colorstr(pc),a2			; load color str to a2
+		move.w	a1,d2					; copy the pointer to d2
+		beq.s	.inside					; use inside color for 0
+		sub.w	#DisplayList,d2				; subtract the beginning of display list from d2
+
+		cmp.w	#dislayercount * ddsize,d2		; lazily check if its within the list
+		bhs.s	.stilloutside				; branch if not
+
+.inside
+		addq.w	#2,a2					; use different color
+
+.stilloutside
+	Console.Write "%<.l a2 str>"				; write the color
+		bsr.s	.writeptr				; write the pointer
+	Console.BreakLine					; insert a line break
+; --------------------------------------------------------------
+
+		addq.b	#1,d0					; go to the next layer
+		addq.w	#ddsize,a0				;
+
+		cmp.b	#8,d0					; check if this is the last layer
+		bne.w	.layer					; branch if not
+		rts
+; --------------------------------------------------------------
+; function to write object pointer
+;
+; in:
+;    d3 = line position
+;    a1 = object
+; --------------------------------------------------------------
+
+.writeptr
+		subq.b	#1,d3					; check if we don't have enough room for the ptr
+		bcc.s	.isroom					; branch if we do
+		moveq	#8,d3					; reset position counter
+;	Console.Write "   "					; insert a line break
+
+.isroom
+	Console.Write "%<.w a1 hex>%<pal0>"			; write the pointer
+		addq.b	#1,d3					; advance position counter
+		rts
+
+.colorstr	dc.b pal1, 0, pal3, 0				; color strings
 ; --------------------------------------------------------------
 
 	if DEBUG=0

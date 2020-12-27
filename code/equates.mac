@@ -29,9 +29,9 @@ touchcount =		$20					; number of touch objects
 dyncount =		$20					; number of dynamic art objects
 
 dynallocdelta =		$100/$40				; amount of frames until VRAM must be refactored
-dynallocsize =		2					; number of bits of tiles to allocate for every bit of alloc table
+dynallocsize =		9					; number of tiles to allocate for every bit of alloc table
 dynalloctiles =		$180					; number of tiles for dynamic allocator
-dynallocbits =		dynalloctiles / (1 << dynallocsize)	; number of bits for dynamic allocator
+dynallocbits =		dynalloctiles / dynallocsize		; number of bits for dynamic allocator
 dynallocbytes =		((dynallocbits / 8 + 1) + 1) & $FFE	; number of bytes for dynamic allocator (next even value)
 dmaqueueentries =	$20					; how many separate DMA queue entries to have
 

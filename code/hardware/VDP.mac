@@ -36,13 +36,13 @@ VDP_PSG =		$C00011					; PSG command port
 
 vdp			macro ins,addr,type,rwd,end,end2
 	if narg=5
-		\ins #(((\type&\rwd)&3)<<30)|(((\addr)&$3FFF)<<16)|(((\type&\rwd)&$FC)<<2)|(((\addr)&$C000)>>14), \end
+		\ins #(((\type&\rwd)&3) << 30) | (((\addr)&$3FFF) << 16) | (((\type&\rwd)&$FC) << 2) | (((\addr)&$C000) >> 14), \end
 
 	elseif narg=6
-		\ins #(((((\type&\rwd)&3)<<30)|(((\addr)&$3FFF)<<16)|(((\type&\rwd)&$FC)<<2)|(((\addr)&$C000)>>14))\end, \end2
+		\ins #(((\type&\rwd)&3) << 30) | (((\addr)&$3FFF) << 16) | (((\type&\rwd)&$FC) << 2) | (((\addr)&$C000) >> 14)\end, \end2
 
 	else
-		\ins (((\type&\rwd)&3)<<30)|(((\addr)&$3FFF)<<16)|(((\type&\rwd)&$FC)<<2)|(((\addr)&$C000)>>14)
+		\ins (((\type&\rwd)&3) << 30) | (((\addr)&$3FFF) << 16) | (((\type&\rwd)&$FC) << 2) | (((\addr)&$C000) >> 14)
 	endif
 	endm
 ; ==============================================================
