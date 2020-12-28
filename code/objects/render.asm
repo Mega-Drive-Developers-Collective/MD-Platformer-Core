@@ -52,12 +52,36 @@ ProcMaps:
 		moveq	#0,d6				; 4	; clear link value
 		moveq	#80-1,d7			; 4	; load max num of sprites to d7
 		lea	SpriteTable.w,a0		; 8	; load sprite table address to a0
-		lea	DisplayList+ddnext.w,a2		; 8	; load display list to a2
+		move.l	RenderList.w,a5			;	; load list of rendering routines to a5
+		bra.s	.checkend			; 10	; skip over a bit
 ; --------------------------------------------------------------
 
-.layer
-		move.w	(a2),d0				; 8	; load layer pointer to d0
-		beq.s	.nextlayer			; 10/8	; if 0, go to next layer
+.next
+		move.l	(a5)+,a3			;	; load next routine into a3
+		move.l	(a5)+,a4			;	; load parameter to a4
+		jsr	(a3)				;	; run this routine
+
+.checkend
+		tst.b	(a5)				;	; check for the end token
+		bne.s	.next				; 10/8	; branch if wan't yet
+		clr.b	-4(a0)				; 16	; clear the link counter of the last sprite
+		rts					; 16
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to convert a display layer to sprites
+;
+; input:
+;   d6 = link value
+;   d7 = sprite pieces left
+;   a0 = sprite table address
+;   a4 = display layer address
+;
+; thrash: d0-d3/a1/a3-a4
+; --------------------------------------------------------------
+
+ProcMapsLayer:
+		move.w	(a4),d0				; 8	; load layer pointer to d0
+		beq.s	ProcMapsLayer_Rts		; 10/8	; if 0, return
 		move.w	d0,a1				; 4	; load object as a1
 
 .obj
@@ -119,12 +143,7 @@ ProcMaps:
 		tst.w	dnext(a1)	; TODO: optimize; 12	; check if this object is valid
 		bne.s	.obj				; 10/8	; if yes, there are objects left
 
-.nextlayer
-		addq.w	#ddsize,a2			; 8	; go to next layer
-		cmp.w	#DisplayList + ddnext + (ddsize * dislayercount),a2; 10; check if this is the last layer
-		blo.s	.layer				; 10/8	; branch if not
-
-ProcMaps_Rts:
+ProcMapsLayer_Rts:
 		rts					; 16
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -148,7 +167,7 @@ ProcMapObj:	; 88 or 128 cycles max
 		bne.s	.single				; 10/8	; branch if yes
 
 		move.b	frame(a1),d0			; 12	; load frame number to d0
-		beq.s	ProcMaps_Rts			; 10/8	; if 0, force a blank frame
+		beq.s	ProcMapsLayer_Rts		; 10/8	; if 0, force a blank frame
 		add.w	d0,d0				; 4	; double it (read from mappings)
 		add.w	-2(a3,d0.w),a3			; 18	; add mappings offset from table
 ; --------------------------------------------------------------

@@ -42,5 +42,19 @@ oInitializeAll:
 		dbf	d0,.load				; loop for every object
 		clr.w	prev(a0)				; set the last previos pointer to 0
 
+		move.l	#DefaultRenderList,RenderList.w		; set default render list
+
 .rts
 		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Default render list that only renders every object layer
+; --------------------------------------------------------------
+
+DefaultRenderList:
+.x =	ddnext							; set initial offset
+	rept dislayercount					; run for every layer
+		dc.l ($01<<24) | ProcMapsLayer, DisplayList+.x	; include layer info
+.x =		.x+ddsize					; go to next layer
+	endr
+		dc.w 0						; end token

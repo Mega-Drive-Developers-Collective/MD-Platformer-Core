@@ -10,6 +10,29 @@
 
 ; ==============================================================
 ; --------------------------------------------------------------
+; Debug ROM at a0
+; --------------------------------------------------------------
+
+DebugROM:
+		if DEBUG
+	RaiseError	"ROM DEBUG %<pal2>%<.l a0 hex>", .rt, 0
+
+.rt
+	Console.Write "%<pal0>%<.l a0 sym|split>%<pal2>%<symdisp>%<endl>  "
+		dbset	20,d0					; fill rest of the screen
+
+.write
+		dbset	7,d1					; length of a line
+
+.line
+	Console.Write "%<.w (a0)+ hex> "			; write next word
+		dbf	d1,.line				; loop for this line
+	Console.Write "   "					; some blank
+		dbf	d0,.write				; loop for all
+		rts
+	endif
+; ==============================================================
+; --------------------------------------------------------------
 ; Debug object lists
 ; --------------------------------------------------------------
 
@@ -98,7 +121,7 @@ DebugList:
 		btst	#7,d5					; check if any multi objects exist
 		beq.s	.nomulti				; branch if not
 
-	Console.Write "%<pal0>Multiple lists:   %<pal2>"		; write header
+	Console.Write "%<pal0>Multiple lists:   %<pal2>"	; write header
 		moveq	#18,d3					; line offset
 		moveq	#7,d4					; write all objects with this attribute
 		bsr.w	.writeattribute				; write it out
