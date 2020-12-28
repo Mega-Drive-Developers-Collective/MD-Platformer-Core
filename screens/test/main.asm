@@ -33,12 +33,14 @@ gmTest:
 	oCreateDynArt	.dart, .dmap, 8				; setup dynamic art
 	oAddDisplay	2, a0, a1, 1				; enable display
 		oNext						; run next object
+; --------------------------------------------------------------
 
 .map
-	dc.w .frame1-.map
+		dc.w .frame1-.map
 
 .frame1		sprite $0000, 4, 4, $0000, $0020
 		spritt $0000, 2, 1, $0008,-$0008
+; --------------------------------------------------------------
 
 .pmap
 	dc.w 0
@@ -47,4 +49,10 @@ gmTest:
 	dc.w 0
 
 .dmap
-	dc.w 0
+		dc.w .drame1-.dmap
+
+.drame1
+		dynpc $0000, 16
+		dynpc $0016, 2
+		dynpe
+; --------------------------------------------------------------

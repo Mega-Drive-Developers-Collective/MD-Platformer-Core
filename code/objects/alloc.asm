@@ -10,6 +10,30 @@
 
 ; ==============================================================
 ; --------------------------------------------------------------
+; macro to include dynamic map data
+;
+;   tile =	tile ID to use, from $000 to $FFF
+;   length =	number of tiles to transfer, from 1 to 16
+;
+; Note: Attempting to transfer 16 tiles from $FFF is invalid
+; --------------------------------------------------------------
+
+dynpc		macro tile, length
+	if ((\length) < 1) | ((\length) > 16)
+		inform 2, "Dynamic mappings length \length is invalid. Must be 1 to 16"
+	endif
+
+	if ((\tile) < 0) | ((\tile) > $FFF)
+		inform 2, "Dynamic mappings tile ID \tile is invalid. Must be 0 to $FFF"
+	endif
+		dc.w (((\tile) << 4) | ((\length) - 1) + 1) & $FFFF
+	endm
+
+dynpe		macro
+		dc.w 0						; end token
+	endm
+; ==============================================================
+; --------------------------------------------------------------
 ; Routine to process dynamic art objects
 ;
 ; in:
@@ -40,6 +64,8 @@ ProcAlloc:
 .skip
 		lea	dsize(a1),a1				; go to next object
 		dbf	d0,.dloop				; loop for all objects
+
+ProcAlloc_Rts:
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -55,10 +81,10 @@ ProcAlloc:
 
 AllocUpdate:
 		move.b	d4,dlast(a1)				; save d4 as the new last frame
+		beq.s	ProcAlloc_Rts				; if frame 0, nothing will display anyway
 		move.l	dart(a1),d6				; load art data to d6
 		move.l	dmap(a1),a3				; load art mappings to a3
 
-		moveq	#0,d5
 		move.w	tile(a0),d5				; load tile settings to d5
 		and.w	#$7FF,d5				; get only the settings part
 		lsl.w	#5,d5					; get the VRAM offset to d5
@@ -77,7 +103,7 @@ AllocUpdate:
 
 dmaQueueMaps:
 		add.w	d4,d4					; double offset
-		add.w	(a3,d4.w),a3				; add table offset to get mappings data to a3
+		add.w	-2(a3,d4.w),a3				; add table offset to get mappings data to a3
 ; --------------------------------------------------------------
 
 dmaQueueMapData:

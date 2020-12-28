@@ -16,6 +16,12 @@
 ;   a0 = target object
 ;
 ; thrash: d0/a1-a2
+;
+; macro arguments:
+;   map =	platform mappings left side address
+;   flags =	platform flags
+;   width =	width of the collision area from centre
+;   height =	height of the collision area from centre
 ; --------------------------------------------------------------
 
 oRmvPlat		macro
@@ -62,6 +68,12 @@ CreatePlatform:
 ;   a0 = target object
 ;
 ; thrash: d0/a1-a2
+;
+; macro arguments:
+;   flags =	touch type flags
+;   extra =	extra flags dependent on normal flags
+;   width =	width of the collision area from centre
+;   height =	height of the collision area from centre
 ; --------------------------------------------------------------
 
 oRmvTouch		macro
@@ -107,6 +119,11 @@ CreateTouch:
 ;   a0 = target object
 ;
 ; thrash: d0/a1-a2
+;
+; macro arguments:
+;   art =	address of the art used for dynamic art object
+;   map =	address of the dynamic mappings
+;   width =	the number of bits to reserve for the dynamic art
 ; --------------------------------------------------------------
 
 oCreateDynArt		macro art, map, width
@@ -141,63 +158,6 @@ CreateDynArt:
 		move.l	(a2)+,(a1)+				; load vram size and mappings data
 		move.w	#$FF00,(a1)+				; reset bit address
 		jmp	(a2)					; jump to the address after the data
-; ==============================================================
-; --------------------------------------------------------------
-; Routine to set object attributes
-;
-; in:
-;   a0 = target object
-;   a1 = data array
-;
-; thrash: a1
-; --------------------------------------------------------------
-
-oAttributes		macro map, frame, flags, width, height, tile
-	local xarg						; use lbl only inside the macro
-xarg =		narg						; uhh this looks like a asm68k bug? why does I have to do this
-		lea	.data\@(pc),a1				; load data to a1
-		jmp	ObjAttributes\#xarg			; jump to routine for setting attributes
-
-.data\@:
-	if narg >= 6
-		dc.w \tile					; include tile data
-	endif
-
-	if narg >= 5
-		dc.b \height, \width				; include width + height data
-	elseif narg >= 4
-		dc.b \width, \width				; include width + height data
-	endif
-
-	if narg >= 3
-		dc.w \flags					; include flags data
-	endif
-
-	if narg >= 2
-		dc.l ((\frame) << 24) | \map			; include mappings data with initial frame
-	elseif narg >= 1
-		dc.l \map					; include mappings data
-	endif
-	endm
-; --------------------------------------------------------------
-
-ObjAttributes6:
-		move.w	(a1)+,tile(a0)				; set tile pattern
-
-ObjAttributes5:
-ObjAttributes4:
-		move.b	(a1)+,height(a0)			; set object height
-		move.b	(a1)+,width(a0)				; set object width
-
-ObjAttributes3:
-		move.w	(a1)+,flags(a0)				; set object flags
-
-ObjAttributes2:
-ObjAttributes1:
-		move.l	(a1)+,map(a0)				; set mappings data
-
-ObjAttributes0:
-		jmp	(a1)					; jump back to code
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to remove dynamic art objects
@@ -247,6 +207,71 @@ RmvDynArt:
 
 .rts
 		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to set object attributes
+;
+; in:
+;   a0 = target object
+;   a1 = data array
+;
+; thrash: a1
+;
+; For the macro, include any number of these arguments:
+;   map =	object mappings address
+;   frame =	initial display frame of object
+;   flags =	initial set of flags for object
+;   width =	width of the object in pixels from centre
+;   height =	height of the object in pixels from centre
+;   tile =	VDP tile pattern for this object
+; --------------------------------------------------------------
+
+oAttributes		macro map, frame, flags, width, height, tile
+	local xarg						; use lbl only inside the macro
+xarg =		narg						; uhh this looks like a asm68k bug? why does I have to do this
+		lea	.data\@(pc),a1				; load data to a1
+		jmp	ObjAttributes\#xarg			; jump to routine for setting attributes
+
+.data\@:
+	if narg >= 6
+		dc.w \tile					; include tile data
+	endif
+
+	if narg >= 5
+		dc.b \height, \width				; include width + height data
+	elseif narg >= 4
+		dc.b \width, \width				; include width + height data
+	endif
+
+	if narg >= 3
+		dc.w \flags					; include flags data
+	endif
+
+	if narg >= 2
+		dc.l ((\frame) << 24) | \map			; include mappings data with initial frame
+	elseif narg >= 1
+		dc.l \map					; include mappings data
+	endif
+	endm
+; --------------------------------------------------------------
+
+ObjAttributes6:
+		move.w	(a1)+,tile(a0)				; set tile pattern
+
+ObjAttributes5:
+ObjAttributes4:
+		move.b	(a1)+,height(a0)			; set object height
+		move.b	(a1)+,width(a0)				; set object width
+
+ObjAttributes3:
+		move.w	(a1)+,flags(a0)				; set object flags
+
+ObjAttributes2:
+ObjAttributes1:
+		move.l	(a1)+,map(a0)				; set mappings data
+
+ObjAttributes0:
+		jmp	(a1)					; jump back to code
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to delete an object

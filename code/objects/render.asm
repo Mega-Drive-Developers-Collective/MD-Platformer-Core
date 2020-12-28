@@ -11,6 +11,12 @@
 ; ==============================================================
 ; --------------------------------------------------------------
 ; macro to include sprite pieces
+;
+;   tile =	VDP base tile pattern for this sprite
+;   width =	width of the sprite piece, from 1 to 4 tiles
+;   height =	height of the sprite piece, from 1 to 4 tiles
+;   x =		x-offset from centre of object for this sprite
+;   y =		y-offset from centre of object for this sprite
 ; --------------------------------------------------------------
 
 sprite		macro tile, width, height, x, y
