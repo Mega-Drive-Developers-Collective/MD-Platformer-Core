@@ -22,220 +22,716 @@ fmulu			macro mult, dst, fre
 		case \mult					; switch-case with mult
 =0		clr.\0	\dst					; clear
 =1								; no-op
-=2		add.\0	\dst,\dst				; 2x the value
 ; --------------------------------------------------------------
-	; 12  cycles
+	; 4 cycles, 2 bytes
+=2		add.\0	\dst,\dst			; 4	; 2x the value
+; --------------------------------------------------------------
+	; 12 cycles, 6 bytes
 =3		move.\0	\dst,\fre			; 4	; copy dst to fre
-		add.\0	\fre,\dst			; 4	; add fre to dst
-		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
 ; --------------------------------------------------------------
-	; 8 cycles
+	; 8 cycles, 4 bytes
 =4		add.\0	\dst,\dst			; 4	; 2x the value
 		add.\0	\dst,\dst			; 4	; 4x the value
 ; --------------------------------------------------------------
-	; 16 cycles
+	; 16 cycles, 8 bytes
 =5		move.\0	\dst,\fre			; 4	; copy dst to fre
-		add.\0	\dst,\dst			; 4	; 2x the value
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (5x total)
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 5x the value
 ; --------------------------------------------------------------
-	; 16 cycles
+	; 16 cycles, 8 bytes
 =6		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (6x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 6x the value
 ; --------------------------------------------------------------
-	; 20 cycles
+	; 20 cycles, 10 bytes
 =7		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 2x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\dst			; 4	; 3x the value
 		add.\0	\fre,\fre			; 4	; 4x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (7x total)
+		add.\0	\fre,\dst			; 4	; 7x the value
 ; --------------------------------------------------------------
-	; 12 cycles
-=8		lsl.\0	#3,\dst				; 12	; multiply by 8
+	; 12 cycles, 2 bytes
+=8		lsl.\0	#3,\dst				; 12	; 8x the value
 ; --------------------------------------------------------------
-	; 20 cycles
+	; 20 cycles, 6 bytes
 =9		move.\0	\dst,\fre			; 4	; copy dst to fre
-		lsl.\0	#3,\dst				; 12	; multiply by 8
-		add.\0	\fre,\dst			; 4	; add fre to dst (9x total)
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
 ; --------------------------------------------------------------
-	; 20 cycles
+	; 20 cycles, 10 bytes
 =10		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 4x the value
 		add.\0	\fre,\fre			; 4	; 8x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (10x total)
+		add.\0	\fre,\dst			; 4	; 10x the value
 ; --------------------------------------------------------------
-	; 24 cycles
+	; 24 cycles, 12 bytes
 =11		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 2x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\dst			; 4	; 3x the value
 		add.\0	\fre,\fre			; 4	; 4x the value
 		add.\0	\fre,\fre			; 4	; 8x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (11x total)
+		add.\0	\fre,\dst			; 4	; 11x the value
 ; --------------------------------------------------------------
-	; 20 cycles
+	; 20 cycles, 10 bytes
 =12		add.\0	\dst,\dst			; 4	; 2x the value
 		add.\0	\dst,\dst			; 4	; 4x the value
-		move.\0	\dst,\fre			; 4	; copy 4x dst to fre
+		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 8x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (12x total)
+		add.\0	\fre,\dst			; 4	; 12x the value
 ; --------------------------------------------------------------
-	; 24 cycles
+	; 24 cycles, 12 bytes
 =13		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 2x the value
 		add.\0	\fre,\fre			; 4	; 4x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (5x total)
+		add.\0	\fre,\dst			; 4	; 5x the value
 		add.\0	\fre,\fre			; 4	; 8x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (13x total)
+		add.\0	\fre,\dst			; 4	; 13x the value
 ; --------------------------------------------------------------
-	; 24 cycles
+	; 24 cycles, 12 bytes
 =14		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 4x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (6x total)
+		add.\0	\fre,\dst			; 4	; 6x the value
 		add.\0	\fre,\fre			; 4	; 8x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (14x total)
+		add.\0	\fre,\dst			; 4	; 14x the value
 ; --------------------------------------------------------------
-	; 28 cycles
+	; 28 cycles, 14 bytes
 =15		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 2x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (3x total)
+		add.\0	\fre,\dst			; 4	; 3x the value
 		add.\0	\fre,\fre			; 4	; 4x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (7x total)
+		add.\0	\fre,\dst			; 4	; 7x the value
 		add.\0	\fre,\fre			; 4	; 8x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (15x total)
+		add.\0	\fre,\dst			; 4	; 15x the value
 ; --------------------------------------------------------------
-	; 14 cycles
-=16		lsl.\0	#4,\dst				; 14	; multiply by 16
+	; 14 cycles, 2 bytes
+=16		lsl.\0	#4,\dst				; 14	; 16x the value
 ; --------------------------------------------------------------
-	; 22 cycles
+	; 22 cycles, 6 bytes
 =17		move.\0	\dst,\fre			; 4	; copy dst to fre
-		lsl.\0	#4,\dst				; 14	; multiply by 16
-		add.\0	\fre,\dst			; 4	; add fre to dst (17x total)
+		lsl.\0	#4,\fre				; 14	; 16x the value
+		add.\0	\fre,\dst			; 4	; 17x the value
 ; --------------------------------------------------------------
-	; 24 cycles
+	; 24 cycles, 8 bytes
 =18		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
-		lsl.\0	#3,\dst				; 12	; multiply by 8 (16x)
-		add.\0	\fre,\dst			; 4	; add fre to dst (18x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 18x the value
 ; --------------------------------------------------------------
-	; 30 cycles
-=19		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+	; 28 cycles, 10 bytes
+=19		move.\0	\dst,\fre			; 4	; copy dst to fre
 		add.\0	\fre,\fre			; 4	; 2x the value
-		add.\0	\dst,\fre			; 4	; 3x the value
-		lsl.\0	#4,\dst				; 14	; multiply by 8 (16x)
-		add.\0	\fre,\dst			; 4	; add fre to dst (19x total)
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 19x the value
 ; --------------------------------------------------------------
-	; 24 cycles
+	; 24 cycles, 12 bytes
 =20		add.\0	\dst,\dst			; 4	; 2x the value
 		add.\0	\dst,\dst			; 4	; 4x the value
-		move.\0	\dst,\fre			; 4	; copy 4x dst to fre
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (20x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 20x the value
 ; --------------------------------------------------------------
-	; 28 cycles
+	; 28 cycles, 14 bytes
 =21		move.\0	\dst,\fre			; 4	; copy dst to fre
-		add.\0	\dst,\dst			; 4	; 2x the value
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\fre			; 4	; 5x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (21x total)
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 5x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 21x the value
 ; --------------------------------------------------------------
-	; 28 cycles
+	; 28 cycles, 14 bytes
 =22		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\fre			; 4	; 6x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (22x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 6x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 22x the value
 ; --------------------------------------------------------------
-	; 32 cycles
-=23		move.\0	\dst,\fre			; 4	; copy dst to fre
-		add.\0	\dst,\dst			; 4	; 2x the value
-		add.\0	\dst,\fre			; 4	; 3x the value
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\fre			; 4	; 7x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (23x total)
+	; 24 cycles, 8 bytes
+=24		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 24x the value
 ; --------------------------------------------------------------
-	; 24 cycles
-=24		lsl.\0	#3,\dst				; 12	; multiply by 8
-		move.\0	\dst,\fre			; 4	; copy 8x dst to fre
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (24x total)
-; --------------------------------------------------------------
-	; 28 cycles
+	; 28 cycles, 10 bytes
 =25		move.\0	\dst,\fre			; 4	; copy dst to fre
-		lsl.\0	#3,\dst				; 12	; multiply by 8
-		add.\0	\dst,\fre			; 4	; 9x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (25x total)
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 25x the value
 ; --------------------------------------------------------------
-	; 28 cycles
+	; 28 cycles, 14 bytes
 =26		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\fre			; 4	; 10x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (26x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; 10x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 26x the value
 ; --------------------------------------------------------------
-	; 32 cycles
-=27		move.\0	\dst,\fre			; 4	; copy dst to fre
-		add.\0	\dst,\dst			; 4	; 2x the value
-		add.\0	\dst,\fre			; 4	; 3x the value
-		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\fre			; 4	; 11x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (27x total)
-; --------------------------------------------------------------
-	; 28 cycles
+	; 28 cycles, 14 bytes
 =28		add.\0	\dst,\dst			; 4	; 2x the value
 		add.\0	\dst,\dst			; 4	; 4x the value
-		move.\0	\dst,\fre			; 4	; copy 4x dst to fre
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\fre			; 4	; 12x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (28x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; 12x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 28x the value
 ; --------------------------------------------------------------
-	; 32 cycles
-=29		move.\0	\dst,\fre			; 4	; copy dst to fre
-		add.\0	\dst,\dst			; 4	; 2x the value
+	; 16 cycles, 2 bytes
+=32		lsl.\0	#5,\dst				; 16	; 32x the value
+; --------------------------------------------------------------
+	; 24 cycles, 6 bytes
+=33		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 32x the value
+		add.\0	\fre,\dst			; 4	; 33x the value
+; --------------------------------------------------------------
+	; 26 cycles, 8 bytes
+=34		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 32x the value
+		add.\0	\fre,\dst			; 4	; 34x the value
+; --------------------------------------------------------------
+	; 30 cycles, 10 bytes
+=35		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#4,\fre				; 14	; 32x the value
+		add.\0	\fre,\dst			; 4	; 35x the value
+; --------------------------------------------------------------
+	; 28 cycles, 10 bytes
+=36		add.\0	\dst,\dst			; 4	; 2x the value
 		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\fre			; 4	; 5x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\fre			; 4	; 13x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (29x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 32x the value
+		add.\0	\fre,\dst			; 4	; 36x the value
 ; --------------------------------------------------------------
-	; 32 cycles
-=30		add.\0	\dst,\dst			; 4	; 2x the value
-		move.\0	\dst,\fre			; 4	; copy 2x dst to fre
+	; 32 cycles, 12 bytes
+=37		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 5x the value
+		lsl.\0	#3,\fre				; 12	; 32x the value
+		add.\0	\fre,\dst			; 4	; 37x the value
+; --------------------------------------------------------------
+	; 32 cycles, 12 bytes
+=38		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 6x the value
+		lsl.\0	#3,\fre				; 12	; 32x the value
+		add.\0	\fre,\dst			; 4	; 38x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=39		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 7x the value
+		lsl.\0	#3,\fre				; 12	; 32x the value
+		add.\0	\fre,\dst			; 4	; 39x the value
+; --------------------------------------------------------------
+	; 28 cycles, 10 bytes
+=40		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 40x the value
+; --------------------------------------------------------------
+	; 32 cycles, 12 bytes
+=41		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 41x the value
+; --------------------------------------------------------------
+	; 26 cycles, 8 bytes
+=48		lsl.\0	#4,\dst				; 14	; 16x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 48x the value
+; --------------------------------------------------------------
+	; 30 cycles, 10 bytes
+=49		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 16x the value
+		add.\0	\fre,\dst			; 4	; 17x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 49x the value
+; --------------------------------------------------------------
+	; 32 cycles, 12 bytes
+=50		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 18x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 50x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=51		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 19x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 51x the value
+; --------------------------------------------------------------
+	; 32 cycles, 12 bytes
+=56		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 24x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 56x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=57		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 25x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 57x the value
+; --------------------------------------------------------------
+	; 18 cycles, 2 bytes
+=64		lsl.\0	#6,\dst				; 18	; 64x the value
+; --------------------------------------------------------------
+	; 26 cycles, 6 bytes
+=65		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#6,\fre				; 18	; 64x the value
+		add.\0	\fre,\dst			; 4	; 65x the value
+; --------------------------------------------------------------
+	; 28 cycles, 8 bytes
+=66		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 64x the value
+		add.\0	\fre,\dst			; 4	; 66x the value
+; --------------------------------------------------------------
+	; 32 cycles, 10 bytes
+=67		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#5,\fre				; 16	; 64x the value
+		add.\0	\fre,\dst			; 4	; 67x the value
+; --------------------------------------------------------------
+	; 30 cycles, 10 bytes
+=68		add.\0	\dst,\dst			; 4	; 2x the value
 		add.\0	\dst,\dst			; 4	; 4x the value
-		add.\0	\dst,\fre			; 4	; 6x the value
-		add.\0	\dst,\dst			; 4	; 8x the value
-		add.\0	\dst,\fre			; 4	; 14x the value
-		add.\0	\dst,\dst			; 4	; 16x the value
-		add.\0	\fre,\dst			; 4	; add fre to dst (30x total)
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 64x the value
+		add.\0	\fre,\dst			; 4	; 68x the value
 ; --------------------------------------------------------------
-	; 16 cycles
-=32		lsl.\0	#5,\dst				; 16	; multiply by 32
+	; 34 cycles, 12 bytes
+=69		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 5x the value
+		lsl.\0	#4,\fre				; 14	; 64x the value
+		add.\0	\fre,\dst			; 4	; 69x the value
 ; --------------------------------------------------------------
-	; 18 cycles
-=64		lsl.\0	#6,\dst				; 16	; multiply by 64
+	; 34 cycles, 12 bytes
+=70		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 6x the value
+		lsl.\0	#4,\fre				; 14	; 64x the value
+		add.\0	\fre,\dst			; 4	; 70x the value
 ; --------------------------------------------------------------
-	; 20 cycles
-=128		lsl.\0	#7,\dst				; 16	; multiply by 128
+	; 38 cycles, 14 bytes
+=71		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 7x the value
+		lsl.\0	#4,\fre				; 14	; 64x the value
+		add.\0	\fre,\dst			; 4	; 71x the value
 ; --------------------------------------------------------------
-	; 22 cycles
-=256		lsl.\0	#8,\dst				; 16	; multiply by 256
+	; 32 cycles, 8 bytes
+=72		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 64x the value
+		add.\0	\fre,\dst			; 4	; 72x the value
+; --------------------------------------------------------------
+	; 36 cycles, 10 bytes
+=73		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		lsl.\0	#3,\fre				; 12	; 64x the value
+		add.\0	\fre,\dst			; 4	; 73x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=74		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; 10x the value
+		lsl.\0	#3,\fre				; 12	; 64x the value
+		add.\0	\fre,\dst			; 4	; 74x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=76		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; 12x the value
+		lsl.\0	#3,\fre				; 12	; 64x the value
+		add.\0	\fre,\dst			; 4	; 76x the value
+; --------------------------------------------------------------
+	; 30 cycles, 10 bytes
+=80		lsl.\0	#4,\dst				; 14	; 16x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 80x the value
+; --------------------------------------------------------------
+	; 34 cycles, 12 bytes
+=81		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 16x the value
+		add.\0	\fre,\dst			; 4	; 17x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 81x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=82		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 18x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 82x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=88		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 24x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 88x the value
+; --------------------------------------------------------------
+	; 28 cycles, 8 bytes
+=96		lsl.\0	#5,\dst				; 16	; 32x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 96x the value
+; --------------------------------------------------------------
+	; 32 cycles, 10 bytes
+=97		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 32x the value
+		add.\0	\fre,\dst			; 4	; 33x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 97x the value
+; --------------------------------------------------------------
+	; 34 cycles, 12 bytes
+=98		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 32x the value
+		add.\0	\fre,\dst			; 4	; 34x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 98x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=99		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#4,\fre				; 14	; 32x the value
+		add.\0	\fre,\dst			; 4	; 35x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 99x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=100		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 32x the value
+		add.\0	\fre,\dst			; 4	; 36x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 100x the value
+; --------------------------------------------------------------
+	; 36 cycles, 14 bytes
+=104		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 40x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 104x the value
+; --------------------------------------------------------------
+	; 34 cycles, 12 bytes
+=112		lsl.\0	#4,\dst				; 14	; 16x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 48x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 112x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=113		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 16x the value
+		add.\0	\fre,\dst			; 4	; 17x the value
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 49x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 113x the value
+; --------------------------------------------------------------
+	; 20 cycles, 2 bytes
+=128		lsl.\0	#7,\dst				; 20	; 128x the value
+; --------------------------------------------------------------
+	; 28 cycles, 6 bytes
+=129		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#7,\fre				; 20	; 128x the value
+		add.\0	\fre,\dst			; 4	; 129x the value
+; --------------------------------------------------------------
+	; 30 cycles, 8 bytes
+=130		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#6,\fre				; 18	; 128x the value
+		add.\0	\fre,\dst			; 4	; 130x the value
+; --------------------------------------------------------------
+	; 34 cycles, 10 bytes
+=131		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#6,\fre				; 18	; 128x the value
+		add.\0	\fre,\dst			; 4	; 131x the value
+; --------------------------------------------------------------
+	; 32 cycles, 10 bytes
+=132		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 128x the value
+		add.\0	\fre,\dst			; 4	; 132x the value
+; --------------------------------------------------------------
+	; 36 cycles, 12 bytes
+=133		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 5x the value
+		lsl.\0	#5,\fre				; 16	; 128x the value
+		add.\0	\fre,\dst			; 4	; 133x the value
+; --------------------------------------------------------------
+	; 36 cycles, 12 bytes
+=134		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 6x the value
+		lsl.\0	#5,\fre				; 16	; 128x the value
+		add.\0	\fre,\dst			; 4	; 134x the value
+; --------------------------------------------------------------
+	; 40 cycles, 14 bytes
+=135		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\dst			; 4	; 7x the value
+		lsl.\0	#5,\fre				; 16	; 128x the value
+		add.\0	\fre,\dst			; 4	; 135x the value
+; --------------------------------------------------------------
+	; 34 cycles, 8 bytes
+=136		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 128x the value
+		add.\0	\fre,\dst			; 4	; 136x the value
+; --------------------------------------------------------------
+	; 38 cycles, 10 bytes
+=137		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		lsl.\0	#4,\fre				; 14	; 128x the value
+		add.\0	\fre,\dst			; 4	; 137x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=138		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 4x the value
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; 10x the value
+		lsl.\0	#4,\fre				; 14	; 128x the value
+		add.\0	\fre,\dst			; 4	; 138x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=140		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 8x the value
+		add.\0	\fre,\dst			; 4	; 12x the value
+		lsl.\0	#4,\fre				; 14	; 128x the value
+		add.\0	\fre,\dst			; 4	; 140x the value
+; --------------------------------------------------------------
+	; 34 cycles, 8 bytes
+=144		lsl.\0	#4,\dst				; 14	; 16x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 128x the value
+		add.\0	\fre,\dst			; 4	; 144x the value
+; --------------------------------------------------------------
+	; 38 cycles, 10 bytes
+=145		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 16x the value
+		add.\0	\fre,\dst			; 4	; 17x the value
+		lsl.\0	#3,\fre				; 12	; 128x the value
+		add.\0	\fre,\dst			; 4	; 145x the value
+; --------------------------------------------------------------
+	; 40 cycles, 12 bytes
+=146		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 18x the value
+		lsl.\0	#3,\fre				; 12	; 128x the value
+		add.\0	\fre,\dst			; 4	; 146x the value
+; --------------------------------------------------------------
+	; 44 cycles, 14 bytes
+=147		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#3,\fre				; 12	; 16x the value
+		add.\0	\fre,\dst			; 4	; 19x the value
+		lsl.\0	#3,\fre				; 12	; 128x the value
+		add.\0	\fre,\dst			; 4	; 147x the value
+; --------------------------------------------------------------
+	; 40 cycles, 12 bytes
+=152		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 24x the value
+		lsl.\0	#3,\fre				; 12	; 128x the value
+		add.\0	\fre,\dst			; 4	; 152x the value
+; --------------------------------------------------------------
+	; 44 cycles, 14 bytes
+=153		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		add.\0	\fre,\fre			; 4	; 16x the value
+		add.\0	\fre,\dst			; 4	; 25x the value
+		lsl.\0	#3,\fre				; 12	; 128x the value
+		add.\0	\fre,\dst			; 4	; 153x the value
+; --------------------------------------------------------------
+	; 32 cycles, 10 bytes
+=160		lsl.\0	#5,\dst				; 16	; 32x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 160x the value
+; --------------------------------------------------------------
+	; 36 cycles, 12 bytes
+=161		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 32x the value
+		add.\0	\fre,\dst			; 4	; 33x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 161x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=162		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 32x the value
+		add.\0	\fre,\dst			; 4	; 34x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 162x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=176		lsl.\0	#4,\dst				; 14	; 16x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\dst			; 4	; 48x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 176x the value
+; --------------------------------------------------------------
+	; 30 cycles, 8 bytes
+=192		lsl.\0	#6,\dst				; 18	; 64x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 192x the value
+; --------------------------------------------------------------
+	; 34 cycles, 10 bytes
+=193		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#6,\fre				; 18	; 64x the value
+		add.\0	\fre,\dst			; 4	; 65x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 193x the value
+; --------------------------------------------------------------
+	; 36 cycles, 12 bytes
+=194		add.\0	\dst,\dst			; 4	; 2x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 64x the value
+		add.\0	\fre,\dst			; 4	; 66x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 194x the value
+; --------------------------------------------------------------
+	; 40 cycles, 14 bytes
+=195		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 2x the value
+		add.\0	\fre,\dst			; 4	; 3x the value
+		lsl.\0	#5,\fre				; 16	; 64x the value
+		add.\0	\fre,\dst			; 4	; 67x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 195x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=196		add.\0	\dst,\dst			; 4	; 2x the value
+		add.\0	\dst,\dst			; 4	; 4x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#4,\fre				; 14	; 64x the value
+		add.\0	\fre,\dst			; 4	; 68x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 196x the value
+; --------------------------------------------------------------
+	; 40 cycles, 12 bytes
+=200		lsl.\0	#3,\dst				; 12	; 8x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 64x the value
+		add.\0	\fre,\dst			; 4	; 72x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 200x the value
+; --------------------------------------------------------------
+	; 44 cycles, 14 bytes
+=201		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#3,\fre				; 12	; 8x the value
+		add.\0	\fre,\dst			; 4	; 9x the value
+		lsl.\0	#3,\fre				; 12	; 64x the value
+		add.\0	\fre,\dst			; 4	; 73x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 201x the value
+; --------------------------------------------------------------
+	; 38 cycles, 14 bytes
+=208		lsl.\0	#4,\dst				; 14	; 16x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 32x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 80x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 208x the value
+; --------------------------------------------------------------
+	; 36 cycles, 12 bytes
+=224		lsl.\0	#5,\dst				; 16	; 32x the value
+		move.\0	\dst,\fre			; 4	; copy dst to fre
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 96x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 224x the value
+; --------------------------------------------------------------
+	; 40 cycles, 14 bytes
+=225		move.\0	\dst,\fre			; 4	; copy dst to fre
+		lsl.\0	#5,\fre				; 16	; 32x the value
+		add.\0	\fre,\dst			; 4	; 33x the value
+		add.\0	\fre,\fre			; 4	; 64x the value
+		add.\0	\fre,\dst			; 4	; 97x the value
+		add.\0	\fre,\fre			; 4	; 128x the value
+		add.\0	\fre,\dst			; 4	; 225x the value
+; --------------------------------------------------------------
+	; 22 cycles, 2 bytes
+=256		lsl.\0	#8,\dst				; 22	; 256x the value
 ; --------------------------------------------------------------
 	; 70+ cycles
 =?		mulu	#\mult,\dst				; just do a simple multiply
