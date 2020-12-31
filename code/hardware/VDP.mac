@@ -15,7 +15,8 @@ VDP_PSG =		$C00011					; PSG command port
 VDP_BANK =		$20000					; size of a single DMA bank
 ; ==============================================================
 ; --------------------------------------------------------------
-; Include a file safely while aligning it to a DMA bnak
+; Include a file safely while aligning it to a DMA bank
+; WARNING: Currently broken
 ;
 ;   path =	path of the file to incbin
 ;   start =	optional start offset of the file to read from
@@ -23,24 +24,26 @@ VDP_BANK =		$20000					; size of a single DMA bank
 ; --------------------------------------------------------------
 
 incdma		macro label, path, start, length
-	local check						; this will determine the check for alignment
+	if SAFE_DMA=0
+		local check					; this will determine the check for alignment
 
-	if strlen("\length") > 0				; check if start was provided
-check =		\length						; use the length parameter
+		if strlen("\length") > 0			; check if start was provided
+check =			\length					; use the length parameter
 
-	elseif strlen("\start") > 0				; check if start was provided
-check =		filesize(\path)-\start				; use the filesize after start bytes
+		elseif strlen("\start") > 0			; check if start was provided
+check =			filesize(\path)-\start			; use the filesize after start bytes
 
-	else
-check =		filesize(\path)					; use the filesize of the file
-	endif
+		else
+check =			filesize(\path)				; use the filesize of the file
+		endif
 
-	if check > VDP_BANK					; this can not be aligned, just warn user
-		inform 1,"Warning, DMA art is too large to fit within VDP bank."
-		align	$20					; hope this alignment helps
+		if check > VDP_BANK				; this can not be aligned, just warn user
+			inform 1,"Warning, DMA art is too large to fit within VDP bank."
+			align	$20				; hope this alignment helps
 
-	elseif (offset(*) & ($1000000-VDP_BANK)) <> ((offset(*) + check) & ($1000000-VDP_BANK))
-		align	VDP_BANK				; does not fit, align to next VDP bank
+		elseif (offset(*) & ($1000000-VDP_BANK)) <> ((offset(*) + check) & ($1000000-VDP_BANK))
+			align	VDP_BANK			; does not fit, align to next VDP bank
+		endif
 	endif
 
 \label:

@@ -139,7 +139,7 @@ dmaQueueMapData:
 ;   d4 = source ROM address
 ;   d5 = destination VRAM address
 ;
-; thrash: d4/a4
+; thrash: d2/d4/a4
 ; --------------------------------------------------------------
 
 dmaQueueAdd:
@@ -151,6 +151,30 @@ dmaQueueAdd:
 ; --------------------------------------------------------------
 
 		lsr.l	#1,d4					; halve source address
+
+	if SAFE_DMA
+		move.w	d3,d2					; copy length to d2
+		neg.w	d2					; negate lenght
+		sub.w	d4,d2					; sub low word of source address from negative length
+		bcc.s	.transfer				; do only a single transfer if no boundary was crossed
+; --------------------------------------------------------------
+
+		move.l	d4,-(sp)				; store source address in stack because it will get borked
+		bsr.s	.transfer				; transfer the first portion
+		move.l	(sp)+,d4				; get source address back
+
+		moveq	#0,d2					; clear d2
+		sub.w	d4,d2					; subtract source address from d2
+		sub.w	d2,d3					; subtract this value from the length
+		add.l	d2,d4					; add to the source address
+
+		add.w	d2,d5					; and finally add to the VRAM address
+		add.w	d2,d5					; twice because it was halved
+
+.transfer
+	endif
+; --------------------------------------------------------------
+
 		movep.l	d4,3(a4)				; fill in the source address (writes an extra byte, gets overwritten)
 		and.b	#$7F,5(a4)				; clear any unfortunate bits
 
@@ -253,7 +277,14 @@ AllocRefactor:
 
 		moveq	#0,d4
 		move.b	frame(a0),d4				; load display frame to d4
+
+	if SAFE_DMA
+		move.l	d2,-(sp)				; push d2 to stack because its modified
 		bsr.w	AllocUpdate				; update art
+		move.l	(sp)+,d2				; pop d2 from stack bto restore it
+	else
+		bsr.w	AllocUpdate				; update art
+	endif
 ; --------------------------------------------------------------
 
 		moveq	#0,d4

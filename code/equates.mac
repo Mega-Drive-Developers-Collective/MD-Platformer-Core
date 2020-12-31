@@ -17,6 +17,7 @@ DEBUG			EQU 1					; If 1, enables assembling debugging code
 SAFE			EQU 1					; If 1, enables assembly safety checks in code. Much slower.
 SOUND			EQU 1					; If 1, enables sound driver.
 
+SAFE_DMA		EQU 1					; if 1, enables DMA boundary cross check to allow safe dma from any ROM address
 PAD_ENABLE_MULTI	EQU 1					; enable multitap (Team Player) and EA 4-way play.
 PAD_ENABLE_MOUSE	EQU 1					; enable mouse read support
 ; ==============================================================
