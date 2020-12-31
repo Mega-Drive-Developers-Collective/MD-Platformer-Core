@@ -26,7 +26,7 @@ dynpc		macro tile, length
 	if ((\tile) < 0) | ((\tile) > $FFF)
 		inform 2, "Dynamic mappings tile ID \tile is invalid. Must be 0 to $FFF"
 	endif
-		dc.w (((\tile) << 4) | ((\length) - 1) + 1) & $FFFF
+		dc.w ((((\tile) << 4) | ((\length) - 1)) + 1) & $FFFF
 	endm
 
 dynpe		macro
@@ -116,13 +116,14 @@ dmaQueueMapData:
 		addq.w	#1,d3					; +1 for 1 to 16 tiles
 		lsl.w	#4,d3					; multiply by 16 (half of a tile size)
 
-		and.l	#$FF0,d4				; get only the tile offset portion to d4
+		and.l	#$FFF0,d4				; get only the tile offset portion to d4
 		add.l	d4,d4					; double offset, totaling the size of a tile
 		add.l	d6,d4					; add art address to d4
 
 		bsr.s	dmaQueueAdd				; add this to DMA queue
 		add.w	d3,d5					; add tile length to VRAM destination address
 		add.w	d3,d5					; twice because it was / 2
+; --------------------------------------------------------------
 
 .checktoken
 		moveq	#-1,d4					; set up data so that range from 0 to $FFFE is possible only
@@ -149,10 +150,12 @@ dmaQueueAdd:
 	endif
 ; --------------------------------------------------------------
 
-		move.b	#$93,(a4)				; set the initial register (because this was an end token before)
-		movep.w	d3,1(a4)				; fill transfer length
 		lsr.l	#1,d4					; halve source address
-		movep.l	d4,5(a4)				; fill in the source address
+		movep.l	d4,3(a4)				; fill in the source address (writes an extra byte, gets overwritten)
+		and.b	#$7F,5(a4)				; clear any unfortunate bits
+
+		movep.w	d3,1(a4)				; fill transfer length
+		move.b	#$94,(a4)				; set the initial register (because this was an end token before)
 		lea	2*5(a4),a4				; skip to VDP command portion
 ; --------------------------------------------------------------
 
@@ -319,7 +322,7 @@ dmaQueueInit:
 		clr.w	(a0)					; set the first word as the end token
 
 		dbset	dmaqueueentries,d0			; load amount of DMA queue entries to d0
-		move.l	#$94959697,d1				; load all other registers to d1 (only every other byte is written)
+		move.l	#$93979695,d1				; load all other registers to d1 (only every other byte is written)
 ; --------------------------------------------------------------
 
 .initloop
@@ -346,7 +349,7 @@ dmaQueueProcess:
 		move.l	(a0)+,(a6)				; initialize DMA!
 
 .checkentry
-		move.w	(a0),d0					; check if the next entry is used and load first value to d0
+		move.w	(a0)+,d0				; check if the next entry is used and load first value to d0
 		bne.s	.nextentry				; if yes, branch
 ; --------------------------------------------------------------
 

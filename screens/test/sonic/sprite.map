@@ -1,0 +1,1234 @@
+.map		dc.w .f1-.map
+		dc.w .f2-.map
+		dc.w .f3-.map
+		dc.w .f4-.map
+		dc.w .f5-.map
+		dc.w .f6-.map
+		dc.w .f7-.map
+		dc.w .f8-.map
+		dc.w .f9-.map
+		dc.w .f10-.map
+		dc.w .f11-.map
+		dc.w .f12-.map
+		dc.w .f13-.map
+		dc.w .f14-.map
+		dc.w .f15-.map
+		dc.w .f16-.map
+		dc.w .f17-.map
+		dc.w .f18-.map
+		dc.w .f19-.map
+		dc.w .f20-.map
+		dc.w .f21-.map
+		dc.w .f22-.map
+		dc.w .f23-.map
+		dc.w .f24-.map
+		dc.w .f25-.map
+		dc.w .f26-.map
+		dc.w .f27-.map
+		dc.w .f28-.map
+		dc.w .f29-.map
+		dc.w .f30-.map
+		dc.w .f31-.map
+		dc.w .f32-.map
+		dc.w .f33-.map
+		dc.w .f34-.map
+		dc.w .f35-.map
+		dc.w .f36-.map
+		dc.w .f37-.map
+		dc.w .f38-.map
+		dc.w .f39-.map
+		dc.w .f40-.map
+		dc.w .f41-.map
+		dc.w .f42-.map
+		dc.w .f43-.map
+		dc.w .f44-.map
+		dc.w .f45-.map
+		dc.w .f46-.map
+		dc.w .f47-.map
+		dc.w .f48-.map
+		dc.w .f49-.map
+		dc.w .f50-.map
+		dc.w .f51-.map
+		dc.w .f52-.map
+		dc.w .f53-.map
+		dc.w .f54-.map
+		dc.w .f55-.map
+		dc.w .f56-.map
+		dc.w .f57-.map
+		dc.w .f58-.map
+		dc.w .f59-.map
+		dc.w .f60-.map
+		dc.w .f61-.map
+		dc.w .f62-.map
+		dc.w .f63-.map
+		dc.w .f64-.map
+		dc.w .f65-.map
+		dc.w .f66-.map
+		dc.w .f67-.map
+		dc.w .f68-.map
+		dc.w .f69-.map
+		dc.w .f70-.map
+		dc.w .f71-.map
+		dc.w .f72-.map
+		dc.w .f73-.map
+		dc.w .f74-.map
+		dc.w .f75-.map
+		dc.w .f76-.map
+		dc.w .f77-.map
+		dc.w .f78-.map
+		dc.w .f79-.map
+		dc.w .f80-.map
+		dc.w .f81-.map
+		dc.w .f82-.map
+		dc.w .f83-.map
+		dc.w .f84-.map
+		dc.w .f85-.map
+		dc.w .f86-.map
+		dc.w .f87-.map
+		dc.w .f88-.map
+		dc.w .f89-.map
+		dc.w .f90-.map
+		dc.w .f91-.map
+		dc.w .f92-.map
+		dc.w .f93-.map
+		dc.w .f94-.map
+		dc.w .f95-.map
+		dc.w .f96-.map
+		dc.w .f97-.map
+		dc.w .f98-.map
+		dc.w .f99-.map
+		dc.w .f100-.map
+		dc.w .f101-.map
+		dc.w .f102-.map
+		dc.w .f103-.map
+		dc.w .f104-.map
+		dc.w .f105-.map
+		dc.w .f106-.map
+		dc.w .f107-.map
+		dc.w .f108-.map
+		dc.w .f109-.map
+		dc.w .f110-.map
+		dc.w .f111-.map
+		dc.w .f112-.map
+		dc.w .f113-.map
+		dc.w .f114-.map
+		dc.w .f115-.map
+		dc.w .f116-.map
+		dc.w .f117-.map
+		dc.w .f118-.map
+		dc.w .f119-.map
+		dc.w .f120-.map
+		dc.w .f121-.map
+		dc.w .f122-.map
+		dc.w .f123-.map
+		dc.w .f124-.map
+		dc.w .f125-.map
+		dc.w .f126-.map
+		dc.w .f127-.map
+		dc.w .f128-.map
+		dc.w .f129-.map
+		dc.w .f130-.map
+		dc.w .f131-.map
+		dc.w .f132-.map
+		dc.w .f133-.map
+		dc.w .f134-.map
+		dc.w .f135-.map
+		dc.w .f136-.map
+		dc.w .f137-.map
+		dc.w .f138-.map
+		dc.w .f139-.map
+		dc.w .f140-.map
+		dc.w .f141-.map
+		dc.w .f142-.map
+		dc.w .f143-.map
+		dc.w .f144-.map
+		dc.w .f145-.map
+		dc.w .f146-.map
+		dc.w .f147-.map
+		dc.w .f148-.map
+		dc.w .f149-.map
+		dc.w .f150-.map
+		dc.w .f151-.map
+		dc.w .f152-.map
+		dc.w .f153-.map
+		dc.w .f154-.map
+		dc.w .f155-.map
+		dc.w .f156-.map
+		dc.w .f157-.map
+		dc.w .f158-.map
+		dc.w .f159-.map
+		dc.w .f160-.map
+		dc.w .f161-.map
+		dc.w .f162-.map
+		dc.w .f163-.map
+		dc.w .f164-.map
+		dc.w .f165-.map
+		dc.w .f166-.map
+		dc.w .f167-.map
+		dc.w .f168-.map
+		dc.w .f169-.map
+		dc.w .f170-.map
+		dc.w .f171-.map
+		dc.w .f172-.map
+		dc.w .f173-.map
+		dc.w .f174-.map
+		dc.w .f175-.map
+		dc.w .f176-.map
+		dc.w .f177-.map
+		dc.w .f178-.map
+		dc.w .f179-.map
+		dc.w .f180-.map
+		dc.w .f181-.map
+		dc.w .f182-.map
+		dc.w .f183-.map
+		dc.w .f184-.map
+		dc.w .f185-.map
+		dc.w .f186-.map
+		dc.w .f187-.map
+		dc.w .f188-.map
+		dc.w .f189-.map
+		dc.w .f190-.map
+		dc.w .f191-.map
+		dc.w .f192-.map
+		dc.w .f193-.map
+		dc.w .f194-.map
+		dc.w .f195-.map
+		dc.w .f196-.map
+		dc.w .f197-.map
+		dc.w .f198-.map
+		dc.w .f199-.map
+		dc.w .f200-.map
+		dc.w .f201-.map
+		dc.w .f202-.map
+		dc.w .f203-.map
+		dc.w .f204-.map
+		dc.w .f205-.map
+		dc.w .f206-.map
+		dc.w .f207-.map
+		dc.w .f208-.map
+		dc.w .f209-.map
+		dc.w .f210-.map
+		dc.w .f211-.map
+		dc.w .f212-.map
+		dc.w .f213-.map
+		dc.w .f214-.map
+		dc.w .f215-.map
+		dc.w .f216-.map
+		dc.w .f217-.map
+		dc.w .f218-.map
+		dc.w .f219-.map
+		dc.w .f220-.map
+		dc.w .f221-.map
+		dc.w .f222-.map
+		dc.w .f223-.map
+		dc.w .f224-.map
+		dc.w .f225-.map
+		dc.w .f226-.map
+		dc.w .f227-.map
+		dc.w .f228-.map
+		dc.w .f229-.map
+		dc.w .f230-.map
+		dc.w .f231-.map
+		dc.w .f232-.map
+		dc.w .f233-.map
+		dc.w .f234-.map
+		dc.w .f235-.map
+		dc.w .f236-.map
+		dc.w .f237-.map
+		dc.w .f238-.map
+		dc.w .f239-.map
+		dc.w .f240-.map
+		dc.w .f241-.map
+		dc.w .f242-.map
+		dc.w .f243-.map
+		dc.w .f244-.map
+		dc.w .f245-.map
+		dc.w .f246-.map
+		dc.w .f247-.map
+		dc.w .f248-.map
+		dc.w .f249-.map
+		dc.w .f250-.map
+
+.f1		sprite $0000, 4, 2, $FFEC, $FFEC
+		sprite $0008, 2, 3, $0004, $FFFC
+		spritt $000E, 3, 3, $FFEC, $FFFC
+
+.f2		sprite $0000, 4, 3, $FFEC, $FFFD
+		sprite $000C, 1, 2, $000C, $0005
+		spritt $000E, 4, 2, $FFEC, $FFED
+
+.f3		sprite $0000, 3, 3, $FFF4, $FFFE
+		sprite $0009, 4, 1, $FFEC, $FFF6
+		spritt $000D, 3, 1, $FFF4, $FFEE
+
+.f4		sprite $0000, 4, 3, $FFEE, $FFFC
+		spritt $000C, 3, 2, $FFF4, $FFEC
+
+.f5		sprite $0000, 4, 3, $FFEE, $FFFC
+		sprite $000C, 1, 2, $000E, $FFFC
+		spritt $000E, 3, 2, $FFF4, $FFEC
+
+.f6		sprite $0000, 4, 3, $FFED, $FFFD
+		sprite $000C, 1, 2, $000D, $0005
+		spritt $000E, 3, 2, $FFF4, $FFED
+
+.f7		sprite $0000, 3, 3, $FFF4, $FFFE
+		sprite $0009, 4, 1, $FFEC, $FFF6
+		spritt $000D, 3, 1, $FFF4, $FFEE
+
+.f8		sprite $0000, 3, 3, $FFF4, $FFFC
+		spritt $0009, 4, 2, $FFEC, $FFEC
+
+.f9		sprite $0000, 3, 4, $FFFB, $FFFD
+		sprite $000C, 4, 2, $FFEB, $FFED
+		sprite $0014, 1, 1, $000B, $FFF5
+		spritt $0015, 2, 2, $FFEB, $FFFD
+
+.f10		sprite $0000, 4, 3, $FFFC, $0002
+		sprite $000C, 4, 2, $FFEC, $FFF2
+		sprite $0014, 2, 1, $000C, $FFFA
+		spritt $0016, 2, 1, $FFEC, $0002
+
+.f11		sprite $0000, 3, 3, $FFFD, $FFFB
+		sprite $0009, 2, 1, $FFF5, $FFEB
+		sprite $000B, 4, 1, $FFED, $FFF3
+		spritt $000F, 2, 2, $FFED, $FFFB
+
+.f12		sprite $0000, 4, 3, $FFFC, $FFFD
+		sprite $000C, 4, 2, $FFEC, $FFED
+		sprite $0014, 2, 1, $FFEC, $FFFD
+		spritt $0016, 1, 1, $FFF4, $0005
+
+.f13		sprite $0000, 3, 4, $FFFC, $FFFE
+		sprite $000C, 4, 2, $FFEC, $FFEE
+		sprite $0014, 1, 2, $000C, $FFEE
+		spritt $0016, 2, 3, $FFEC, $FFFE
+
+.f14		sprite $0000, 4, 4, $FFFB, $FFFC
+		sprite $0010, 3, 2, $FFEB, $FFEC
+		sprite $0016, 3, 1, $0003, $FFF4
+		spritt $0019, 2, 2, $FFEB, $FFFC
+
+.f15		sprite $0000, 3, 3, $FFFA, $FFFF
+		sprite $0009, 4, 2, $FFEA, $FFEF
+		sprite $0011, 2, 1, $FFEA, $FFFF
+		spritt $0013, 1, 1, $FFF2, $0007
+
+.f16		sprite $0000, 3, 3, $FFFC, $FFFE
+		sprite $0009, 3, 1, $FFEC, $FFEE
+		sprite $000C, 4, 1, $FFEC, $FFF6
+		spritt $0010, 2, 2, $FFEC, $FFFE
+
+.f17		sprite $0000, 3, 2, $FFFC, $FFED
+		sprite $0006, 3, 3, $FFFC, $FFFD
+		spritt $000F, 2, 4, $FFEC, $FFF5
+
+.f18		sprite $0000, 3, 4, $FFFC, $FFF5
+		sprite $000C, 2, 1, $0004, $FFED
+		spritt $000E, 2, 4, $FFEC, $FFF5
+
+.f19		sprite $0000, 3, 3, $FFFC, $FFF5
+		sprite $0009, 2, 3, $FFEC, $FFF5
+		spritt $000F, 1, 1, $FFF4, $000D
+
+.f20		sprite $0000, 3, 4, $FFFC, $FFF3
+		spritt $000C, 2, 4, $FFEC, $FFF3
+
+.f21		sprite $0000, 2, 1, $FFFC, $FFEB
+		sprite $0002, 3, 4, $FFFC, $FFF3
+		spritt $000E, 2, 4, $FFEC, $FFF3
+
+.f22		sprite $0000, 2, 1, $0004, $FFEC
+		sprite $0002, 3, 4, $FFFC, $FFF4
+		sprite $000E, 2, 3, $FFEC, $FFF4
+		spritt $0014, 1, 1, $FFF4, $000C
+
+.f23		sprite $0000, 3, 3, $FFFC, $FFF5
+		sprite $0009, 2, 3, $FFEC, $FFF5
+		spritt $000F, 1, 1, $FFF4, $000D
+
+.f24		sprite $0000, 3, 3, $FFFC, $FFF5
+		spritt $0009, 2, 4, $FFEC, $FFF5
+
+.f25		sprite $0000, 4, 3, $FFFE, $FFEF
+		sprite $000C, 2, 3, $FFEE, $FFEF
+		sprite $0012, 4, 1, $FFEE, $0007
+		spritt $0016, 3, 1, $FFEE, $000F
+
+.f26		sprite $0000, 3, 4, $0000, $FFE7
+		sprite $000C, 1, 2, $FFF8, $FFE7
+		sprite $000E, 2, 2, $FFF0, $FFF7
+		spritt $0012, 3, 2, $FFF0, $0007
+
+.f27		sprite $0000, 3, 3, $FFFD, $FFEF
+		sprite $0009, 2, 2, $FFED, $FFF7
+		sprite $000D, 4, 1, $FFED, $0007
+		spritt $0011, 2, 1, $FFF5, $000F
+
+.f28		sprite $0000, 3, 4, $0000, $FFE7
+		sprite $000C, 2, 2, $FFF0, $FFF7
+		sprite $0010, 4, 1, $FFF0, $0007
+		spritt $0014, 3, 1, $FFF0, $000F
+
+.f29		sprite $0000, 4, 3, $FFFF, $FFEE
+		sprite $000C, 2, 3, $FFEF, $FFEE
+		sprite $0012, 4, 2, $FFEF, $0006
+		spritt $001A, 1, 1, $000F, $0006
+
+.f30		sprite $0000, 4, 4, $FFFF, $FFE8
+		sprite $0010, 1, 3, $FFF7, $FFE8
+		sprite $0013, 2, 1, $FFEF, $0000
+		spritt $0015, 4, 2, $FFEF, $0008
+
+.f31		sprite $0000, 3, 3, $FFFE, $FFEE
+		sprite $0009, 2, 2, $FFEE, $FFF6
+		sprite $000D, 4, 1, $FFEE, $0006
+		spritt $0011, 3, 1, $FFEE, $000E
+
+.f32		sprite $0000, 3, 3, $FFFE, $FFEE
+		sprite $0009, 2, 2, $FFEE, $FFF6
+		sprite $000D, 4, 1, $FFEE, $0006
+		spritt $0011, 3, 1, $FFEE, $000E
+
+.f33		sprite $0000, 3, 1, $FFF8, $FFEC
+		spritt $0003, 4, 4, $FFF0, $FFF4
+
+.f34		sprite $0000, 3, 1, $FFF8, $FFEC
+		spritt $0003, 4, 4, $FFF0, $FFF4
+
+.f35		sprite $0000, 3, 1, $FFF8, $FFEC
+		spritt $0003, 4, 4, $FFF0, $FFF4
+
+.f36		sprite $0000, 3, 1, $FFF8, $FFEC
+		spritt $0003, 4, 4, $FFF0, $FFF4
+
+.f37		sprite $0000, 4, 3, $FFED, $FFEF
+		sprite $000C, 1, 1, $000D, $FFFF
+		sprite $000D, 4, 1, $FFF5, $0007
+		spritt $0011, 3, 1, $FFF5, $000F
+
+.f38		sprite $0000, 3, 1, $FFF0, $FFEE
+		spritt $0003, 4, 4, $FFF0, $FFF6
+
+.f39		sprite $0000, 4, 3, $FFED, $FFEF
+		sprite $000C, 1, 1, $000D, $FFFF
+		sprite $000D, 4, 1, $FFF5, $0007
+		spritt $0011, 3, 1, $FFF5, $000F
+
+.f40		sprite $0000, 3, 1, $FFF0, $FFEE
+		spritt $0003, 4, 4, $FFF0, $FFF6
+
+.f41		sprite $0000, 1, 3, $FFEC, $FFF0
+		spritt $0003, 4, 4, $FFF4, $FFF0
+
+.f42		sprite $0000, 1, 3, $FFEC, $FFF0
+		spritt $0003, 4, 4, $FFF4, $FFF0
+
+.f43		sprite $0000, 1, 3, $FFEC, $FFF0
+		spritt $0003, 4, 4, $FFF4, $FFF0
+
+.f44		sprite $0000, 1, 3, $FFEC, $FFF0
+		spritt $0003, 4, 4, $FFF4, $FFF0
+
+.f45		sprite $0000, 2, 1, $FFFE, $FFEA
+		sprite $0002, 3, 4, $FFEE, $FFF2
+		spritt $000E, 2, 3, $0006, $FFF2
+
+.f46		sprite $0000, 1, 3, $FFED, $FFF7
+		spritt $0003, 4, 4, $FFF5, $FFEF
+
+.f47		sprite $0000, 2, 1, $FFFE, $FFEA
+		sprite $0002, 3, 4, $FFEE, $FFF2
+		spritt $000E, 2, 3, $0006, $FFF2
+
+.f48		sprite $0000, 1, 3, $FFED, $FFF7
+		spritt $0003, 4, 4, $FFF5, $FFEF
+
+.f49		sprite $0000, 3, 1, $FFF2, $FFEC
+		sprite $0003, 4, 3, $FFF2, $FFF4
+		spritt $000F, 3, 1, $FFF2, $000C
+
+.f50		sprite $0000, 3, 2, $FFF3, $FFEA
+		sprite $0006, 4, 1, $FFF3, $FFFA
+		sprite $000A, 3, 1, $FFF3, $0002
+		spritt $000D, 2, 1, $FFFB, $000A
+
+.f51		sprite $0000, 2, 1, $FFF9, $FFF0
+		sprite $0002, 3, 1, $FFF1, $FFF8
+		sprite $0005, 4, 1, $FFF1, $0000
+		spritt $0009, 2, 1, $FFF9, $0008
+
+.f52		sprite $0000, 3, 1, $FFF9, $FFEF
+		sprite $0003, 4, 1, $FFF1, $FFF7
+		sprite $0007, 3, 1, $FFF1, $FFFF
+		spritt $000A, 4, 1, $FFF1, $0007
+
+.f53		sprite $0000, 2, 1, $FFF4, $FFEF
+		sprite $0002, 3, 1, $FFF4, $FFF7
+		sprite $0005, 4, 1, $FFF4, $FFFF
+		spritt $0009, 3, 1, $FFF4, $0007
+
+.f54		sprite $0000, 2, 1, $FFF9, $FFEA
+		sprite $0002, 4, 2, $FFF1, $FFF2
+		spritt $000A, 3, 2, $FFF1, $0002
+
+.f55		sprite $0000, 4, 4, $FFF0, $FFEC
+		spritt $0010, 3, 1, $FFF0, $000C
+
+.f56		sprite $0000, 3, 4, $FFF4, $FFEE
+		spritt $000C, 1, 1, $FFFC, $000E
+
+.f57		sprite $0000, 2, 1, $FFF0, $FFEE
+		sprite $0002, 4, 2, $FFF0, $FFF6
+		spritt $000A, 3, 1, $FFF0, $0006
+
+.f58		sprite $0000, 3, 1, $FFF5, $FFF0
+		sprite $0003, 4, 1, $FFED, $FFF8
+		sprite $0007, 3, 1, $FFF5, $0000
+		spritt $000A, 2, 1, $FFF5, $0008
+
+.f59		sprite $0000, 3, 3, $FFF4, $FFEC
+		spritt $0009, 2, 2, $FFFC, $0004
+
+.f60		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 3, 1, $FFF4, $000C
+
+.f61		sprite $0000, 1, 1, $FFFA, $FFE6
+		sprite $0001, 3, 4, $FFF2, $FFEE
+		spritt $000D, 3, 1, $FFF2, $000E
+
+.f62		spritt $0000, 3, 4, $FFF3, $FFF0
+
+.f63		sprite $0000, 3, 1, $FFEF, $FFF1
+		sprite $0003, 4, 2, $FFEF, $FFF9
+		spritt $000B, 2, 1, $FFF7, $0009
+
+.f64		sprite $0000, 3, 1, $FFF8, $FFF2
+		sprite $0003, 4, 1, $FFF0, $FFFA
+		sprite $0007, 3, 1, $FFF0, $0002
+		spritt $000A, 2, 1, $FFF8, $000A
+
+.f65		sprite $0000, 3, 2, $FFF8, $FFEF
+		sprite $0006, 4, 1, $FFF0, $FFFF
+		sprite $000A, 3, 1, $FFF0, $0007
+		spritt $000D, 2, 1, $FFF8, $000F
+
+.f66		sprite $0000, 3, 2, $FFF8, $FFEC
+		sprite $0006, 3, 1, $FFF0, $FFFC
+		sprite $0009, 4, 1, $FFF0, $0004
+		spritt $000D, 3, 1, $FFF0, $000C
+
+.f67		sprite $0000, 3, 4, $FFF5, $FFEC
+		spritt $000C, 3, 1, $FFF5, $000C
+
+.f68		spritt $0000, 3, 4, $FFF4, $FFF0
+
+.f69		sprite $0000, 4, 2, $FFF2, $FFF6
+		spritt $0008, 3, 1, $FFF2, $0006
+
+.f70		spritt $0000, 3, 4, $FFF3, $FFF3
+
+.f71		sprite $0000, 2, 1, $FFFB, $FFEB
+		spritt $0002, 3, 4, $FFF3, $FFF3
+
+.f72		sprite $0000, 3, 1, $FFF0, $FFEC
+		sprite $0003, 4, 2, $FFF0, $FFF4
+		spritt $000B, 3, 2, $FFF8, $0004
+
+.f73		sprite $0000, 3, 3, $FFFC, $FFE8
+		sprite $0009, 2, 2, $FFEC, $FFF0
+		sprite $000D, 4, 1, $FFEC, $0000
+		spritt $0011, 3, 1, $FFF4, $0008
+
+.f74		sprite $0000, 3, 1, $FFFA, $FFEA
+		sprite $0003, 4, 2, $FFF2, $FFF2
+		sprite $000B, 3, 1, $FFF2, $0002
+		spritt $000E, 2, 2, $FFF2, $000A
+
+.f75		sprite $0000, 3, 2, $FFF8, $FFEB
+		sprite $0006, 4, 1, $FFF0, $FFFB
+		spritt $000A, 3, 1, $FFF8, $0003
+
+.f76		sprite $0000, 3, 1, $FFF3, $FFF1
+		sprite $0003, 4, 2, $FFF3, $FFF9
+		spritt $000B, 3, 1, $FFF3, $0009
+
+.f77		sprite $0000, 2, 1, $FFFB, $FFEE
+		sprite $0002, 4, 2, $FFF3, $FFF6
+		spritt $000A, 2, 1, $FFFB, $0006
+
+.f78		spritt $0000, 4, 4, $FFEE, $FFF2
+
+.f79		sprite $0000, 1, 1, $0002, $FFEA
+		sprite $0001, 4, 2, $FFF2, $FFF2
+		sprite $0009, 1, 1, $FFEA, $FFFA
+		spritt $000A, 4, 2, $FFEA, $0002
+
+.f80		sprite $0000, 2, 1, $FFFB, $FFEC
+		sprite $0002, 3, 1, $FFF3, $FFF4
+		sprite $0005, 3, 3, $FFEB, $FFFC
+		spritt $000E, 2, 2, $0003, $FFFC
+
+.f81		sprite $0000, 2, 1, $FFFF, $FFED
+		spritt $0002, 4, 3, $FFEF, $FFF5
+
+.f82		sprite $0000, 2, 1, $FFFA, $FFEF
+		sprite $0002, 4, 2, $FFF2, $FFF7
+		spritt $000A, 2, 1, $FFFA, $0007
+
+.f83		sprite $0000, 1, 1, $0000, $FFED
+		sprite $0001, 3, 3, $FFF8, $FFF5
+		spritt $000A, 2, 1, $FFE8, $FFFD
+
+.f84		sprite $0000, 4, 4, $FFEF, $FFF0
+		spritt $0010, 1, 1, $000F, $FFF8
+
+.f85		sprite $0000, 3, 1, $FFF0, $FFEC
+		sprite $0003, 4, 2, $FFF0, $FFF4
+		sprite $000B, 3, 1, $FFF0, $0004
+		spritt $000E, 3, 1, $FFF8, $000C
+
+.f86		sprite $0000, 3, 1, $FFEF, $FFEC
+		sprite $0003, 4, 2, $FFEF, $FFF4
+		spritt $000B, 3, 2, $FFF7, $0004
+
+.f87		sprite $0000, 3, 4, $FFF0, $FFEC
+		spritt $000C, 4, 1, $FFF0, $000C
+
+.f88		sprite $0000, 3, 4, $FFF3, $FFEC
+		spritt $000C, 3, 1, $FFF3, $000C
+
+.f89		sprite $0000, 3, 1, $FFF7, $FFEC
+		sprite $0003, 4, 1, $FFEF, $FFF4
+		sprite $0007, 3, 1, $FFF7, $FFFC
+		spritt $000A, 4, 2, $FFEF, $0004
+
+.f90		sprite $0000, 3, 3, $FFF6, $FFEC
+		sprite $0009, 4, 1, $FFEE, $0004
+		spritt $000D, 3, 1, $FFF6, $000C
+
+.f91		sprite $0000, 3, 4, $FFF3, $FFEC
+		spritt $000C, 3, 1, $FFF3, $000C
+
+.f92		sprite $0000, 3, 3, $FFEC, $FFF5
+		sprite $0009, 3, 2, $0004, $FFF5
+		spritt $000F, 1, 1, $0014, $0005
+
+.f93		spritt $0000, 4, 3, $FFFC, $FFF4
+
+.f94		sprite $0000, 4, 3, $FFE2, $FFF4
+		spritt $000C, 1, 3, $0002, $FFF4
+
+.f95		sprite $0000, 2, 2, $FFE5, $FFF5
+		sprite $0004, 4, 3, $FFF5, $FFF5
+		spritt $0010, 1, 1, $FFE5, $0005
+
+.f96		spritt $0000, 4, 3, $FFF6, $FFF4
+
+.f97		sprite $0000, 1, 1, $FFDA, $FFFC
+		spritt $0001, 4, 3, $FFE2, $FFF4
+
+.f98		sprite $0000, 3, 3, $FFEC, $FFF0
+		spritt $0009, 2, 3, $0004, $FFF8
+
+.f99		sprite $0000, 3, 3, $FFF5, $FFE8
+		sprite $0009, 2, 2, $FFF5, $0000
+		spritt $000D, 3, 1, $FFF5, $0010
+
+.f100		spritt $0000, 3, 4, $FFF3, $FFF1
+
+.f101		sprite $0000, 3, 4, $FFF4, $FFEB
+		spritt $000C, 3, 1, $FFF4, $000B
+
+.f102		sprite $0000, 3, 1, $FFF4, $FFE8
+		sprite $0003, 2, 1, $FFF4, $FFF0
+		spritt $0005, 3, 4, $FFF4, $FFF8
+
+.f103		spritt $0000, 3, 4, $FFF2, $FFF0
+
+.f104		sprite $0000, 1, 1, $FFFA, $FFE8
+		spritt $0001, 3, 4, $FFF2, $FFF0
+
+.f105		sprite $0000, 3, 4, $FFF0, $FFEC
+		spritt $000C, 3, 1, $FFF8, $000C
+
+.f106		sprite $0000, 2, 1, $FFF0, $FFEC
+		sprite $0002, 4, 1, $FFF0, $FFF4
+		sprite $0006, 3, 2, $FFF0, $FFFC
+		spritt $000C, 2, 1, $FFF8, $000C
+
+.f107		sprite $0000, 1, 1, $FFFB, $FFEC
+		sprite $0001, 4, 2, $FFEB, $FFF4
+		spritt $0009, 3, 1, $FFF3, $0004
+
+.f108		sprite $0000, 1, 1, $0000, $FFF0
+		sprite $0001, 4, 2, $FFF0, $FFF8
+		spritt $0009, 3, 1, $FFF0, $0008
+
+.f109		sprite $0000, 2, 3, $FFEC, $FFF8
+		spritt $0006, 3, 4, $FFFC, $FFF0
+
+.f110		sprite $0000, 1, 1, $FFFC, $FFF0
+		sprite $0001, 3, 3, $FFEC, $FFF8
+		spritt $000A, 2, 2, $0004, $FFF8
+
+.f111		sprite $0000, 2, 1, $FFF8, $FFF0
+		sprite $0002, 3, 2, $FFF0, $FFF8
+		spritt $0008, 4, 1, $FFF0, $0008
+
+.f112		sprite $0000, 3, 2, $FFF8, $FFF0
+		sprite $0006, 4, 1, $FFF0, $0000
+		spritt $000A, 2, 1, $0000, $0008
+
+.f113		sprite $0000, 1, 1, $0000, $FFF0
+		spritt $0001, 4, 3, $FFF0, $FFF8
+
+.f114		sprite $0000, 2, 1, $FFF4, $FFF0
+		sprite $0002, 1, 1, $FFEC, $FFF8
+		sprite $0003, 1, 1, $FFEC, $0008
+		spritt $0004, 4, 3, $FFF4, $FFF8
+
+.f115		sprite $0000, 2, 1, $FFFC, $FFF0
+		sprite $0002, 4, 3, $FFEC, $FFF8
+		spritt $000E, 1, 3, $000C, $FFF8
+
+.f116		sprite $0000, 2, 1, $FFF8, $FFF0
+		sprite $0002, 4, 2, $FFF0, $FFF8
+		spritt $000A, 3, 1, $FFF8, $0008
+
+.f117		sprite $0000, 1, 1, $FFF4, $FFF0
+		spritt $0001, 3, 3, $FFF4, $FFF8
+
+.f118		sprite $0000, 3, 1, $FFF0, $FFF0
+		sprite $0003, 4, 2, $FFF0, $FFF8
+		spritt $000B, 3, 1, $FFF0, $0008
+
+.f119		spritt $0000, 4, 3, $FFF0, $FFF4
+
+.f120		sprite $0000, 4, 1, $FFEE, $FFE7
+		sprite $0004, 3, 1, $FFEE, $FFEF
+		sprite $0007, 4, 2, $FFEE, $FFF7
+		spritt $000F, 4, 2, $FFF6, $0007
+
+.f121		sprite $0000, 2, 1, $FFE9, $FFE6
+		sprite $0002, 4, 3, $FFE1, $FFEE
+		sprite $000E, 2, 3, $0001, $FFF6
+		spritt $0014, 3, 1, $FFE9, $0006
+
+.f122		sprite $0000, 3, 1, $FFE6, $FFF1
+		sprite $0003, 4, 3, $FFE6, $FFF9
+		spritt $000F, 2, 4, $0006, $FFE9
+
+.f123		sprite $0000, 3, 1, $FFF5, $FFEE
+		sprite $0003, 2, 1, $FFFD, $FFF6
+		sprite $0005, 1, 2, $FFE5, $0006
+		spritt $0007, 4, 4, $FFED, $FFFE
+
+.f124		sprite $1800, 4, 1, $FFF1, $0012
+		sprite $1804, 3, 1, $FFF9, $000A
+		sprite $1807, 4, 2, $FFF1, $FFFA
+		spritt $180F, 4, 2, $FFE9, $FFEA
+
+.f125		sprite $1800, 2, 1, $0004, $0013
+		sprite $1802, 4, 3, $FFFC, $FFFB
+		sprite $180E, 2, 3, $FFEC, $FFF3
+		spritt $1814, 3, 1, $FFFC, $FFF3
+
+.f126		sprite $1800, 3, 1, $0001, $0007
+		sprite $1803, 4, 3, $FFF9, $FFEF
+		spritt $180F, 2, 4, $FFE9, $FFF7
+
+.f127		sprite $1800, 3, 1, $FFF3, $000C
+		sprite $1803, 2, 1, $FFF3, $0004
+		sprite $1805, 1, 2, $0013, $FFEC
+		spritt $1807, 4, 4, $FFF3, $FFE4
+
+.f128		sprite $0000, 4, 3, $FFEF, $FFE8
+		sprite $000C, 1, 1, $000F, $FFE8
+		sprite $000D, 2, 1, $FFF7, $0000
+		spritt $000F, 3, 2, $FFEF, $0008
+
+.f129		sprite $0000, 4, 1, $FFEE, $FFE8
+		sprite $0004, 4, 2, $FFEE, $FFF0
+		sprite $000C, 2, 2, $FFF6, $0000
+		spritt $0010, 3, 1, $FFEE, $0010
+
+.f130		sprite $0000, 3, 1, $FFF4, $FFE8
+		sprite $0003, 4, 1, $FFEC, $FFF0
+		spritt $0007, 3, 4, $FFF4, $FFF8
+
+.f131		sprite $0000, 1, 1, $FFEA, $FFE8
+		sprite $0001, 4, 2, $FFF2, $FFE8
+		sprite $0009, 3, 1, $FFF2, $FFF8
+		spritt $000C, 2, 3, $FFFA, $0000
+
+.f132		sprite $0000, 4, 3, $FFED, $FFE8
+		sprite $000C, 3, 2, $FFF5, $0000
+		spritt $0012, 2, 1, $FFF5, $0010
+
+.f133		sprite $0000, 4, 3, $FFEF, $FFE8
+		spritt $000C, 2, 3, $FFF7, $0000
+
+.f134		sprite $0000, 3, 1, $FFFC, $FFF8
+		sprite $0003, 4, 2, $FFF4, $0000
+		spritt $000B, 3, 1, $FFF4, $0010
+
+.f135		sprite $0000, 4, 3, $FFF4, $FFF8
+		spritt $000C, 3, 1, $FFF4, $0010
+
+.f136		sprite $0000, 4, 3, $FFF4, $FFF8
+		spritt $000C, 3, 1, $FFF4, $0010
+
+.f137		sprite $0000, 4, 3, $FFF4, $FFF8
+		spritt $000C, 3, 1, $FFF4, $0010
+
+.f138		sprite $0000, 4, 3, $FFF4, $FFF8
+		spritt $000C, 3, 1, $FFF4, $0010
+
+.f139		sprite $0000, 4, 3, $FFF4, $FFF8
+		spritt $000C, 3, 1, $FFF4, $0010
+
+.f140		sprite $0000, 4, 3, $FFEC, $FFF0
+		sprite $000C, 1, 3, $000C, $FFF0
+		spritt $000F, 3, 1, $FFF4, $0008
+
+.f141		sprite $0000, 4, 3, $FFEC, $FFEF
+		sprite $000C, 1, 3, $000C, $FFEF
+		spritt $000F, 3, 1, $FFF4, $0007
+
+.f142		sprite $0000, 3, 4, $FFF1, $FFE8
+		spritt $000C, 2, 2, $FFF9, $0008
+
+.f143		sprite $0000, 4, 1, $FFE9, $FFF1
+		sprite $0004, 2, 2, $FFE9, $FFF9
+		spritt $0008, 3, 3, $FFF9, $FFF9
+
+.f144		sprite $0000, 3, 2, $FFF0, $FFE8
+		sprite $0006, 4, 1, $FFF0, $FFF8
+		sprite $000A, 3, 1, $FFF0, $0000
+		spritt $000D, 3, 2, $FFF8, $0008
+
+.f145		sprite $0000, 3, 2, $FFF0, $FFE6
+		sprite $0006, 4, 1, $FFF0, $FFF6
+		sprite $000A, 3, 1, $FFF0, $FFFE
+		spritt $000D, 4, 2, $FFF8, $0006
+
+.f146		sprite $0000, 3, 1, $FFF0, $FFE8
+		sprite $0003, 4, 3, $FFF0, $FFF0
+		sprite $000F, 1, 1, $0010, $0000
+		spritt $0010, 2, 1, $0000, $0008
+
+.f147		sprite $0000, 3, 1, $FFF0, $FFE8
+		spritt $0003, 4, 3, $FFF0, $FFF0
+
+.f148		sprite $0000, 4, 2, $FFF2, $FFE8
+		sprite $0008, 2, 1, $FFF7, $FFE8
+		sprite $000A, 3, 2, $FFF7, $FFF0
+		sprite $0010, 2, 2, $FFF7, $0000
+		spritt $0014, 3, 1, $FFF7, $0010
+
+.f149		sprite $0000, 3, 1, $FFF6, $FFE8
+		sprite $0003, 2, 1, $FFF7, $FFE8
+		sprite $0005, 3, 2, $FFF7, $FFF0
+		sprite $000B, 2, 2, $FFF7, $0000
+		spritt $000F, 3, 1, $FFF7, $0010
+
+.f150		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f151		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f152		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f153		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f154		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f155		sprite $0000, 1, 1, $0000, $FFEC
+		spritt $0001, 3, 4, $FFF8, $FFF4
+
+.f156		sprite $0000, 1, 1, $0003, $FFF4
+		spritt $0001, 4, 3, $FFF3, $FFFC
+
+.f157		sprite $0000, 3, 3, $FFF5, $FFEB
+		sprite $0009, 1, 2, $FFED, $FFF3
+		sprite $000B, 4, 1, $FFF5, $0003
+		spritt $000F, 3, 1, $FFFD, $000B
+
+.f158		sprite $0000, 3, 3, $FFF6, $FFEB
+		sprite $0009, 1, 2, $FFEE, $FFF3
+		sprite $000B, 4, 1, $FFF6, $0003
+		spritt $000F, 3, 1, $FFFE, $000B
+
+.f159		sprite $0000, 3, 1, $FFF9, $FFEA
+		sprite $0003, 4, 2, $FFF1, $FFF2
+		sprite $000B, 3, 1, $FFF9, $0002
+		spritt $000E, 2, 1, $0001, $000A
+
+.f160		sprite $0000, 3, 1, $FFEF, $FFEC
+		sprite $0003, 4, 3, $FFEF, $FFF4
+		spritt $000F, 3, 1, $FFF7, $000C
+
+.f161		sprite $0000, 4, 2, $FFEB, $FFEC
+		sprite $0008, 1, 1, $000B, $FFEC
+		spritt $0009, 3, 3, $FFEB, $FFFC
+
+.f162		sprite $0000, 1, 1, $FFF4, $FFE5
+		sprite $0001, 4, 3, $FFEC, $FFED
+		sprite $000D, 1, 1, $FFE4, $FFED
+		spritt $000E, 3, 2, $FFEC, $0005
+
+.f163		sprite $0000, 1, 1, $FFFB, $FFE4
+		sprite $0001, 4, 4, $FFEB, $FFEC
+		spritt $0011, 3, 1, $FFEB, $000C
+
+.f164		sprite $0000, 3, 1, $FFF2, $FFEC
+		sprite $0003, 4, 3, $FFE2, $FFF4
+		sprite $000F, 1, 2, $0002, $FFF4
+		spritt $0011, 3, 1, $FFEA, $000C
+
+.f165		sprite $0000, 4, 4, $FFEB, $FFEC
+		sprite $0010, 1, 1, $FFE3, $0004
+		spritt $0011, 3, 1, $FFEB, $000C
+
+.f166		sprite $0000, 3, 1, $FFF2, $FFED
+		sprite $0003, 4, 3, $FFE2, $FFF5
+		sprite $000F, 1, 2, $0002, $FFF5
+		spritt $0011, 3, 1, $FFEA, $000D
+
+.f167		sprite $0000, 3, 1, $FFF8, $FFEC
+		sprite $0003, 4, 4, $FFF0, $FFF4
+		spritt $0013, 1, 1, $0010, $FFF4
+
+.f168		sprite $0000, 3, 1, $FFF8, $FFEC
+		sprite $0003, 4, 4, $FFF0, $FFF4
+		spritt $0013, 1, 1, $0010, $FFF4
+
+.f169		sprite $0000, 2, 1, $FFF8, $FFEC
+		sprite $0002, 4, 4, $FFF0, $FFF4
+		spritt $0012, 1, 1, $0010, $FFF4
+
+.f170		sprite $0000, 4, 3, $FFE6, $FFF4
+		sprite $000C, 1, 1, $0006, $FFF4
+		spritt $000D, 3, 2, $0006, $FFFC
+
+.f171		sprite $0000, 4, 3, $FFE6, $FFF4
+		sprite $000C, 1, 1, $0006, $FFF4
+		spritt $000D, 3, 2, $0006, $FFFC
+
+.f172		sprite $0000, 4, 4, $FFEC, $FFEC
+		sprite $0010, 1, 1, $000C, $0004
+		sprite $0011, 2, 1, $FFEC, $000C
+		spritt $0013, 2, 1, $0004, $000C
+
+.f173		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 2, 1, $FFF6, $0004
+		spritt $000D, 3, 1, $FFF6, $000C
+
+.f174		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 2, 1, $FFF6, $0004
+		spritt $000D, 3, 1, $FFF6, $000C
+
+.f175		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 1, $FFE6, $FFF4
+		sprite $0007, 4, 2, $FFEE, $FFFC
+		spritt $000F, 3, 1, $FFF6, $000C
+
+.f176		sprite $0000, 4, 2, $FFEA, $FFEC
+		spritt $0008, 3, 3, $FFF2, $FFFC
+
+.f177		sprite $0000, 3, 1, $FFEF, $FFEC
+		sprite $0003, 4, 2, $FFEF, $FFF4
+		spritt $000B, 3, 2, $FFEF, $0004
+
+.f178		sprite $0000, 3, 1, $FFEF, $FFEC
+		sprite $0003, 4, 2, $FFEF, $FFF4
+		spritt $000B, 3, 2, $FFEF, $0004
+
+.f179		sprite $0000, 3, 1, $FFEF, $FFEC
+		sprite $0003, 4, 2, $FFEF, $FFF4
+		spritt $000B, 3, 2, $FFEF, $0004
+
+.f180		sprite $0000, 3, 4, $FFF5, $FFE6
+		sprite $000C, 3, 1, $FFF5, $0006
+		spritt $000F, 2, 2, $FFF5, $000E
+
+.f181		sprite $0000, 3, 4, $FFF5, $FFE6
+		sprite $000C, 3, 1, $FFF5, $0006
+		spritt $000F, 2, 2, $FFF5, $000E
+
+.f182		sprite $0000, 2, 1, $FFFD, $FFEC
+		sprite $0002, 3, 3, $FFF5, $FFF4
+		spritt $000B, 4, 1, $FFED, $000C
+
+.f183		sprite $0000, 2, 1, $FFFD, $FFEC
+		sprite $0002, 3, 3, $FFF5, $FFF4
+		spritt $000B, 2, 1, $FFF5, $000C
+
+.f184		sprite $0000, 2, 1, $FFFD, $FFEC
+		sprite $0002, 3, 2, $FFF5, $FFF4
+		spritt $0008, 4, 2, $FFED, $0004
+
+.f185		sprite $0000, 2, 1, $FFFD, $FFEC
+		sprite $0002, 3, 3, $FFF5, $FFF4
+		spritt $000B, 2, 1, $FFF5, $000C
+
+.f186		sprite $0000, 3, 3, $FFF8, $FFFC
+		sprite $0009, 3, 1, $FFF0, $FFEC
+		sprite $000C, 4, 1, $FFF0, $FFF4
+		spritt $0010, 1, 1, $FFF0, $FFFC
+
+.f187		sprite $0000, 3, 1, $FFEE, $FFED
+		sprite $0003, 4, 2, $FFEE, $FFF5
+		spritt $000B, 3, 2, $FFF6, $0005
+
+.f188		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 3, 1, $FFEE, $0004
+		spritt $000E, 3, 1, $FFF6, $000C
+
+.f189		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 3, 1, $FFEE, $0004
+		spritt $000E, 3, 1, $FFF6, $000C
+
+.f190		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 3, 1, $FFEE, $0004
+		spritt $000E, 3, 1, $FFF6, $000C
+
+.f191		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 3, 1, $FFEE, $0004
+		spritt $000E, 3, 1, $FFF6, $000C
+
+.f192		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 3, 1, $FFEE, $0004
+		spritt $000E, 3, 1, $FFF6, $000C
+
+.f193		sprite $0000, 3, 4, $FFF3, $FFEC
+		spritt $000C, 4, 1, $FFF3, $000C
+
+.f194		sprite $0000, 3, 1, $FFF3, $FFEC
+		sprite $0003, 4, 2, $FFF3, $FFF4
+		sprite $000B, 3, 1, $FFF3, $0004
+		spritt $000E, 4, 1, $FFF3, $000C
+
+.f195		sprite $0000, 3, 1, $FFED, $FFEC
+		sprite $0003, 4, 2, $FFED, $FFF4
+		sprite $000B, 3, 1, $FFF5, $0004
+		spritt $000E, 3, 1, $FFF5, $000C
+
+.f196		sprite $0000, 3, 1, $FFED, $FFEE
+		sprite $0003, 4, 1, $FFE5, $FFF6
+		sprite $0007, 4, 1, $FFED, $FFFE
+		spritt $000B, 3, 2, $FFF5, $0006
+
+.f197		sprite $0000, 4, 3, $FFED, $FFEC
+		sprite $000C, 3, 1, $FFF5, $0004
+		spritt $000F, 3, 1, $FFF5, $000C
+
+.f198		sprite $0000, 3, 1, $FFEE, $FFEC
+		sprite $0003, 4, 2, $FFEE, $FFF4
+		sprite $000B, 3, 1, $FFF6, $0004
+		spritt $000E, 3, 1, $FFF6, $000C
+
+.f199		sprite $0000, 3, 1, $FFF5, $FFEC
+		sprite $0003, 4, 1, $FFED, $FFF4
+		sprite $0007, 3, 2, $FFF5, $FFFC
+		spritt $000D, 3, 1, $FFF5, $000C
+
+.f200		sprite $0000, 3, 3, $FFFB, $FFF4
+		sprite $0009, 2, 1, $FFEB, $FFFC
+		spritt $000B, 3, 1, $FFE3, $0004
+
+.f201		sprite $0000, 3, 2, $FFF4, $FFF4
+		sprite $0006, 4, 1, $FFEC, $0004
+		spritt $000A, 1, 1, $000C, $0004
+
+.f202		sprite $0000, 3, 2, $FFF7, $FFF4
+		spritt $0006, 4, 1, $FFEF, $0004
+
+.f203		sprite $0800, 3, 2, $FFF3, $FFF4
+		sprite $0806, 4, 1, $FFF3, $0004
+		spritt $080A, 1, 1, $FFEB, $0004
+
+.f204		sprite $0800, 3, 3, $FFEE, $FFF4
+		sprite $0809, 2, 1, $0006, $FFFC
+		spritt $080B, 3, 1, $0006, $0004
+
+.f205		sprite $0000, 4, 3, $FFF2, $FFF4
+		spritt $000C, 1, 1, $FFEA, $0004
+
+.f206		sprite $0000, 3, 2, $FFF7, $FFF4
+		spritt $0006, 4, 1, $FFEF, $0004
+
+.f207		sprite $0800, 4, 3, $FFEF, $FFF4
+		spritt $080C, 1, 1, $000F, $0004
+
+.f208		sprite $0000, 4, 3, $FFEC, $FFF8
+		sprite $000C, 1, 3, $000C, $FFF8
+		spritt $000F, 3, 1, $FFF4, $0010
+
+.f209		sprite $0000, 4, 3, $FFEC, $FFF7
+		sprite $000C, 1, 3, $000C, $FFF7
+		spritt $000F, 3, 1, $FFF4, $000F
+
+.f210		spritt $0000, 3, 4, $FFF4, $FFF0
+
+.f211		sprite $0000, 3, 2, $FFF3, $FFE8
+		sprite $0006, 4, 2, $FFF3, $FFF8
+		spritt $000E, 3, 2, $FFF3, $0008
+
+.f212		sprite $0000, 4, 4, $FFF0, $FFE8
+		spritt $0010, 3, 2, $FFF0, $0008
+
+.f213		sprite $0000, 3, 3, $FFF0, $FFE8
+		sprite $0009, 4, 1, $FFF0, $0000
+		spritt $000D, 3, 2, $FFF0, $0008
+
+.f214		sprite $0000, 3, 3, $FFF0, $FFE8
+		sprite $0009, 4, 1, $FFF0, $0000
+		spritt $000D, 3, 2, $FFF0, $0008
+
+.f215		sprite $0000, 4, 3, $FFE8, $FFF4
+		sprite $000C, 1, 3, $0008, $FFF4
+		spritt $000F, 3, 1, $FFF0, $000C
+
+.f216		sprite $0000, 4, 3, $FFE8, $FFF3
+		sprite $000C, 1, 3, $0008, $FFF3
+		spritt $000F, 3, 1, $FFF0, $000B
+
+.f217		sprite $0000, 4, 3, $FFE8, $FFEC
+		sprite $000C, 1, 1, $0008, $FFFC
+		sprite $000D, 4, 1, $FFF0, $0004
+		spritt $0011, 3, 1, $FFF8, $000C
+
+.f218		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 2, $FFF0, $FFFC
+		spritt $000E, 2, 1, $FFF8, $000C
+
+.f219		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 2, $FFF0, $FFFC
+		spritt $000E, 2, 1, $FFF8, $000C
+
+.f220		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 2, $FFF0, $FFFC
+		spritt $000E, 2, 1, $FFF8, $000C
+
+.f221		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 2, $FFF0, $FFFC
+		spritt $000E, 2, 1, $FFF8, $000C
+
+.f222		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 2, $FFF0, $FFFC
+		spritt $000E, 2, 1, $FFF8, $000C
+
+.f223		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 2, $FFF0, $FFFC
+		spritt $000E, 2, 1, $FFF8, $000C
+
+.f224		spritt $0000, 3, 4, $FFF4, $FFF0
+
+.f225		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 3, 1, $FFF4, $000C
+
+.f226		sprite $0000, 3, 2, $FFF0, $FFEC
+		sprite $0006, 4, 1, $FFF0, $FFFC
+		sprite $000A, 3, 1, $FFF8, $0004
+		spritt $000D, 2, 1, $0000, $000C
+
+.f227		sprite $0000, 3, 4, $FFEC, $FFE8
+		sprite $000C, 2, 2, $0004, $FFF8
+		sprite $0010, 3, 1, $FFEC, $0008
+		spritt $0013, 2, 1, $FFEC, $0010
+
+.f228		sprite $0000, 3, 2, $FFF0, $FFE8
+		sprite $0006, 4, 2, $FFF0, $FFF8
+		sprite $000E, 2, 1, $FFF8, $0008
+		spritt $0010, 3, 1, $FFF8, $0010
+
+.f229		sprite $0000, 3, 2, $FFF0, $FFE8
+		sprite $0006, 4, 1, $FFF0, $FFF8
+		sprite $000A, 3, 1, $FFF0, $0000
+		spritt $000D, 3, 2, $FFF8, $0008
+
+.f230		sprite $0000, 3, 4, $FFF0, $FFE8
+		sprite $000C, 2, 1, $FFF8, $0008
+		spritt $000E, 3, 1, $FFF8, $0010
+
+.f231		sprite $0000, 3, 4, $FFF4, $FFE8
+		spritt $000C, 3, 2, $FFF4, $0008
+
+.f232		sprite $0000, 3, 2, $FFF8, $FFE8
+		sprite $0006, 4, 1, $FFF0, $FFF8
+		sprite $000A, 3, 1, $FFF8, $0000
+		spritt $000D, 3, 2, $FFF0, $0008
+
+.f233		sprite $0000, 4, 1, $FFF0, $FFE8
+		sprite $0004, 3, 3, $FFF8, $FFF0
+		spritt $000D, 3, 2, $FFF0, $0008
+
+.f234		sprite $0000, 3, 4, $FFF4, $FFE8
+		spritt $000C, 3, 2, $FFF4, $0008
+
+.f235		sprite $0000, 3, 2, $FFEC, $FFE8
+		sprite $0006, 4, 1, $FFEC, $FFF8
+		sprite $000A, 3, 1, $FFEC, $0000
+		spritt $000D, 4, 2, $FFF4, $0008
+
+.f236		sprite $0000, 2, 1, $0000, $FFEC
+		sprite $0002, 4, 4, $FFF8, $FFF4
+		spritt $0012, 2, 3, $FFE8, $FFFC
+
+.f237		sprite $0000, 3, 2, $FFF0, $FFE8
+		sprite $0006, 4, 2, $FFF0, $FFF8
+		spritt $000E, 3, 2, $FFF8, $0008
+
+.f238		sprite $0000, 2, 1, $0000, $FFEC
+		sprite $0002, 4, 2, $FFE8, $FFF4
+		sprite $000A, 2, 2, $0008, $FFF4
+		spritt $000E, 2, 2, $FFF0, $0004
+
+.f239		sprite $0000, 4, 4, $FFF0, $FFEC
+		spritt $0010, 3, 1, $FFF0, $000C
+
+.f240		sprite $0000, 4, 3, $FFF0, $FFEC
+		sprite $000C, 3, 1, $FFF0, $0004
+		spritt $000F, 2, 1, $FFF8, $000C
+
+.f241		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 3, 1, $FFF4, $000C
+
+.f242		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 1, 1, $FFFC, $000C
+
+.f243		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 3, 1, $FFF4, $000C
+
+.f244		sprite $0000, 4, 2, $FFF0, $FFEC
+		sprite $0008, 3, 1, $FFF0, $FFFC
+		sprite $000B, 4, 1, $FFF0, $0004
+		spritt $000F, 3, 1, $FFF8, $000C
+
+.f245		sprite $0000, 3, 1, $FFF0, $FFEC
+		sprite $0003, 4, 3, $FFF0, $FFF4
+		spritt $000F, 3, 1, $FFF0, $000C
+
+.f246		sprite $0000, 4, 4, $FFF0, $FFEC
+		spritt $0010, 3, 1, $FFF8, $000C
+
+.f247		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 2, 1, $FFF4, $000C
+
+.f248		sprite $0000, 3, 3, $FFF4, $FFEC
+		sprite $0009, 2, 1, $FFFC, $0004
+		spritt $000B, 3, 1, $FFF4, $000C
+
+.f249		sprite $0000, 3, 4, $FFF4, $FFEC
+		spritt $000C, 2, 1, $FFFC, $000C
+
+.f250		sprite $0000, 4, 3, $FFF0, $FFEC
+		spritt $000C, 3, 2, $FFF0, $0004

@@ -64,7 +64,7 @@ ProcMaps:
 .checkend
 		tst.b	(a5)				;	; check for the end token
 		bne.s	.next				; 10/8	; branch if wan't yet
-		clr.b	-4(a0)				; 16	; clear the link counter of the last sprite
+		clr.b	-5(a0)				; 16	; clear the link counter of the last sprite
 		rts					; 16
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -106,10 +106,10 @@ ProcMapsLayer:
 	; y-pos onscreen check
 		moveq	#0,d0				; 4	; clear upper bytes of d0
 		move.b	height(a1),d0			; 12	; load object height to d0
-		move.w	xpos(a1),d1			; 12	; load y-pos to d2
-		sub.w	CameraY.w,d1			; 12	; subtract camera y-pos from d2 (get relative position)
+		move.w	ypos(a1),d2			; 12	; load y-pos to d2
+		sub.w	CameraY.w,d2			; 12	; subtract camera y-pos from d2 (get relative position)
 
-		move.w	d1,d3				; 4	; copy y-pos to d3
+		move.w	d2,d3				; 4	; copy y-pos to d3
 		add.w	d0,d3				; 4	; add height to y-pos
 
 		add.w	d0,d0				; 4	; double height
@@ -134,8 +134,8 @@ ProcMapsLayer:
 		bmi.s	.offscreen			; 10/8	; branch if not
 
 		bsr.s	ProcMapObj			; 18	; process object mappings
-		bmi.s	.offscreen			; 10/8	; branch if the end token was met
-		clr.b	-4(a0)				; 16	; clear the link counter of the last sprite
+	;	bmi.s	.offscreen			; 10/8	; branch if the end token was met
+	;	clr.b	-4(a0)				; 16	; clear the link counter of the last sprite
 ; --------------------------------------------------------------
 
 .offscreen
