@@ -11,9 +11,3 @@
 HW_Version =		$A10001					; Mega Drive version register
 HW_TMSS =		$A14000					; TMSS address
 
-PAD_Data1 =		$A10003					; PAD 1 data
-PAD_Data2 =		$A10005					; PAD 2 data
-PAD_DataX =		$A10007					; PAD Ex data
-PAD_Control1 =		$A10009					; PAD 1 control
-PAD_Control2 =		$A1000B					; PAD 2 control
-PAD_ControlX =		$A1000D					; PAD Ex control

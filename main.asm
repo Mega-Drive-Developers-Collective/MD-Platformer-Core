@@ -32,6 +32,7 @@
 		include "code/objects/main.mac"			; include object macros
 		include "code/hardware/VDP.mac"			; include VDP macros
 		include "code/hardware/Z80.mac"			; include Z80 macros
+		include "code/hardware/PAD.mac"			; include PAD macros
 		include "code/hardware/misc.mac"		; include miscellaneous macros
 		include "code/VRAM.mac"				; include VRAM macros
 		include "code/exceptions/Debugger.asm"		; include exception handler macros
@@ -106,6 +107,7 @@ Library		SECTION						; create library section
 Main		SECTION						; create main section
 		include "code/init.asm"				; include init routine
 		include "code/vint.asm"				; include V-int routines
+		include "code/hardware/PAD.asm"			; include PAD routines
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Test screen mode
@@ -113,7 +115,6 @@ Main		SECTION						; create main section
 
 TestScreen	SECTION						; create test screen section
 		include "screens/test/main.asm"			; include test screen main code
-
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Exception library

@@ -1,0 +1,20 @@
+PAD_Data1 =		$A10003					; PAD 1 data
+PAD_Data2 =		$A10005					; PAD 2 data
+PAD_DataX =		$A10007					; PAD Ex data
+PAD_Control1 =		$A10009					; PAD 1 control
+PAD_Control2 =		$A1000B					; PAD 2 control
+PAD_ControlX =		$A1000D					; PAD Ex control
+
+PAD_TH =	6		; TH pin bit
+PAD_TR =	5		; TR pin bit
+PAD_TL =	4		; TL pin bit
+
+; delay pad read by 8 cycles
+pad_delay8	macro
+	or.l	d0,d0
+	endm
+
+; delay pad read by 4 cycles
+pad_delay4	macro
+	nop
+	endm

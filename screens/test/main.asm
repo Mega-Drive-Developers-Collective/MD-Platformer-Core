@@ -11,6 +11,7 @@
 gmTest:
 	; load test palette
 	dma	Test_Pal, 0, 32*2, CRAM				; DMA test palette to CRAM
+		st	pPoll.w					; init pads
 
 
 		move.b	#4,VintRoutine.w			; enable screen v-int routine
@@ -43,16 +44,64 @@ gmTest:
 ; --------------------------------------------------------------
 
 .loop
-		subq.b	#1,exram(a0)				; decrease counter
-		bcc.s	.next					; branch if no underflow
-		addq.b	#1,frame(a0)				; go to next frame
-		move.b	#8-1,exram(a0)				; set delay
+	; check object movement
+		moveq	#0,d0					; change movement to 0
+		btst	#0,pHeld1A+1.w				; check if up is pressed
+		beq.s	.noup					; branch if no
+		subq.w	#1,d0					; change to upwards speed
 
-		cmp.b	#250,frame(a0)				; check max frame
-		bls.s	.next					; branch if not reached
+.noup
+		btst	#1,pHeld1A+1.w				; check if down is pressed
+		beq.s	.nodwn					; branch if no
+		addq.w	#1,d0					; change to downwards speed
+
+.nodwn
+		add.w	d0,ypos(a0)				; change y-pos based on speed
+; --------------------------------------------------------------
+
+		moveq	#0,d0					; change movement to 0
+		btst	#2,pHeld1A+1.w				; check if left is pressed
+		beq.s	.nol					; branch if no
+		subq.w	#1,d0					; change to leftwards speed
+
+.nol
+		btst	#3,pHeld1A+1.w				; check if right is pressed
+		beq.s	.nor					; branch if no
+		addq.w	#1,d0					; change to rightwards speed
+
+.nor
+		add.w	d0,xpos(a0)				; change x-pos based on speed
+; --------------------------------------------------------------
+
+.delay =	4						; delay per frame change
+.maxframe =	215						; actually is 250 but there is garbage because this would use 2 sets of art......
+		tst.b	exram(a0)				; check for delay count
+		bne.s	.nob					; branch if not 0
+		addq.b	#1,exram(a0)				; make sure counter wont underflow
+; --------------------------------------------------------------
+
+		btst	#6,pHeld1A+1.w				; check the A button
+		beq.s	.noa					; branch if no
+		move.b	#.delay,exram(a0)			; set delay counter
+
+		addq.b	#1,frame(a0)				; increment frame
+		cmp.b	#.maxframe,frame(a0)			; check if this is the max frame
+		bls.s	.noa					; branch if not
 		move.b	#1,frame(a0)				; skip null frame
+; --------------------------------------------------------------
 
-.next
+.noa
+		btst	#4,pHeld1A+1.w				; check the B button
+		beq.s	.nob					; branch if no
+		move.b	#.delay,exram(a0)			; set delay counter
+
+		subq.b	#1,frame(a0)				; decrement frame
+		bne.s	.nob					; branch if not 0
+		move.b	#.maxframe,frame(a0)			; set to max frame
+; --------------------------------------------------------------
+
+.nob
+		subq.b	#1,exram(a0)				; decrease delay count
 		oNext						; run next object
 ; --------------------------------------------------------------
 

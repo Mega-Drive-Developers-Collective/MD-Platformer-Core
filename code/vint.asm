@@ -44,6 +44,7 @@ irScreen:
 	dma	HscrollTable, vHscroll, 224*4, VRAM		; DMA hscroll table to VRAM
 	dma	SpriteTable, vSprites, 80*8, VRAM		; DMA sprite table to VRAM
 		jsr	dmaQueueProcess				; process the DMA queue
+		jsr	pRead					; read pad data
 ; ==============================================================
 ; --------------------------------------------------------------
 ; V-int routine: Null (do nothing)
