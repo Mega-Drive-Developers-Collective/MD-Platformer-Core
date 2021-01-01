@@ -28,6 +28,9 @@ gmTest:
 		jsr	ProcMaps				; update sprite table
 
 	vsync							; wait for the next frame
+
+		move.w	TailNext.w,a0				; load head object to a0
+	;	jsr	DebugOne				; debug it
 		bra.s	.proc					; infinite loop
 ; --------------------------------------------------------------
 
@@ -44,6 +47,14 @@ gmTest:
 ; --------------------------------------------------------------
 
 .loop
+	; check flippity floppity
+		btst	#5,pPress1A+1.w				; check for C button
+		beq.s	.noc					; branch if no
+		add.b	#1<<(xflip&7),flags(a0)			; switch x-flip or y-flip
+		and.b	#(1<<(xflip&7))|(1<<(yflip&7))|(1<<(onscreen&7)),flags(a0); only ever switch flip bits
+; --------------------------------------------------------------
+
+.noc
 	; check object movement
 		moveq	#0,d0					; change movement to 0
 		btst	#0,pHeld1A+1.w				; check if up is pressed

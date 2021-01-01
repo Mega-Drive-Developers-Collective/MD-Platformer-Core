@@ -86,7 +86,7 @@ size			rs.w 0					; size of object
 ; Object equate flags
 ; --------------------------------------------------------------
 
-	rsset 0		; byte 0
+	rsset 8		; byte 0
 singlesprite		rs.b 1					; set if object displays only a single sprite. Used for some special objects
 			rs.b 1					; unused
 xflip			rs.b 1					; set if object is x-flipped
@@ -94,7 +94,7 @@ yflip			rs.b 1					; set if object is y-flipped
 			rs.b 3					; unused
 onscreen		rs.b 1					; set if object was displayed last frame
 
-	rsset 8		; byte 1
+	rsset 0		; byte 1
 			rs.b 8					; unused
 ; ==============================================================
 ; --------------------------------------------------------------

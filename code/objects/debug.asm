@@ -338,22 +338,22 @@ DebugOne:
 		dc.b .b7-.flagsarray-8,  .b6-.flagsarray-9,  .b5-.flagsarray-10, .b4-.flagsarray-11
 		dc.b .b3-.flagsarray-12, .b2-.flagsarray-13, .b1-.flagsarray-14, .b0-.flagsarray-15
 
-.b7		dc.b "onscreen", 0
-.b15
+.b15		dc.b "onscreen", 0
+.b11		dc.b "yflip", 0
+.b10		dc.b "xflip", 0
+.b8		dc.b "singlesprite", 0
 .b14
 .b13
 .b12
-.b11
-.b10
 .b9
-.b8
+.b7
 .b6
 .b5
 .b4
-.b3		dc.b "?", 0
-.b2		dc.b "singlesprite", 0
-.b1		dc.b "yflip", 0
-.b0		dc.b "xflip", 0
+.b3
+.b2
+.b1
+.b0		dc.b "?", 0
 	even
 ; --------------------------------------------------------------
 ; function to write pointer info

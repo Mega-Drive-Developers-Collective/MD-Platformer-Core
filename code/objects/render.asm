@@ -85,7 +85,7 @@ ProcMapsLayer:
 		move.w	d0,a1				; 4	; load object as a1
 
 .obj
-		moveq	#$FF-(1<<onscreen),d0		; 4	; setup d0 for and (and clear upper word)
+		moveq	#$FF-(1<<(onscreen&7)),d0	; 4	; setup d0 for and (and clear upper word)
 		and.b	d0,flags(a1)			; 16	; clear onscreen flag
 ; --------------------------------------------------------------
 
@@ -125,7 +125,7 @@ ProcMapsLayer:
 	if onscreen = 7					; 16	; this code only works if this is the same bit
 		or.b	d0,flags(a1)				; also add this to flags
 	else
-		or.b	#1<<onscreen,flags(a1)		; 20	; enable onscreen flag
+		or.b	#1<<(onscreen&7),flags(a1)	; 20	; enable onscreen flag
 	endif
 ; --------------------------------------------------------------
 
@@ -174,7 +174,7 @@ ProcMapObj:	; 88 or 128 cycles max
 
 .single
 		move.w	tile(a1),d3			; 12	; load tile pattern to d3
-		moveq	#(1<<xflip)|(1<<yflip),d0	; 4	; load flags mask to d0
+		moveq	#(1<<(xflip&7))|(1<<(yflip&7)),d0; 4	; load flags mask to d0
 		and.b	flags(a1),d0			; 12	; and with object flags
 		jmp	.table(pc,d0.w)			; 14+10	; jump to flip routine
 ; --------------------------------------------------------------
@@ -251,21 +251,21 @@ ProcMapObjNoflip:
 ; thrash: d0-d5
 ; --------------------------------------------------------------
 
-ProcMapObjyflip:
+ProcMapObjYflip:
 		swap	d3				; 4	; swap tile pattern to high word
 		move.w	d1,d3				; 4	; load x-pos to low word
 		move.w	#$1000,d0			; 8	; prepare flip value to d0
-		neg.w	d2				; 4	; negate y-pos
 
-.loop		; 1 loop = 132-134 cycles
+.loop		; 1 loop = 140-142 cycles
 		moveq	#$F,d5				; 4	; prepare value to d5
-		and.b	2(a3),d5			; 12	; and the sprite size data with d5
+		and.b	(a3),d5				; 8	; and the sprite size data with d5
 		add.w	d5,d5				; 4	; double it
 ; --------------------------------------------------------------
 
 		move.l	(a3)+,d4			; 12	; load y-pos, size and link data to d4
+		neg.w	d4				; 4	; negate y-offfset
+		sub.w	ProcMapYflipTbl(pc,d5.w),d4	; 14	; add the y-flip table offset to d4
 		add.w	d2,d4				; 4	; add y-pos to low word
-		add.w	ProcMapYflipTbl(pc,d5.w),d4	; 14	; add the y-flip table offset to d4
 		swap	d4				; 4	; swap words
 
 		addq.b	#1,d6				; 4	; increment link value
@@ -274,6 +274,7 @@ ProcMapObjyflip:
 ; --------------------------------------------------------------
 
 		move.l	(a3)+,d4			; 12	; load x-pos and pattern data to d4
+		eor.w	d0,d4				; 8	; eor with flip value
 		swap	d4				; 4	; swap words
 		add.l	d3,d4				; 8	; add tile pattern and x-pos to d4
 		move.l	d4,(a0)+			; 12	; send to sprite table
@@ -288,10 +289,10 @@ ProcMapObjyflip:
 ; --------------------------------------------------------------
 
 ProcMapYflipTbl:
-		dc.w -$0008,-$0010,-$0018,-$0020	; $00	; sequence of 1 tile, 2 tiles, 3 tiles, 4 tiles, 1 tile ...
-		dc.w -$0008,-$0010,-$0018,-$0020	; $04
-		dc.w -$0008,-$0010,-$0018,-$0020	; $08
-		dc.w -$0008,-$0010,-$0018,-$0020	; $0C
+		dc.w $0008,$0010,$0018,$0020		; $00	; sequence of 1 tile, 2 tiles, 3 tiles, 4 tiles, 1 tile ...
+		dc.w $0008,$0010,$0018,$0020		; $04
+		dc.w $0008,$0010,$0018,$0020		; $08
+		dc.w $0008,$0010,$0018,$0020		; $0C
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to convert object mappings to sprites with xy-flipping
@@ -317,15 +318,16 @@ ProcMapYflipTbl:
 ProcMapObjXYflip:
 		move.w	#$1800,d0			; 8	; prepare flip value to d0
 
-.loop		; 1 loop = 154-156 cycles
+.loop		; 1 loop = 162-164 cycles
 		moveq	#$F,d5				; 4	; prepare value to d5
-		and.b	2(a3),d5			; 12	; and the sprite size data with d5
+		and.b	(a3),d5				; 8	; and the sprite size data with d5
 		add.w	d5,d5				; 4	; double it
 ; --------------------------------------------------------------
 
 		move.l	(a3)+,d4			; 12	; load y-pos, size and link data to d4
+		neg.w	d4				; 4	; negate y-offfset
+		sub.w	ProcMapYflipTbl(pc,d5.w),d4	; 14	; add the y-flip table offset to d4
 		add.w	d2,d4				; 4	; add y-pos to low word
-		add.w	ProcMapYflipTbl(pc,d5.w),d4	; 14	; add the y-flip table offset to d4
 		swap	d4				; 4	; swap words
 
 		addq.b	#1,d6				; 4	; increment link value
@@ -338,8 +340,9 @@ ProcMapObjXYflip:
 		add.w	d3,d4				; 4	; add tile pattern to d4
 		swap	d4				; 4	; swap words
 
-		sub.w	d1,d4				; 4	; add x-pos to d4
-		add.w	ProcMapXflipTbl(pc,d5.w),d4	; 14	; add the x-flip table offset to d4
+		neg.w	d4				; 4	; negate x-offfset
+		sub.w	ProcMapXflipTbl(pc,d5.w),d4	; 14	; add the x-flip table offset to d4
+		add.w	d1,d4				; 4	; add x-pos to d4
 		move.l	d4,(a0)+			; 12	; send to sprite table
 ; --------------------------------------------------------------
 
@@ -352,10 +355,10 @@ ProcMapObjXYflip:
 ; --------------------------------------------------------------
 
 ProcMapXflipTbl:
-		dcb.w 4,-$0008				; $00	; width = 1 tile
-		dcb.w 4,-$0010				; $04	; width = 2 tiles
-		dcb.w 4,-$0018				; $08	; width = 3 tiles
-		dcb.w 4,-$0020				; $0C	; width = 4 tiles
+		dcb.w 4,$0008				; $00	; width = 1 tile
+		dcb.w 4,$0010				; $04	; width = 2 tiles
+		dcb.w 4,$0018				; $08	; width = 3 tiles
+		dcb.w 4,$0020				; $0C	; width = 4 tiles
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to convert object mappings to sprites with x-flipping
@@ -383,7 +386,7 @@ ProcMapObjXflip:
 
 .loop		; 1 loop = 140-142 cycles
 		moveq	#$F,d5				; 4	; prepare value to d5
-		and.b	2(a3),d5			; 12	; and the sprite size data with d5
+		and.b	(a3),d5				; 8	; and the sprite size data with d5
 		add.w	d5,d5				; 4	; double it
 ; --------------------------------------------------------------
 
@@ -401,8 +404,9 @@ ProcMapObjXflip:
 		add.w	d3,d4				; 4	; add tile pattern to d4
 		swap	d4				; 4	; swap words
 
-		sub.w	d1,d4				; 4	; add x-pos to d4
-		add.w	ProcMapXflipTbl(pc,d5.w),d4	; 14	; add the x-flip table offset to d4
+		neg.w	d4				; 4	; negate x-offfset
+		sub.w	ProcMapXflipTbl(pc,d5.w),d4	; 14	; add the x-flip table offset to d4
+		add.w	d1,d4				; 4	; add x-pos to d4
 		move.l	d4,(a0)+			; 12	; send to sprite table
 ; --------------------------------------------------------------
 
