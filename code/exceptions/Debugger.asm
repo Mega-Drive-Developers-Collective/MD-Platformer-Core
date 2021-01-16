@@ -182,8 +182,8 @@ __FSTRING_GenerateArgumentsCode &
 	while (__pos)
 
 		; Retrive expression in brackets following % char
-    	__endpos:	set	instr(__pos+1,\string,'>')
-    	__midpos:	set	instr(__pos+5,\string,' ')
+    	__endpos:	set		instr(__pos+1,\string,'>')
+    	__midpos:	set		instr(__pos+5,\string,' ')
     	if (__midpos<1)|(__midpos>__endpos)
 			__midpos: = __endpos
     	endc
@@ -216,7 +216,7 @@ __FSTRING_GenerateArgumentsCode &
 			endc
 		endc
 
-		__pos:	set	instr(__pos+1,\string,'%<')
+		__pos:	set		instr(__pos+1,\string,'%<')
 	endw
 
 	; Generate stack code
@@ -231,7 +231,7 @@ __FSTRING_GenerateArgumentsCode &
 __FSTRING_GenerateDecodedString &
 	macro string
 
-	__lpos:	set	1						; start position
+	__lpos:	set		1						; start position
 	__pos:	set 	instr(\string,'%<')		; token position
 
 	while (__pos)
@@ -241,8 +241,8 @@ __FSTRING_GenerateDecodedString &
 		dc.b	"\__substr"
 
 		; Retrive expression in brakets following % char
-    	__endpos:	set	instr(__pos+1,\string,'>')
-    	__midpos:	set	instr(__pos+5,\string,' ')
+    	__endpos:	set		instr(__pos+1,\string,'>')
+    	__midpos:	set		instr(__pos+5,\string,' ')
     	if (__midpos<1)|(__midpos>__endpos)
 			__midpos: = __endpos
     	endc
@@ -268,8 +268,8 @@ __FSTRING_GenerateDecodedString &
 			dc.b	\__substr
 		endc
 
-		__lpos:	set	__endpos+1
-		__pos:	set	instr(__pos+1,\string,'%<')
+		__lpos:	set		__endpos+1
+		__pos:	set		instr(__pos+1,\string,'%<')
 	endw
 
 	; Write part of string before the end
