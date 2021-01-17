@@ -58,6 +58,9 @@ ProcAlloc:
 		move.b	frame(a0),d4				; load display frame to d4
 		cmp.b	dlast(a1),d4				; check if we are currently displaying this frame
 		beq.s	.skip					; if so, just skip it
+
+		cmp.b	#$FF,dbit(a1)				; check if this is an invalid object
+		beq.s	.skip					; if yes, do not update!!
 		bsr.s	AllocUpdate				; update this
 ; --------------------------------------------------------------
 
@@ -217,7 +220,6 @@ dmaQueueAdd:
 ; --------------------------------------------------------------
 
 AllocRefactor:
-		lea	DartList.w,a1				; load dynamic art list to a1
 		lea	DynAllocTable.w,a0			; load alloc table to a0
 
 		moveq	#0,d0					; prepare bit to d0
@@ -231,7 +233,7 @@ AllocRefactor:
 		addq.b	#1,d0					; go to next bit
 		addq.b	#1,d2					;
 
-		bclr	#4,d0					; check if the byte is now all done
+		bclr	#3,d0					; check if the byte is now all done
 		sne	d3					; if yes, set d3
 		ext.w	d3					; extend to word
 		sub.w	d3,a0					; sub from the alloc pointer
@@ -244,7 +246,7 @@ AllocRefactor:
 	;	bne.s	.refac					; if yes, we must refactor
 	;	addq.b	#1,d0					; go to next bit
 
-	;	bclr	#4,d0					; check if the byte is now all done
+	;	bclr	#3,d0					; check if the byte is now all done
 	;	sne	d3					; if yes, set d3
 	;	ext.w	d3					; extend to word
 	;	sub.w	d3,a0					; sub from the alloc pointer
@@ -254,18 +256,35 @@ AllocRefactor:
 
 	; this actually refactors all the art
 .refac
+		lea	DartList.w,a1				; load dynamic art list to a1
 		dbset	dyncount,d0				; load number of dynamic objects to d0
 		move.w	d2,d1					; copy free bit to d1
 
 .reloop
 		tst.w	(a1)					; check if this is active
-		bpl.s	.skip					; if not, branch
+		bpl.w	.skip					; if not, branch
 		cmp.b	dbit(a1),d1				; check if this was after the first free bit
-		blt.s	.skip					; if not, skip
-		move.b	d2,dbit(a1)				; set the new address
+		bhi.s	.ckupdate				; if not, check if we need to update anyway
 ; --------------------------------------------------------------
 
+		moveq	#0,d3					; clear d3
+		move.b	dwidth(a1),d3				; load object width to d3
+		neg.w	d3					; negate it (this way we can check if the object fits)
+		add.w	#dynallocbits,d3			; add the max number of bits to d3
+
 		move.w	(a1),a0					; load the parent to a0
+		cmp.b	d2,d3					; check if this bit is too much
+		bhi.s	.yesbit					; if yes, do not process this object
+
+		st	dbit(a1)				; forcibly hide object
+		bset	#norender,flags(a0)			; forcibly disable sprites
+		bra.s	.skip
+; --------------------------------------------------------------
+
+.yesbit
+		bclr	#norender,flags(a0)			; forcibly enable sprites
+		move.b	d2,dbit(a1)				; set the bit address
+
 		move.w	tile(a0),d4				; load tile settings to d4
 		and.w	#$F800,d4				; get only the settings part
 
@@ -279,9 +298,9 @@ AllocRefactor:
 		move.b	frame(a0),d4				; load display frame to d4
 
 	if SAFE_DMA
-		move.l	d2,-(sp)				; push d2 to stack because its modified
+		move.w	d2,-(sp)				; push d2 to stack because its modified
 		bsr.w	AllocUpdate				; update art
-		move.l	(sp)+,d2				; pop d2 from stack bto restore it
+		move.w	(sp)+,d2				; pop d2 from stack bto restore it
 	else
 		bsr.w	AllocUpdate				; update art
 	endif
@@ -290,25 +309,46 @@ AllocRefactor:
 		moveq	#0,d4
 		move.b	dwidth(a1),d4				; load number of bits to reserve
 
-		lea	DynAllocTable.w,a0			; load alloc table to a0
 		move.w	d2,d3					; copy bit to d3
 		lsr.w	#3,d3					; divide by 8 (8 bits per byte)
-		add.w	d3,a0					; add byte offset
+		add.w	#DynAllocTable,d3			; add alloc table to d3
+		move.w	d3,a2					; load the final address to a2
 
 		moveq	#7,d3					; get only the bit to d3
 		and.w	d2,d3					; and bit with d3
 		add.w	d4,d2					; go to the bit after this object
+
+		subq.w	#1,d4					; account for dbf
 ; --------------------------------------------------------------
 
 .setbit
-		bset	d3,(a0)					; set the bit
+		bset	d3,(a2)					; set the bit
 		addq.b	#1,d3					; go to next bit
 
-		bclr	#4,d3					; check if the byte is now all done
+		bclr	#3,d3					; check if the byte is now all done
 		sne	d5					; if yes, set d2
 		ext.w	d5					; extend to word
-		sub.w	d5,a0					; sub from the alloc pointer
+		sub.w	d5,a2					; sub from the alloc pointer
 		dbf	d4,.setbit				; loop until all bits are set
+		bra.s	.skip
+; --------------------------------------------------------------
+
+.ckupdate
+	; checks if the frame had changed
+		moveq	#0,d4
+		move.w	(a1),a0					; load the parent to a0
+
+		move.b	frame(a0),d4				; load display frame to d4
+		cmp.b	dlast(a1),d4				; check if we are currently displaying this frame
+		beq.s	.skip					; if so, just skip it
+
+	if SAFE_DMA
+		move.w	d2,-(sp)				; push d2 to stack because its modified
+		bsr.w	AllocUpdate				; update art
+		move.w	(sp)+,d2				; pop d2 from stack bto restore it
+	else
+		bsr.w	AllocUpdate				; update art
+	endif
 ; --------------------------------------------------------------
 
 .skip
@@ -318,11 +358,11 @@ AllocRefactor:
 
 	; finally, mark all the other bits free
 		moveq	#0,d0
-		move.b	d2,d0					; copy starting bit to d0
+		move.w	d2,d0					; copy starting bit to d0
 		lsr.w	#3,d0					; divide by 8 (8 bits per byte)
 
-		lea	DynAllocTable.w,a2			; load alloc table to a2
-		add.w	d0,a2					; add byte offset
+		add.w	#DynAllocTable,d0			; add alloc table to d0
+		move.w	d0,a2					; load the final address to a2
 ; --------------------------------------------------------------
 
 		dbset	dynallocbits,d1				; prepare max num of bits to d1
@@ -331,13 +371,13 @@ AllocRefactor:
 ; --------------------------------------------------------------
 
 .clrlp
-		bclr	d2,(a0)					; clear the bit
+		bclr	d2,(a2)					; clear the bit
 		addq.b	#1,d2					; go to next bit
 
-		bclr	#4,d2					; check if the byte is now all done
+		bclr	#3,d2					; check if the byte is now all done
 		sne	d0					; if yes, set d2
 		ext.w	d0					; extend to word
-		sub.w	d0,a0					; sub from the alloc pointer
+		sub.w	d0,a2					; sub from the alloc pointer
 		dbf	d1,.clrlp				; loop until all bits are cleared
 		rts
 ; ==============================================================

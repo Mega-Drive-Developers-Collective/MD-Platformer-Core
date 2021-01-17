@@ -181,8 +181,8 @@ RmvDynArt:
 		move.b	d0,d1					; copy starting bit to d1
 		lsr.w	#3,d1					; divide by 8 (8 bits per byte)
 
-		lea	DynAllocTable.w,a2			; load alloc table to a2
-		add.w	d1,a2					; add byte offset
+		add.w	#DynAllocTable,d1			; add alloc table to d1
+		move.w	d1,a2					; load result into a2
 		and.w	#7,d0					; get only the bit to d0
 
 		moveq	#0,d1
@@ -194,7 +194,7 @@ RmvDynArt:
 		bclr	d0,(a2)					; clear the bit to mark it as free
 		addq.b	#1,d0					; go to next bit
 
-		bclr	#4,d0					; check if the byte is now all done
+		bclr	#3,d0					; check if the byte is now all done
 		sne	d2					; if yes, set d2
 		ext.w	d2					; extend to word
 		sub.w	d2,a2					; sub from the alloc pointer

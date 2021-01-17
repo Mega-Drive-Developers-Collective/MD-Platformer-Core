@@ -16,7 +16,6 @@
 ; --------------------------------------------------------------
 
 oInitializeAll:
-	memclr.l DisplayList.w, dislayercount * ddsize, d0, a0	; clear display lists
 	memclr.l PlatformList.w, platformcount * psize, d0, a0	; clear platform objects list
 	memclr.l TouchList.w, touchcount * tsize, d0, a0	; clear touch objects list
 	memclr.l DartList.w, dyncount * dsize, d0, a0		; clear dynamic objects list
@@ -40,9 +39,23 @@ oInitializeAll:
 		add.w	d1,a0					; go to the next object now
 		move.w	a0,prev-size(a0)			; save new previous pointer
 		dbf	d0,.load				; loop for every object
-		clr.w	prev(a0)				; set the last previos pointer to 0
 
+		clr.w	prev(a0)				; set the last previous pointer to 0
 		move.l	#DefaultRenderList,RenderList.w		; set default render list
+; --------------------------------------------------------------
+
+	; reset display table
+		lea	DisplayList-ddnext.w,a1			; get display table address to a1
+		moveq	#dislayercount-1,d1			; loop for all the layers
+
+.dsp
+		move.w	a1,ddprev+ddnext(a1)			; update prev pointer
+		addq.w	#ddnext,a1				; advance to the actual address
+		move.w	a1,ddnext(a1)				; update next pointer
+
+		clr.l	ddn2(a1)				; clear the list end pointers
+		addq.w	#ddsize-ddnext,a1			;go to the next layer
+		dbf	d1,.dsp					; loop for all layers
 
 .rts
 		rts
@@ -54,7 +67,7 @@ oInitializeAll:
 DefaultRenderList:
 .x =	ddnext							; set initial offset
 	rept dislayercount					; run for every layer
-		dc.l ($01<<24) | ProcMapsLayer, DisplayList+.x	; include layer info
-.x =		.x+ddsize					; go to next layer
+		dc.l ($01<<24) | ProcMapsLayer, DisplayList + .x; include layer info
+.x =		.x + ddsize					; go to next layer
 	endr
 		dc.w 0						; end token

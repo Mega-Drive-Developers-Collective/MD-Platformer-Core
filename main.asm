@@ -36,11 +36,13 @@
 		include "code/hardware/misc.mac"		; include miscellaneous macros
 		include "code/VRAM.mac"				; include VRAM macros
 		include "code/exceptions/Debugger.asm"		; include exception handler macros
+
+Main		SECTION org(0)					; create main section
 ; ==============================================================
 ; --------------------------------------------------------------
 ; ROM header
 ; --------------------------------------------------------------
-Header		SECTION org(0), word				; create header section
+
 		dc.l 0,      Init,   exBus,  exAddr
 		dc.l exIll,  exDiv,  exChk,  Trapv
 		dc.l exPriv, exTrace,exLineA,exLineF
@@ -87,14 +89,12 @@ CheckInit:	dc.l 0						; checksum init value
 ; Library fast functions
 ; --------------------------------------------------------------
 
-Fast		SECTION org($200), size($7E00), word		; create $200-$8000 word section
 		include "code/objects/fast.asm"			; include object fast routines
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Library functions
 ; --------------------------------------------------------------
 
-Library		SECTION						; create library section
 		include "code/objects/alloc.asm"		; include alloc routines
 		include "code/objects/misc.asm"			; include misc object routines
 		include "code/objects/render.asm"		; include object rendering routines
@@ -104,7 +104,6 @@ Library		SECTION						; create library section
 ; Game functions
 ; --------------------------------------------------------------
 
-Main		SECTION						; create main section
 		include "code/init.asm"				; include init routine
 		include "code/vint.asm"				; include V-int routines
 		include "code/hardware/PAD.asm"			; include PAD routines
@@ -113,14 +112,12 @@ Main		SECTION						; create main section
 ; Test screen mode
 ; --------------------------------------------------------------
 
-TestScreen	SECTION						; create test screen section
 		include "screens/test/main.asm"			; include test screen main code
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Exception library
 ; --------------------------------------------------------------
 
-Error		SECTION						; create error section
-		include "code/objects/debug.asm"			; include object debugging routines
+		include "code/objects/debug.asm"		; include object debugging routines
 		include "code/exceptions/ErrorHandler.asm"	; include exception handler code
 		END

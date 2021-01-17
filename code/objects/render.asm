@@ -57,7 +57,14 @@ ProcMaps:
 ; --------------------------------------------------------------
 
 .next
+	if DEBUG						; some code to make sure Regen doesn't crash. Shitty
+		move.l	(a5)+,d0			;	; load next routine into a0
+		and.l	#$FFFFFF,d0			;	; clear extra bits
+		move.l	d0,a3				;	; copy to a3
+	else
 		move.l	(a5)+,a3			;	; load next routine into a3
+	endif
+
 		move.l	(a5)+,a4			;	; load parameter to a4
 		jsr	(a3)				;	; run this routine
 
@@ -80,9 +87,10 @@ ProcMaps:
 ; --------------------------------------------------------------
 
 ProcMapsLayer:
-		move.w	(a4),d0				; 8	; load layer pointer to d0
-		beq.s	ProcMapsLayer_Rts		; 10/8	; if 0, return
-		move.w	d0,a1				; 4	; load object as a1
+		move.w	(a4),a1				; 8	; load layer pointer to a1
+		tst.w	dnext(a1)			; 12	; check if this object is valid
+		beq.s	ProcMapsLayer_Rts		; 10/8	; if yes, there are objects left
+; --------------------------------------------------------------
 
 .obj
 		moveq	#$FF-(1<<(onscreen&7)),d0	; 4	; setup d0 for and (and clear upper word)
@@ -140,7 +148,7 @@ ProcMapsLayer:
 
 .offscreen
 		move.w	dnext(a1),a1			; 12	; load next object to a1
-		tst.w	dnext(a1)	; TODO: optimize; 12	; check if this object is valid
+		tst.w	dnext(a1)			; 12	; check if this object is valid
 		bne.s	.obj				; 10/8	; if yes, there are objects left
 
 ProcMapsLayer_Rts:
@@ -161,7 +169,10 @@ ProcMapsLayer_Rts:
 ; thrash: d0-d3/a3
 ; --------------------------------------------------------------
 
-ProcMapObj:	; 88 or 128 cycles max
+ProcMapObj:	; 106 or 146 cycles max
+		btst	#norender,flags(a1)		; 10	; check if sprites should be rendered
+		bne.s	ProcMapsLayer_Rts		; 10/8	; branch if rendering is disabled
+
 		move.l	map(a1),a3			; 16	; load object mappings address to a3
 		btst	#singlesprite,flags(a1)		; 10	; check if in single sprite mode
 		bne.s	.single				; 10/8	; branch if yes

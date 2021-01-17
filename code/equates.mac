@@ -33,26 +33,15 @@ touchcount =		$20					; number of touch objects
 dyncount =		$20					; number of dynamic art objects
 
 dynallocdelta =		$100/$40				; amount of frames until VRAM must be refactored
-dynallocsize =		9					; number of tiles to allocate for every bit of alloc table
+dynallocsize =		4					; number of tiles to allocate for every bit of alloc table
 dynalloctiles =		$180					; number of tiles for dynamic allocator
 dynallocbits =		dynalloctiles / dynallocsize		; number of bits for dynamic allocator
 dynallocbytes =		((dynallocbits / 8 + 1) + 1) & $FFE	; number of bytes for dynamic allocator (next even value)
-dmaqueueentries =	$20					; how many separate DMA queue entries to have
+dmaqueueentries =	$10					; how many separate DMA queue entries to have
 
-	if dynallocbits > $100					; check if there are too many bits for allocator to work
+	if dynallocbits >= $100					; check if there are too many bits for allocator to work
 		inform 3,"Too many tiles reserved for dynamic allocator!"; display error message
 	endif
-; ==============================================================
-; --------------------------------------------------------------
-; Display layer equates
-; --------------------------------------------------------------
-
-	rsset 0
-ddnext			rs.w 1					; pointer to first display object in linked list
-ddn2			rs.w 1					; must be 0
-ddn1			rs.w 1					; must be 0
-ddprev			rs.w 1					; pointer to last display object in linked list
-ddsize			rs.w 0					; size of display layer
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Object equates
@@ -63,8 +52,8 @@ arg			rs.b 0					; object argument variable
 ptr			rs.l 1					; pointer to object code
 prev			rs.w 1					; pointer to the previous object in linked list
 next			rs.w 1					; pointer to the next object in linked list
-dprev			rs.w 1					; pointer to the previous object in display list
 dnext			rs.w 1					; pointer to the next object in display list
+dprev			rs.w 1					; pointer to the previous object in display list
 plat			rs.w 1					; pointer to the platform object data. Positive values indicate nothing is loaded
 touch			rs.w 1					; pointer to the touch object data. Positive values indicate nothing is loaded
 dyn			rs.w 1					; pointer to the dynamic art data. Positive values indicate nothing is loaded
@@ -88,7 +77,7 @@ size			rs.w 0					; size of object
 
 	rsset 8		; byte 0
 singlesprite		rs.b 1					; set if object displays only a single sprite. Used for some special objects
-			rs.b 1					; unused
+norender		rs.b 1					; set if object should not render sprites. This is an ugly hack to work around dynamic rendering issues
 xflip			rs.b 1					; set if object is x-flipped
 yflip			rs.b 1					; set if object is y-flipped
 			rs.b 3					; unused
@@ -96,6 +85,17 @@ onscreen		rs.b 1					; set if object was displayed last frame
 
 	rsset 0		; byte 1
 			rs.b 8					; unused
+; ==============================================================
+; --------------------------------------------------------------
+; Display layer equates
+; --------------------------------------------------------------
+
+	rsset dprev-6						; this awkward thing will make ddprev == dprev
+ddnext			rs.w 1					; pointer to first display object in linked list
+ddn2			rs.w 1					; must be 0
+ddn1			rs.w 1					; must be 0
+ddprev			rs.w 1					; pointer to last display object in linked list
+ddsize =		__rs-ddnext				; size of display layer
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Platform object equates
@@ -179,14 +179,15 @@ TailPrev		ds.w 1					; pointer to the last object in linked list
 TailNext		ds.w 1					; pointer to the first object in linked list
 FreeHead		ds.w 1					; pointer to the first object that is not loaded
 RenderList		ds.l 1					; address to a list of render routines
-DisplayList		ds.b dislayercount * ddsize		; the RAM for every display layer data
+DisplayList		equ *-ddnext
+			ds.b dislayercount * ddsize		; the RAM for every display layer data
 PlatformList		ds.b platformcount * psize		; the RAM for every platform object data
 TouchList		ds.b touchcount * tsize			; the RAM for every touch object data
 DartList		ds.b dyncount * dsize			; the RAM for every touch object data
 
 DMAQueueBuf		ds.w dmaqueueentries * 7		; DMA queue buffer
 DMAQueueAddr		ds.w 1					; address of the next free DMA queue slot (must be at the end of queue)
-DynAllocTable		ds.b dynallocbits / 8 + 1		; the RAM for all the bits needed for dynamic allocator
+DynAllocTable		ds.b dynallocbytes			; the RAM for all the bits needed for dynamic allocator
 DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 
 Gamemode		ds.b 1					; the current game mode

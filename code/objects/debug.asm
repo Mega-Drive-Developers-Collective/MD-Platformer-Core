@@ -605,8 +605,8 @@ DebugLayers:
 		moveq	#0,d0					; load current layer to d0
 
 .layer
-	Console.Write "%<pal0>Layer %<.w d0 dem>:%<pal2>"
-		moveq	#6,d3					; set remaining space to 6
+	Console.Write "%<pal0>Layer %<.w d0 dem>:%<pal1>%<.w a0>%<pal0>>%<pal2>"
+		moveq	#5,d3					; set remaining space to 6
 		move.w	ddnext(a0),a1				; load first object to a1
 ; --------------------------------------------------------------
 
@@ -626,7 +626,6 @@ DebugLayers:
 .outside
 		lea	.colorstr(pc),a2			; load color str to a2
 		move.w	a1,d2					; copy the pointer to d2
-		beq.s	.inside					; use inside color for 0
 		sub.w	#DisplayList,d2				; subtract the beginning of display list from d2
 
 		cmp.w	#dislayercount * ddsize,d2		; lazily check if its within the list
@@ -644,7 +643,7 @@ DebugLayers:
 		addq.b	#1,d0					; go to the next layer
 		addq.w	#ddsize,a0				;
 
-		cmp.b	#8,d0					; check if this is the last layer
+		cmp.b	#dislayercount,d0			; check if this is the last layer
 		bne.w	.layer					; branch if not
 		rts
 ; --------------------------------------------------------------
@@ -658,12 +657,12 @@ DebugLayers:
 .writeptr
 		subq.b	#1,d3					; check if we don't have enough room for the ptr
 		bcc.s	.isroom					; branch if we do
-		moveq	#8,d3					; reset position counter
-;	Console.Write "   "					; insert a line break
+		moveq	#7-1,d3					; reset position counter
+	Console.Write "   "					; insert a line break
 
 .isroom
 	Console.Write "%<.w a1 hex>%<pal0>"			; write the pointer
-		addq.b	#1,d3					; advance position counter
+	;	addq.b	#1,d3					; advance position counter
 		rts
 
 .colorstr	dc.b pal1, 0, pal3, 0				; color strings

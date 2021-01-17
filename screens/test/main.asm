@@ -28,17 +28,17 @@ gmTest:
 		jsr	ProcMaps				; update sprite table
 
 	vsync							; wait for the next frame
-
 		move.w	TailNext.w,a0				; load head object to a0
 	;	jsr	DebugOne				; debug it
 		bra.s	.proc					; infinite loop
 ; --------------------------------------------------------------
 
+.test2
 .test
 	oAttributes	Test_Map, 1, 0, 64, 16			; setup attributes
-	oCreatePlat	Test_Pmap, (1<<pactive) | (1<<ptop) | (1<<plrb), 64, 16; setup platform
-	oCreateTouch	0, 0, 64, 16				; setup touch
-	oCreateDynArt	Test_Art, Test_Dmap, 8			; setup dynamic art
+;	oCreatePlat	Test_Pmap, (1<<pactive) | (1<<ptop) | (1<<plrb), 64, 16; setup platform
+;	oCreateTouch	0, 0, 64, 16				; setup touch
+	oCreateDynArt	Test_Art, Test_Dmap, 7			; setup dynamic art
 	oAddDisplay	2, a0, a1, 1				; enable display
 
 		move.w	#150,xpos(a0)				; x-pos vaguely in the screen centre
@@ -47,6 +47,24 @@ gmTest:
 ; --------------------------------------------------------------
 
 .loop
+		btst	#0,pPress1A.w				; check the X button
+		beq.s	.nox					; branch if no
+		jmp	DebugLayers				; debug layers
+; --------------------------------------------------------------
+
+.nox
+		btst	#1,pPress1A.w				; check the Y button
+		beq.s	.noy					; branch if no
+		jmp	DebugDynArts				; debug dynart
+; --------------------------------------------------------------
+
+.noy
+		btst	#2,pPress1A.w				; check the Z button
+		beq.s	.noz					; branch if no
+		jmp	DebugOne				; debug dynart
+; --------------------------------------------------------------
+
+.noz
 	; check flippity floppity
 		btst	#5,pPress1A+1.w				; check for C button
 		beq.s	.noc					; branch if no
@@ -113,6 +131,16 @@ gmTest:
 
 .nob
 		subq.b	#1,exram(a0)				; decrease delay count
+
+		tst.b	pPress1A+1.w				; check the Start button press
+		bpl.s	.nos					; branch if no
+		move.l	#.nos,(a0)				; make this object stick to current animation
+		clr.w	pPress1A.w				; prevent a infinite loop
+
+		lea	.test2(pc),a3				; load object pointer to a3
+		jsr	oLoadImportant.w			; load an important object
+
+.nos
 		oNext						; run next object
 ; --------------------------------------------------------------
 
