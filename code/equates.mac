@@ -68,7 +68,16 @@ yvel			rs.w 1					; object y-velocity
 frame			rs.b 0					; current display frame
 map			rs.l 1					; object mappings address
 tile			rs.w 1					; VRAM tile and settings
-exram			rs.b $28				; extra RAM the object may use for whatever
+act			rs.b 1					; actor routine counter
+subact			rs.b 1					; actor subroutine counter
+
+; these are only used if the object uses animations
+anispeed		rs.w 1					; animation speed in 8.8 fixed point format. This is the amount of map frames per tv frame
+aniacc			rs.b 1					; animation accumulator low byte, used to make speed more dynamic
+anioff			rs.b 1					; offset in the animation script
+ani			rs.b 1					; animation ID
+
+exram			rs.b $21				; extra RAM the object may use for whatever
 size			rs.w 0					; size of object
 ; ==============================================================
 ; --------------------------------------------------------------
