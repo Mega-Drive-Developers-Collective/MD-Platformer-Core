@@ -67,12 +67,22 @@ ProcMaps:
 
 		move.l	(a5)+,a4			;	; load parameter to a4
 		jsr	(a3)				;	; run this routine
+; --------------------------------------------------------------
 
 .checkend
 		tst.b	(a5)				;	; check for the end token
 		bne.s	.next				; 10/8	; branch if wan't yet
+		cmp.b	#80-1,d7			;	; check if any sprites were written
+		beq.s	.null				;	; branch if not
+
 		clr.b	-5(a0)				; 16	; clear the link counter of the last sprite
 		rts					; 16
+; --------------------------------------------------------------
+
+.null
+		clr.l	(a0)+				;	; clear the entire first sprite data
+		clr.l	(a0)+				;	;
+		rts
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to convert a display layer to sprites

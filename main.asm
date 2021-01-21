@@ -98,6 +98,7 @@ CheckInit:	dc.l 0						; checksum init value
 		include "code/objects/animate.asm"		; include animation routines
 		include "code/objects/alloc.asm"		; include alloc routines
 		include "code/objects/misc.asm"			; include misc object routines
+		include "code/objects/clip.asm"			; include object clipping routines
 		include "code/objects/render.asm"		; include object rendering routines
 		include "code/SRAM.asm"				; include SRAM routines
 ; ==============================================================

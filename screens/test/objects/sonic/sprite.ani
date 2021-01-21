@@ -1,0 +1,10 @@
+.ani
+		dc.w $0040, .walk-.ani			; $01	; walk animation
+		dc.w $0040, .run-.ani			; $02	; run animation
+
+		dc.b -$0A, ajump
+.walk		dc.b $07, $08, $01, $02, $03, $04, $05, $06, ajump, -$0A
+
+		dc.b -$06, ajump
+.run		dc.b $21, $22, $23, $24, ajump, -$06
+		even

@@ -47,6 +47,8 @@ dmaqueueentries =	$10					; how many separate DMA queue entries to have
 ; Object equates
 ; --------------------------------------------------------------
 
+_gravity =		$38					; object gravity constant
+
 	rsset 0
 arg			rs.b 0					; object argument variable
 ptr			rs.l 1					; pointer to object code

@@ -3,7 +3,7 @@
 ; MD Platformer Core
 ;
 ;   by Mega Drive Developers Collective
-;      AURORA FIELDS 2020/12
+;      AURORA FIELDS 2021/01
 ;
 ;   Animation routines
 ; --------------------------------------------------------------

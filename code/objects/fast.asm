@@ -358,3 +358,47 @@ oLoad:
 
 .rts
 		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to handle object velocity
+;
+; in:
+;   a0 = target object
+;
+; thrash: d0
+; --------------------------------------------------------------
+
+oVelocity:
+		move.w	xvel(a0),d0				; load x-velocity to d0
+		ext.l	d0					; extend it to a longword
+		asl.l	#8,d0					; change from 8.8 fixed point to 16.8 fixed point (needed for x-pos)
+		add.l	d0,xpos(a0)				; add this to x-pos
+
+		move.w	yvel(a0),d0				; load y-velocity to d0
+		ext.l	d0					; extend it to a longword
+		asl.l	#8,d0					; change from 8.8 fixed point to 16.8 fixed point (needed for y-pos)
+		add.l	d0,ypos(a0)				; add this to y-pos
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to handle object velocity with Gravity
+;
+; in:
+;   a0 = target object
+;
+; thrash: d0
+; --------------------------------------------------------------
+
+oGravity:
+		move.w	xvel(a0),d0				; load x-velocity to d0
+		ext.l	d0					; extend it to a longword
+		asl.l	#8,d0					; change from 8.8 fixed point to 16.8 fixed point (needed for x-pos)
+		add.l	d0,xpos(a0)				; add this to x-pos
+
+		move.w	yvel(a0),d0				; load y-velocity to d0
+		ext.l	d0					; extend it to a longword
+		asl.l	#8,d0					; change from 8.8 fixed point to 16.8 fixed point (needed for y-pos)
+		add.l	d0,ypos(a0)				; add this to y-pos
+
+		add.w	#_gravity,yvel(a0)			; add gravity constant
+		rts
