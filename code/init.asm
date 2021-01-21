@@ -237,15 +237,15 @@ SoftInit:
 		move.l	a5,usp					; clear usp
 ; --------------------------------------------------------------
 
-	; clear entire RAM
+	; clear entire RAM (in $100 byte blocks)
 		lea	0.w,sp					; load end of RAM to sp
 
 .clearloop
-		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
-		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
-		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
-		movem.l	d0-a5,-(sp)				; clear 56 ($34) bytes of RAM
-		movem.l	d0-a4,-(sp)				; clear 32 ($30) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-a5,-(sp)				; clear 56 ($38) bytes of RAM
+		movem.l	d0-d7,-(sp)				; clear 32 ($20) bytes of RAM
 
 		cmp.l	#$FFFF0000,sp				; check if past end of RAM
 		bhi.s	.clearloop				; if not, go back to loop
