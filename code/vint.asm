@@ -27,14 +27,34 @@ Vint_Main:
 		jsr	(a0)					; run specific routine
 
 		addq.l	#1,VintCount.w				; increment v-int counter
-		jsr	Set_Kos_Bookmark			; update kos stuff
 		movem.l	(sp)+,d0-a5				; pop all registers
+; --------------------------------------------------------------
+
+		tst.b	kosQueueLeft.w				; check if decompression was in progress
+		bmi.s	.koschk					; branch if yes
+
+.rte
 		rte
 ; --------------------------------------------------------------
 
 .routines
 		dc.l irNull					; $00: routine that does nothing
 		dc.l irScreen					; $04: routine for screen modes
+; --------------------------------------------------------------
+
+	; checks if we need to run special code
+.koschk
+		cmpi.l	#kosQueueProc_Start,2(sp)		; check if the code was after the start of the decompressor
+		blo.s	.rte					; branch if not
+		cmpi.l	#kosQueueProc_End,2(sp)			; check if the code was before the end of the decompressor
+		bhs.s	.rte					; branch if not
+
+		move	(sp),sr					; load the SR from from stack into sr
+		move.w	(sp)+,kosSR.w				; get the SR from stack into RAM
+		move.l	(sp)+,kosRoutine.w			; load the routine address from stack
+		movem.w	d0-d6,kosRegisters.w			; save all the data registers
+		movem.l	a0-a1/a5,kosRegisters+(2*7).w		; save all the address registers
+		rts						; return the the routine before decompression
 ; ==============================================================
 ; --------------------------------------------------------------
 ; V-int routine: Screens

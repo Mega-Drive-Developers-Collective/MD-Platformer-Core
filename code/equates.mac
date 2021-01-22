@@ -28,9 +28,10 @@ PAD_ENABLE_MOUSE	EQU 1					; enable mouse read support
 dmaqueueentries =	$10					; how many separate DMA queue entries to have
 kosqueueentries =	$04					; númber of kosinski queue entries
 kosmqueueentries =	$0C					; númber of kosinski moduled queue entries
-_Kos_UseLUT = 		1
-_Kos_LoopUnroll = 	3
-_Kos_ExtremeUnrolling =	1
+
+kosuselut = 		1					; use a look up table for dealing with inverted bit order
+kosunroll = 		3					; how many times to unroll data copy loops (0-3)
+kosunrollextreme =	1					; if enabled, faster but larger version will be used
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Level data equates
@@ -190,24 +191,22 @@ Vint			ds.w 3					; vertical interrupt handler code
 VscrollTable		ds.l 20					; vscroll data table
 HscrollTable		ds.l 224				; hscroll data table
 SpriteTable		ds.l 80*2				; sprite data table
-Kos_decomp_buffer	ds.b $1000				; each module in a KosM archive is decompressed here and then DMAed to VRAM
 
-Kos_decomp_queue_count	ds.w 1					; the number of pieces of data on the queue. Sign bit set indicates a decompression is in progress
-Kos_decomp_stored_registers ds.w 20				; allows decompression to be spread over multiple frames
-Kos_decomp_stored_SR	ds.w 1
-Kos_decomp_bookmark	ds.l 1					; the address within the Kosinski queue processor at which processing is to be resumed
-Kos_description_field	ds.w 1					; used by the Kosinski queue processor the same way the stack is used by the normal Kosinski decompression routine
+kosmBuffer		ds.b $1000				; kosinski module decompression buffer. Used to DMA kosm data
+kosRegisters		ds.w (3*2)+7				; stored kosinski decompression registers
+kosSR			ds.w 1					; stored kosinski decompression SR
+kosRoutine		ds.l 1					; stored kosinski decompression address, code jumps here if decompression was interrupted
 
-Kos_decomp_queue	ds.l 2*kosqueueentries			; 2 longwords per entry, first is source location and second is decompression location
-Kos_decomp_source	equ Kos_decomp_queue			; the compressed data location for the first entry in the queue
-Kos_decomp_destination	equ Kos_decomp_queue+4			; the decompression location for the first entry in the queue
+kosmQueueLeft		ds.b 1					; number of items left to decompress in the kosinski moduled queue. bit7 indicates that decompression is in progress
+kosQueueLeft		ds.b 1					; number of items left to decompress in the kosinski queue. bit7 indicates that decompression is in progress
+kosQueue		ds.l 2*kosqueueentries			; kosinski decompression queue ata
+kosQueueSource		equ kosQueue				; source address for the compressed data
+kosQueueDest		equ kosQueue+4				; destination address for the decompressed data
 
-Kos_modules_left	ds.b 1					; the number of modules left to decompresses. Sign bit set indicates a module is being decompressed/has been decompressed
-			ds.b 1					; unused
-Kos_last_module_size	ds.w 1					; the uncompressed size of the last module in words. All other modules are $800 words
-Kos_module_queue	ds.w 3*kosmqueueentries			; 6 bytes per entry, first longword is source location and next word is VRAM destination
-Kos_module_source	equ Kos_module_queue			; the compressed data location for the first module in the queue
-Kos_module_destination	equ Kos_module_queue+4			; the VRAM destination for the first module in the queue
+kosmLastSize		ds.w 1					; size of the last kosinski module in the current archive
+kosmQueue		ds.w 3*kosmqueueentries			; kosinski moduled decompression queue data
+kosmQueueSource		equ kosmQueue				; source address for the compressed data
+kosmQueueDest		equ kosmQueue+4				; destination VRAM address for the decompressed data
 
 RespawnList		ds.w levelmaxobj/2			; max number of objects per level
 ObjList			ds.b objcount * size			; the RAM for every object
@@ -296,3 +295,5 @@ exCreateDynArt		rs.w 1					; exception when there are too many dynamic art objec
 exCreateObj		rs.w 1					; exception when an important object failed to load
 exNoDebug		rs.w 1					; exception when DEBUG flag is off
 exFullDMA		rs.w 1					; exception when DMA queue is full
+exAddKosm		rs.w 1					; exception when there is no free kosinski moduled queue slots
+exAddKos		rs.w 1					; exception when there is no free kosinski queue slots

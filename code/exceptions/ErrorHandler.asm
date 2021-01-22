@@ -98,6 +98,8 @@ TrapF:
 		dc.w .createobj-.errors			; 8	; exCreateObj
 		dc.w .nodebug-.errors			; A	; exNoDebug
 		dc.w .fulldma-.errors			; C	; exFullDMA
+		dc.w .addkosm-.errors			; E	; exAddKosm
+		dc.w .addkos-.errors			; 10	; exAddKos
 ; ---------------------------------------------------------------
 ; Software exception handlers
 ; ---------------------------------------------------------------
@@ -132,6 +134,18 @@ TrapF:
 		move.l	(sp)+,a0				; load item back from stack
 		move.l	6(sp),2(sp)				; copy previous routine pointer as the debug routine. Hax I know.
 	__ErrorMessage "OBJECT ARRAY FULL", _eh_default
+; ---------------------------------------------------------------
+
+.addkosm
+		move.l	(sp)+,a0				; load item back from stack
+		move.l	6(sp),2(sp)				; copy previous routine pointer as the debug routine. Hax I know.
+	__ErrorMessage "KOSINSKI MODULE ARRAY FULL", _eh_default
+; ---------------------------------------------------------------
+
+.addkos
+		move.l	(sp)+,a0				; load item back from stack
+		move.l	6(sp),2(sp)				; copy previous routine pointer as the debug routine. Hax I know.
+	__ErrorMessage "KOSINSKI ARRAY FULL", _eh_default
 ; ---------------------------------------------------------------
 
 .nodebug

@@ -9,416 +9,484 @@
 ;   Kosinski moduled processing routines
 ; --------------------------------------------------------------
 
-_Kos_RunBitStream macro
-	dbra	d2,.skip\@
-	moveq	#7,d2					; Set repeat count to 8.
-	move.b	d1,d0					; Use the remaining 8 bits.
-	not.w	d3						; Have all 16 bits been used up?
-	bne.s	.skip\@					; Branch if not.
-	move.b	(a0)+,d0				; Get desc field low-byte.
-	move.b	(a0)+,d1				; Get desc field hi-byte.
-	if _Kos_UseLUT
-	move.b	(a4,d0.w),d0			; Invert bit order...
-	move.b	(a4,d1.w),d1			; ... for both bytes.
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to process the kosinski moduled queue
+;
+; thrash: d0-d1/a2
+; --------------------------------------------------------------
+
+kosmQueueProc:
+		tst.b	kosmQueueLeft.w				; check if any modules are left to be decompressed
+		bne.s	.proc					; if yes, branch
+
+.done
+		rts
+; --------------------------------------------------------------
+
+.proc
+		bmi.s	.decomp					; branch if currently decompressing
+		cmpi.b	#kosqueueentries,kosQueueLeft.w		; check if kosinski queue is full
+		bhs.s	.done					; branch if so
+		ori.b	#$80,kosmQueueLeft.w			; set as currently decompressing
+
+		movea.l	kosmQueueSource.w,a1			; load the kosinski module source address to a1
+		lea	kosmBuffer.w,a2				; load the destination buffer address to a2
+		jmp	kosQueueAdd(pc)				; add current module to decompression queue
+; --------------------------------------------------------------
+
+.decomp
+		tst.b	kosQueueLeft.w				; check if the previous module was decompressed
+		bne.s	.done					; branch if its still in progress
+
+	; DMA the module data
+		andi.b	#$7F,kosmQueueLeft.w			; set as currently not decompressing
+		move.w	#$800,d3				; load the default module size
+
+		subq.b	#1,kosmQueueLeft.w			; decrease the modules left to decompress
+		bne.s	.skip					; if not the last module, branch
+		move.w	kosmLastSize.w,d3			; load the size of the last module to d3
+
+.skip
+		move.w	kosmQueueDest.w,d5			; load the destination VRAM address to d5
+		move.w	d5,d0					; copy it to d0
+		add.w	d3,d0					; add the module size to d0
+		add.w	d3,d0					; twice since its in words, not bytes
+		move.w	d0,kosmQueueDest.w			; save the new destination
+
+		move.l	kosmQueueSource.w,d0			; load the kosinski module source address to d0
+		move.l	kosQueueSource.w,d1			; load the kosinski source address to d1
+		sub.l	d1,d0					; load the difference to d0
+		andi.l	#$F,d0					; for some reason, align to the next $10 bytes
+		add.l	d0,d1					;
+		move.l	d1,kosmQueueSource.w			; save the new kosinski module source address
+
+		move.l	#kosmBuffer&$FFFFFF,d4			; load the kosinski moduled buffer as the source address for DMA
+		jsr	dmaQueueAdd.w				; add the DMA into DMA queue
+		tst.b	kosmQueueLeft.w				; check if there are more modules left
+		bne.s	.done					; branch if yes
+; --------------------------------------------------------------
+
+	; shift the queue
+		lea	kosmQueue.w,a0				; load the new destination for queue data
+		lea	kosmQueue+6.w,a1			; load the source for the queue data
+
+	rept kosmqueueentries-1
+		move.l	(a1)+,(a0)+				; copy the entry upwards
+		move.w	(a1)+,(a0)+				;
+	endr
+
+		clr.l	(a0)+					; clear the last entry
+		clr.w	(a0)+					;
+; --------------------------------------------------------------
+
+		move.l	kosmQueueSource.w,d0			; load the new source address for the queue
+		beq.s	kosmQueueAdd_Rts			; branch if the queue is empty now
+		movea.l	d0,a1					; copy the source address to a1
+		move.w	kosmQueueDest.w,d2			; load the destination address
+		bra.s	kosmQueueInit				; initialize the next module file
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to queue a kosinski module file
+;
+; input:
+;   d2 = destination VRAM address
+;   a1 = source ROM address
+;
+; thrash: d0-d1/a2
+; --------------------------------------------------------------
+
+kosmQueueFindSlot:
+		dbset	kosmqueueentries-1,d0			; load the number of entries for the kosinsko moduled queue to d0
+
+.loop
+		addq.w	#6,a2					; go to the next slot
+		tst.l	(a2)					; check if this is free
+
+	if SAFE
+		dbeq	d0,.loop				; keep looping until a free entry is found or the entire queue is exhausted
+		beq.s	.create					; if it didn't exist, branch
+	exception	exAddKosm				; handle kosinski moduled queue exception
+
+	else
+		bne.s	.loop					; keep looping until there is an empty slot. Will bork if full
 	endif
+; --------------------------------------------------------------
+
+.create
+		move.l	a1,(a2)+				; store source address
+		move.w	d2,(a2)+				; store destination VRAM address
+
+kosmQueueAdd_Rts:
+		rts
+; --------------------------------------------------------------
+
+kosmQueueAdd:
+		lea	kosmQueue.w,a2				; load kosm queue address to a1
+		tst.l	(a2)					; check first entry
+		bne.s	kosmQueueFindSlot			; if it's not free, initialize the file immediately
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to initialize a kosinski module file
+;
+; input:
+;   d2 = destination VRAM address
+;   a1 = source ROM address
+;
+; thrash: d0-d1
+; --------------------------------------------------------------
+
+kosmQueueInit:
+		move.w	(a1)+,d1				; load destination size to d1
+		lsr.w	#1,d1					; divide into number of words
+
+		move.w	d1,d0					; copy into d1
+		rol.w	#5,d0					; shift the size bits into place (this assumes each archive is $800 words)
+		andi.w	#$1F,d0					; get only the number of full modules
+
+		andi.w	#$7FF,d1				; get the size of the last module in words
+		bne.s	.partial				; branch if not 0
+		subq.b	#1,d0					; decrease the number of modules
+		move.w	#$800,d1				; force the last module to be $800 words
+
+.partial
+		move.w	d1,kosmLastSize.w			; store the size of the last module
+		move.w	d2,kosmQueueDest.w			; store the destination VRAM address
+		move.l	a1,kosmQueueSource.w			; store the source address of the first module
+
+		addq.b	#1,d0					; correct the number of modules
+		move.b	d0,kosmQueueLeft.w			; store the number of modules
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to queue a kosinski file
+;
+; input:
+;   a1 = source ROM address
+;   a2 = destination ROM address
+;
+; thrash: d0/a3
+; --------------------------------------------------------------
+
+kosQueueAdd:
+		moveq	#$7F,d0					; prepare mask to d0 (clears the decompression bit)
+		and.b	kosQueueLeft.w,d0			; AND with the amount of modules left
+
+	if SAFE
+		cmp.b	#kosqueueentries,d0			; check if queue is full
+		blo.s	.free					; branch if not
+	exception	exAddKos				; handle kosinski queue exception
+
+.free
+	endif
+
+		lsl.w	#3,d0					; multiply by 8 (the size of the queue)
+		add.w	#kosQueue,d0				; add the actual queue address
+		move.w	d0,a3					; get the final address to a3
+
+		move.l	a1,(a3)+				; store the source address
+		move.l	a2,(a3)+				; store the destination address
+		addq.b	#1,kosQueueLeft.w			; increment the number of kos entries left
+
+kosQueueAdd_Rts:
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Kosinski decompression macros
+; --------------------------------------------------------------
+
+kosBitstream		macro
+		dbf	d2,.skip\@
+		moveq	#7,d2					; set repeat count to 8.
+		move.b	d1,d0					; use the remaining 8 bits.
+		not.w	d3					; have all 16 bits been used up?
+		bne.s	.skip\@					; branch if not.
+
+		move.b	(a0)+,d0				; get desc field low-byte.
+		move.b	(a0)+,d1				; get desc field hi-byte.
+
+	if kosuselut
+		move.b	(a4,d0.w),d0				; invert bit order...
+		move.b	(a4,d1.w),d1				; ... for both bytes.
+	endif
+
 .skip\@
 	endm
 
-_Kos_ReadBit macro
-	if _Kos_UseLUT
-	add.b	d0,d0					; Get a bit from the bitstream.
+kosReadbit		macro
+	if kosuselut
+		add.b	d0,d0					; get a bit from the bitstream.
 	else
-	lsr.b	#1,d0					; Get a bit from the bitstream.
+		lsr.b	#1,d0					; get a bit from the bitstream.
 	endif
 	endm
-; ===========================================================================
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; ---------------------------------------------------------------------------
-; Adds a Kosinski Moduled archive to the module queue
-; Inputs:
-; a1 = address of the archive
-; d2 = destination in VRAM
-; ---------------------------------------------------------------------------
-Queue_Kos_Module:
-	lea	(Kos_module_queue).w,a2
-	tst.l	(a2)	; is the first slot free?
-	beq.s	Process_Kos_Module_Queue_Init	; if it is, branch
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to process kosinski decompression queue
+;
+; input:
+;   a1 = source ROM address
+;   a2 = destination ROM address
+;
+; thrash: d0/a3
+; --------------------------------------------------------------
 
-.findFreeSlot:
-	addq.w	#6,a2	; otherwise, check next slot
-	tst.l	(a2)
-	bne.s	.findFreeSlot
+kosQueueProc:
+		tst.b	kosQueueLeft.w				; check if there are any kosinski files left
+		beq.s	kosQueueAdd_Rts				; if not, branch
+		bpl.s	kosQueueProc_Start			; branch if not interrupted by v-int
 
-	move.l	a1,(a2)+	; store source address
-	move.w	d2,(a2)+	; store destination VRAM address
-	rts
-; End of function Queue_Kos_Module
-; ===========================================================================
+		movem.w	kosRegisters.w,d0-d6			; load all the data register stuff
+		movem.l	kosRegisters+(2*7).w,a0-a1/a5		; load all the address register stuff
+		moveq	#(1<<kosunroll)-1,d7			; prepare the loop unroll value
+		lea	KosDec_ByteMap(pc),a4			; prepare the LUT
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; ---------------------------------------------------------------------------
-; Initializes processing of the first module on the queue
-; ---------------------------------------------------------------------------
-Process_Kos_Module_Queue_Init:
-	move.w	(a1)+,d3				; get uncompressed size
-	lsr.w	#1,d3
-	move.w	d3,d0
-	rol.w	#5,d0
-	andi.w	#$1F,d0					; get number of complete modules
-	move.b	d0,(Kos_modules_left).w
-	andi.w	#$7FF,d3				; get size of last module in words
-	bne.s	.gotleftover			; branch if it's non-zero
-	subq.b	#1,(Kos_modules_left).w	; otherwise decrement the number of modules
-	move.w	#$800,d3				; and take the size of the last module to be $800 words
+		move.l	kosRoutine.w,-(sp)			; store the routine address to stack
+		move.w	kosSR.w,-(sp)				; store the SR into the stack
+		rte						; restore the SR and routine address, running the code again
+; --------------------------------------------------------------
 
-.gotleftover:
-	move.w	d3,(Kos_last_module_size).w
-	move.w	d2,(Kos_module_destination).w
-	move.l	a1,(Kos_module_queue).w
-	addq.b	#1,(Kos_modules_left).w	; store total number of modules
-	rts
-; End of function Process_Kos_Module_Queue_Init
-; ===========================================================================
+kosQueueProc_Start:
+		ori.b	#$80,kosQueueLeft.w			; set as currently decompressing
+		movea.l	kosQueueSource.w,a0			; load the source address of the kosinski file
+		movea.l	kosQueueDest.w,a1			; load the destination address of the data
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to decompress a kosinski file immediately.
+; Be aware that using this file while there are items in the
+; kosinski decompression queue will cause severe issues.
+;
+; input:
+;   a1 = source ROM address
+;   a2 = destination ROM address
+;
+; thrash: d0-d7/a0-a5
+; --------------------------------------------------------------
 
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; ---------------------------------------------------------------------------
-; Processes the first module on the queue
-; ---------------------------------------------------------------------------
-Process_Kos_Module_Queue:
-	tst.b	(Kos_modules_left).w
-	bne.s	.modulesLeft
-
-.done:
-	rts
-; ---------------------------------------------------------------------------
-.modulesLeft:
-	bmi.s	.decompressionStarted
-	cmpi.w	#4,(Kos_decomp_queue_count).w
-	bcc.s	.done					; branch if the Kosinski decompression queue is full
-	movea.l	(Kos_module_queue).w,a1
-	lea	(Kos_decomp_buffer).w,a2
-	bsr.w	Queue_Kos				; add current module to decompression queue
-	ori.b	#$80,(Kos_modules_left).w	; and set bit to signify decompression in progress
-	rts
-; ---------------------------------------------------------------------------
-.decompressionStarted:
-	tst.w	(Kos_decomp_queue_count).w
-	bne.s	.done					; branch if the decompression isn't complete
-
-	; otherwise, DMA the decompressed data to VRAM
-	andi.b	#$7F,(Kos_modules_left).w
-	move.w	#$800,d3
-	subq.b	#1,(Kos_modules_left).w
-	bne.s	.skip	; branch if it isn't the last module
-	move.w	(Kos_last_module_size).w,d3
-
-.skip:
-	move.w	(Kos_module_destination).w,d5
-	move.w	d5,d0
-	add.w	d3,d0
-	add.w	d3,d0
-	move.w	d0,(Kos_module_destination).w	; set new destination
-	move.l	(Kos_module_queue).w,d0
-	move.l	(Kos_decomp_queue).w,d1
-	sub.l	d1,d0
-	andi.l	#$F,d0
-	add.l	d0,d1					; round to the nearest $10 boundary
-	move.l	d1,(Kos_module_queue).w	; and set new source
-	move.l	#Kos_decomp_buffer,d4
-	jsr	dmaQueueAdd.w
-	tst.b	(Kos_modules_left).w
-	bne.s	.exit					; return if this wasn't the last module
-
-	lea	(Kos_module_queue).w,a0
-	lea	(Kos_module_queue+6).w,a1
-
-	rept kosmqueueentries-1
-	move.l	(a1)+,(a0)+	; otherwise, shift all entries up
-	move.w	(a1)+,(a0)+
-	endr
-
-	moveq	#0,d0
-	move.l	d0,(a0)+				; and mark the last slot as free
-	move.w	d0,(a0)+
-	move.l	(Kos_module_queue).w,d0
-	beq.s	.exit					; return if the queue is now empty
-	movea.l	d0,a1
-	move.w	(Kos_module_destination).w,d2
-	bra.w	Process_Kos_Module_Queue_Init
-
-.exit:
-	rts
-; End of function Process_Kos_Module_Queue
-; ===========================================================================
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; ---------------------------------------------------------------------------
-; Adds Kosinski-compressed data to the decompression queue
-; Inputs:
-; a1 = compressed data address
-; a2 = decompression destination in RAM
-; ---------------------------------------------------------------------------
-Queue_Kos:
-	move.w	(Kos_decomp_queue_count).w,d0
-	lsl.w	#3,d0
-	lea	(Kos_decomp_queue).w,a3
-	move.l	a1,(a3,d0.w)			; store source
-	move.l	a2,4(a3,d0.w)			; store destination
-	addq.w	#1,(Kos_decomp_queue_count).w
-	rts
-; End of function Queue_Kos
-; ===========================================================================
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; ---------------------------------------------------------------------------
-; Checks if V-int occured in the middle of Kosinski queue processing
-; and stores the location from which processing is to resume if it did
-; ---------------------------------------------------------------------------
-Set_Kos_Bookmark:
-	tst.w	(Kos_decomp_queue_count).w
-	bpl.s	.done					; branch if a decompression wasn't in progress
-	move.l	$3E(sp),d0				; check address V-int is supposed to rte to
-	cmpi.l	#Process_Kos_Queue_Start,d0
-	bcs.s	.done
-	cmpi.l	#Process_Kos_Queue_End,d0
-	bcc.s	.done
-	move.l	$3E(sp),(Kos_decomp_bookmark).w
-	move.l	#Backup_Kos_Registers,$3E(sp)	; force V-int to rte here instead if needed
-
-.done:
-	rts
-; End of function Set_Kos_Bookmark
-; ===========================================================================
-
-; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
-; ---------------------------------------------------------------------------
-; Processes the first entry in the Kosinski decompression queue
-; ---------------------------------------------------------------------------
-Process_Kos_Queue:
-	tst.w	(Kos_decomp_queue_count).w
-	beq.w	Process_Kos_Queue_End
-	bmi.w	Restore_Kos_Bookmark	; branch if a decompression was interrupted by V-int
-
-Process_Kos_Queue_Start:
-	ori.w	#$8000,(Kos_decomp_queue_count).w	; set sign bit to signify decompression in progress
-	movea.l	(Kos_decomp_queue).w,a0
-	movea.l	(Kos_decomp_destination).w,a1
-
-	; what follows is identical to the normal Kosinski decompressor
-	moveq	#(1<<_Kos_LoopUnroll)-1,d7
-	if _Kos_UseLUT
-	moveq	#0,d0
-	moveq	#0,d1
-	lea	KosDec_ByteMap(pc),a4		; Load LUT pointer.
+kosDec:
+; note: I actually don't know how this works exactly, so the comments
+; are just from Flamewing's original code
+		moveq	#(1<<kosunroll)-1,d7
+	if kosuselut
+		moveq	#0,d0
+		moveq	#0,d1
+		lea	KosDec_ByteMap(pc),a4			; load LUT pointer.
 	endif
-	move.b	(a0)+,d0				; Get desc field low-byte.
-	move.b	(a0)+,d1				; Get desc field hi-byte.
-	if _Kos_UseLUT
-	move.b	(a4,d0.w),d0			; Invert bit order...
-	move.b	(a4,d1.w),d1			; ... for both bytes.
+
+		move.b	(a0)+,d0				; get desc field low-byte.
+		move.b	(a0)+,d1				; get desc field hi-byte.
+	if kosuselut
+		move.b	(a4,d0.w),d0				; invert bit order...
+		move.b	(a4,d1.w),d1				; ... for both bytes.
 	endif
-	moveq	#7,d2					; Set repeat count to 8.
-	moveq	#0,d3					; d3 will be desc field switcher.
-	bra.s	.FetchNewCode
-; ---------------------------------------------------------------------------
-.FetchCodeLoop:
-	; Code 1 (Uncompressed byte).
-	_Kos_RunBitStream
-	move.b	(a0)+,(a1)+
 
-.FetchNewCode:
-	_Kos_ReadBit
-	bcs.s	.FetchCodeLoop			; If code = 1, branch.
+		moveq	#7,d2					; set repeat count to 8.
+		moveq	#0,d3					; d3 will be desc field switcher
+		bra.s	.fetchnewcode
+; --------------------------------------------------------------
 
-	; Codes 00 and 01.
-	moveq	#-1,d5
-	lea	(a1),a5
-	_Kos_RunBitStream
-	if _Kos_ExtremeUnrolling
-	_Kos_ReadBit
-	bcs.w	.Code_01
+.fetchcodeloop
+	; code 1 (Uncompressed byte).
+		kosBitstream
+		move.b	(a0)+,(a1)+
+; --------------------------------------------------------------
 
-	; Code 00 (Dictionary ref. short).
-	_Kos_RunBitStream
-	_Kos_ReadBit
-	bcs.s	.Copy45
-	_Kos_RunBitStream
-	_Kos_ReadBit
-	bcs.s	.Copy3
-	_Kos_RunBitStream
-	move.b	(a0)+,d5				; d5 = displacement.
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	bra.s	.FetchNewCode
-; ---------------------------------------------------------------------------
-.Copy3:
-	_Kos_RunBitStream
-	move.b	(a0)+,d5				; d5 = displacement.
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	bra.w	.FetchNewCode
-; ---------------------------------------------------------------------------
-.Copy45:
-	_Kos_RunBitStream
-	_Kos_ReadBit
-	bcs.s	.Copy5
-	_Kos_RunBitStream
-	move.b	(a0)+,d5				; d5 = displacement.
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	bra.w	.FetchNewCode
-; ---------------------------------------------------------------------------
-.Copy5:
-	_Kos_RunBitStream
-	move.b	(a0)+,d5				; d5 = displacement.
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	move.b	(a5)+,(a1)+
-	bra.w	.FetchNewCode
-; ---------------------------------------------------------------------------
+.fetchnewcode
+		kosReadbit
+		bcs.s	.fetchcodeloop				; if code = 1, branch.
+
+	; codes 00 and 01.
+		moveq	#-1,d5
+		lea	(a1),a5
+		kosBitstream
+
+	if kosunrollextreme
+		kosReadbit
+		bcs.w	.code_01
+; --------------------------------------------------------------
+
+	; code 00 (Dictionary ref. short).
+		kosBitstream
+		kosReadbit
+		bcs.s	.copy45
+
+		kosBitstream
+		kosReadbit
+		bcs.s	.copy3
+
+		kosBitstream
+		move.b	(a0)+,d5				; d5 = displacement.
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		bra.s	.fetchnewcode
+; --------------------------------------------------------------
+
+.copy3
+		kosBitstream
+		move.b	(a0)+,d5				; d5 = displacement.
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		bra.w	.fetchnewcode
+; --------------------------------------------------------------
+
+.copy45
+		kosBitstream
+		kosReadbit
+		bcs.s	.copy5
+
+		kosBitstream
+		move.b	(a0)+,d5				; d5 = displacement.
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		bra.w	.fetchnewcode
+; --------------------------------------------------------------
+
+.copy5
+		kosBitstream
+		move.b	(a0)+,d5				; d5 = displacement.
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
+		bra.w	.fetchnewcode
+; --------------------------------------------------------------
+
 	else
-	moveq	#0,d4					; d4 will contain copy count.
-	_Kos_ReadBit
-	bcs.s	.Code_01
+		moveq	#0,d4					; d4 will contain copy count.
+		kosReadbit
+		bcs.s	.code_01
 
-	; Code 00 (Dictionary ref. short).
-	_Kos_RunBitStream
-	_Kos_ReadBit
-	addx.w	d4,d4
-	_Kos_RunBitStream
-	_Kos_ReadBit
-	addx.w	d4,d4
-	_Kos_RunBitStream
-	move.b	(a0)+,d5				; d5 = displacement.
+	; code 00 (Dictionary ref. short).
+		kosBitstream
+		kosReadbit
+		addx.w	d4,d4
+		kosBitstream
+		kosReadbit
+		addx.w	d4,d4
+		kosBitstream
+		move.b	(a0)+,d5				; d5 = displacement.
 
-.StreamCopy:
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+				; Do 1 extra copy (to compensate +1 to copy counter).
+.streamcopy
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+				; do 1 extra copy (to compensate +1 to copy counter).
 
-.copy:
-	move.b	(a5)+,(a1)+
-	dbra	d4,.copy
-	bra.w	.FetchNewCode
+.copy
+		move.b	(a5)+,(a1)+
+		dbf	d4,.copy
+		bra.w	.fetchnewcode
 	endif
-; ---------------------------------------------------------------------------
-.Code_01:
-	moveq	#0,d4					; d4 will contain copy count.
-	; Code 01 (Dictionary ref. long / special).
-	_Kos_RunBitStream
-	move.b	(a0)+,d6				; d6 = %LLLLLLLL.
-	move.b	(a0)+,d4				; d4 = %HHHHHCCC.
-	move.b	d4,d5					; d5 = %11111111 HHHHHCCC.
-	lsl.w	#5,d5					; d5 = %111HHHHH CCC00000.
-	move.b	d6,d5					; d5 = %111HHHHH LLLLLLLL.
-	if _Kos_LoopUnroll=3
-	and.w	d7,d4					; d4 = %00000CCC.
+; --------------------------------------------------------------
+
+.code_01
+		moveq	#0,d4					; d4 will contain copy count.
+
+	; code 01 (Dictionary ref. long / special).
+		kosBitstream
+		move.b	(a0)+,d6				; d6 = %LLLLLLLL.
+		move.b	(a0)+,d4				; d4 = %HHHHHCCC.
+		move.b	d4,d5					; d5 = %11111111 HHHHHCCC.
+		lsl.w	#5,d5					; d5 = %111HHHHH CCC00000.
+		move.b	d6,d5					; d5 = %111HHHHH LLLLLLLL.
+
+	if kosunroll=3
+		and.w	d7,d4					; d4 = %00000CCC.
 	else
-	andi.w	#7,d4
+		andi.w	#7,d4
 	endif
-	bne.s	.StreamCopy				; if CCC=0, branch.
+		bne.s	.streamcopy				; if CCC=0, branch.
 
 	; special mode (extended counter)
-	move.b	(a0)+,d4				; Read cnt
-	beq.s	.Quit					; If cnt=0, quit decompression.
-	subq.b	#1,d4
-	beq.w	.FetchNewCode			; If cnt=1, fetch a new code.
+		move.b	(a0)+,d4				; read cnt
+		beq.s	.quit					; if cnt=0, quit decompression.
+		subq.b	#1,d4
+		beq.w	.fetchnewcode				; if cnt=1, fetch a new code.
 
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+				; Do 1 extra copy (to compensate +1 to copy counter).
-	move.w	d4,d6
-	not.w	d6
-	and.w	d7,d6
-	add.w	d6,d6
-	lsr.w	#_Kos_LoopUnroll,d4
-	jmp	.largecopy(pc,d6.w)
-; ---------------------------------------------------------------------------
-.largecopy:
-	rept (1<<_Kos_LoopUnroll)
-	move.b	(a5)+,(a1)+
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+				; do 1 extra copy (to compensate +1 to copy counter).
+		move.w	d4,d6
+		not.w	d6
+		and.w	d7,d6
+		add.w	d6,d6
+		lsr.w	#kosunroll,d4
+		jmp	.largecopy(pc,d6.w)
+; --------------------------------------------------------------
+
+.largecopy
+	rept (1<<kosunroll)
+		move.b	(a5)+,(a1)+
 	endr
-	dbra	d4,.largecopy
-	bra.w	.FetchNewCode
-; ---------------------------------------------------------------------------
-	if _Kos_ExtremeUnrolling
-.StreamCopy:
-	adda.w	d5,a5
-	move.b	(a5)+,(a1)+				; Do 1 extra copy (to compensate +1 to copy counter).
-	if _Kos_LoopUnroll=3
-	eor.w	d7,d4
+		dbf	d4,.largecopy
+		bra.w	.fetchnewcode
+; --------------------------------------------------------------
+
+	if kosunrollextreme
+.streamcopy
+		adda.w	d5,a5
+		move.b	(a5)+,(a1)+				; do 1 extra copy (to compensate +1 to copy counter).
+
+	if kosunroll=3
+		eor.w	d7,d4
 	else
-	eori.w	#7,d4
+		eori.w	#7,d4
 	endif
-	add.w	d4,d4
-	jmp	.mediumcopy(pc,d4.w)
-; ---------------------------------------------------------------------------
-.mediumcopy:
+
+		add.w	d4,d4
+		jmp	.mediumcopy(pc,d4.w)
+; --------------------------------------------------------------
+
+.mediumcopy
 	rept 8
-	move.b	(a5)+,(a1)+
+		move.b	(a5)+,(a1)+
 	endr
-	bra.w	.FetchNewCode
+		bra.w	.fetchnewcode
 	endif
-; ---------------------------------------------------------------------------
-.Quit:
-	move.l	a0,(Kos_decomp_queue).w
-	move.l	a1,(Kos_decomp_destination).w
-	andi.w	#$7FFF,(Kos_decomp_queue_count).w	; clear decompression in progress bit
-	subq.w	#1,(Kos_decomp_queue_count).w
-	beq.s	.Done								; branch if there aren't any entries remaining in the queue
-	lea	(Kos_decomp_queue).w,a0
-	lea	(Kos_decomp_queue+8).w,a1				; otherwise, shift all entries up
+; --------------------------------------------------------------
+
+.quit
+		move.l	a0,kosQueueSource.w			; save the new source address for the kosinski file
+		move.l	a1,kosQueueDest.w			; save the new destination address
+		andi.b	#$7F,kosQueueLeft.w			; disable decompression bit
+		subq.b	#1,kosQueueLeft.w			; decrease the amount of kosinski files left
+		beq.s	kosQueueProc_End			; branch if none are left
+; --------------------------------------------------------------
+
+		lea	kosQueue.w,a0				; load the new destination for queue data
+		lea	kosQueue+8.w,a1				; load the source for the queue data
 
 	rept kosqueueentries-1
-	move.l	(a1)+,(a0)+
-	move.l	(a1)+,(a0)+
+		move.l	(a1)+,(a0)+				; copy the entry upwards
+		move.l	(a1)+,(a0)+				;
 	endr
 
-.Done:
-Process_Kos_Queue_End:
-	rts
-; ---------------------------------------------------------------------------
-Restore_Kos_Bookmark:
-	movem.w	(Kos_decomp_stored_registers).w,d0-d6
-	movem.l	(Kos_decomp_stored_registers+2*7).w,a0-a1/a5
-	move.l	(Kos_decomp_bookmark).w,-(sp)
-	move.w	(Kos_decomp_stored_SR).w,-(sp)
-	moveq	#(1<<_Kos_LoopUnroll)-1,d7
-	lea	KosDec_ByteMap(pc),a4		; Load LUT pointer.
-	rte
-; End of function Process_Kos_Queue
-; ===========================================================================
-Backup_Kos_Registers:
-	move	sr,(Kos_decomp_stored_SR).w
-	movem.w	d0-d6,(Kos_decomp_stored_registers).w
-	movem.l	a0-a1/a5,(Kos_decomp_stored_registers+2*7).w
-	rts
-; ===========================================================================
+kosQueueProc_End:
+		rts
+; --------------------------------------------------------------
 
-	if _Kos_UseLUT
+	if kosuselut
 KosDec_ByteMap:
-	dc.b	$00,$80,$40,$C0,$20,$A0,$60,$E0,$10,$90,$50,$D0,$30,$B0,$70,$F0
-	dc.b	$08,$88,$48,$C8,$28,$A8,$68,$E8,$18,$98,$58,$D8,$38,$B8,$78,$F8
-	dc.b	$04,$84,$44,$C4,$24,$A4,$64,$E4,$14,$94,$54,$D4,$34,$B4,$74,$F4
-	dc.b	$0C,$8C,$4C,$CC,$2C,$AC,$6C,$EC,$1C,$9C,$5C,$DC,$3C,$BC,$7C,$FC
-	dc.b	$02,$82,$42,$C2,$22,$A2,$62,$E2,$12,$92,$52,$D2,$32,$B2,$72,$F2
-	dc.b	$0A,$8A,$4A,$CA,$2A,$AA,$6A,$EA,$1A,$9A,$5A,$DA,$3A,$BA,$7A,$FA
-	dc.b	$06,$86,$46,$C6,$26,$A6,$66,$E6,$16,$96,$56,$D6,$36,$B6,$76,$F6
-	dc.b	$0E,$8E,$4E,$CE,$2E,$AE,$6E,$EE,$1E,$9E,$5E,$DE,$3E,$BE,$7E,$FE
-	dc.b	$01,$81,$41,$C1,$21,$A1,$61,$E1,$11,$91,$51,$D1,$31,$B1,$71,$F1
-	dc.b	$09,$89,$49,$C9,$29,$A9,$69,$E9,$19,$99,$59,$D9,$39,$B9,$79,$F9
-	dc.b	$05,$85,$45,$C5,$25,$A5,$65,$E5,$15,$95,$55,$D5,$35,$B5,$75,$F5
-	dc.b	$0D,$8D,$4D,$CD,$2D,$AD,$6D,$ED,$1D,$9D,$5D,$DD,$3D,$BD,$7D,$FD
-	dc.b	$03,$83,$43,$C3,$23,$A3,$63,$E3,$13,$93,$53,$D3,$33,$B3,$73,$F3
-	dc.b	$0B,$8B,$4B,$CB,$2B,$AB,$6B,$EB,$1B,$9B,$5B,$DB,$3B,$BB,$7B,$FB
-	dc.b	$07,$87,$47,$C7,$27,$A7,$67,$E7,$17,$97,$57,$D7,$37,$B7,$77,$F7
-	dc.b	$0F,$8F,$4F,$CF,$2F,$AF,$6F,$EF,$1F,$9F,$5F,$DF,$3F,$BF,$7F,$FF
+		dc.b $00,$80,$40,$C0,$20,$A0,$60,$E0,$10,$90,$50,$D0,$30,$B0,$70,$F0
+		dc.b $08,$88,$48,$C8,$28,$A8,$68,$E8,$18,$98,$58,$D8,$38,$B8,$78,$F8
+		dc.b $04,$84,$44,$C4,$24,$A4,$64,$E4,$14,$94,$54,$D4,$34,$B4,$74,$F4
+		dc.b $0C,$8C,$4C,$CC,$2C,$AC,$6C,$EC,$1C,$9C,$5C,$DC,$3C,$BC,$7C,$FC
+		dc.b $02,$82,$42,$C2,$22,$A2,$62,$E2,$12,$92,$52,$D2,$32,$B2,$72,$F2
+		dc.b $0A,$8A,$4A,$CA,$2A,$AA,$6A,$EA,$1A,$9A,$5A,$DA,$3A,$BA,$7A,$FA
+		dc.b $06,$86,$46,$C6,$26,$A6,$66,$E6,$16,$96,$56,$D6,$36,$B6,$76,$F6
+		dc.b $0E,$8E,$4E,$CE,$2E,$AE,$6E,$EE,$1E,$9E,$5E,$DE,$3E,$BE,$7E,$FE
+		dc.b $01,$81,$41,$C1,$21,$A1,$61,$E1,$11,$91,$51,$D1,$31,$B1,$71,$F1
+		dc.b $09,$89,$49,$C9,$29,$A9,$69,$E9,$19,$99,$59,$D9,$39,$B9,$79,$F9
+		dc.b $05,$85,$45,$C5,$25,$A5,$65,$E5,$15,$95,$55,$D5,$35,$B5,$75,$F5
+		dc.b $0D,$8D,$4D,$CD,$2D,$AD,$6D,$ED,$1D,$9D,$5D,$DD,$3D,$BD,$7D,$FD
+		dc.b $03,$83,$43,$C3,$23,$A3,$63,$E3,$13,$93,$53,$D3,$33,$B3,$73,$F3
+		dc.b $0B,$8B,$4B,$CB,$2B,$AB,$6B,$EB,$1B,$9B,$5B,$DB,$3B,$BB,$7B,$FB
+		dc.b $07,$87,$47,$C7,$27,$A7,$67,$E7,$17,$97,$57,$D7,$37,$B7,$77,$F7
+		dc.b $0F,$8F,$4F,$CF,$2F,$AF,$6F,$EF,$1F,$9F,$5F,$DF,$3F,$BF,$7F,$FF
 	endif
 ; ===========================================================================
