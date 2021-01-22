@@ -44,9 +44,12 @@ ObjSonic:
 .noa
 		jsr	oGravity				; deal with gravity
 		jsr	oClipTest				; do clipping test
-		bclr	#xflip,flags(a0)			; face the normal way
 
 		move.w	xvel(a0),d0				; load x-velocity to d0
+		beq.s	.abs					; branch if 0
+		bclr	#xflip,flags(a0)			; face the normal way
+
+		tst.w	d0					; check speed again
 		bpl.s	.abs					; branch if positive
 		neg.w	d0					; negate speed
 		bset	#xflip,flags(a0)			; flip player

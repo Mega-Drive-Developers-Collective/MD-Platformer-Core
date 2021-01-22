@@ -27,6 +27,7 @@ Vint_Main:
 		jsr	(a0)					; run specific routine
 
 		addq.l	#1,VintCount.w				; increment v-int counter
+		jsr	Set_Kos_Bookmark			; update kos stuff
 		movem.l	(sp)+,d0-a5				; pop all registers
 		rte
 ; --------------------------------------------------------------

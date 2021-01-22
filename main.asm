@@ -101,6 +101,7 @@ CheckInit:	dc.l 0						; checksum init value
 		include "code/objects/clip.asm"			; include object clipping routines
 		include "code/objects/render.asm"		; include object rendering routines
 		include "code/SRAM.asm"				; include SRAM routines
+		include "code/kosinski.asm"			; include kosinski routines
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Game functions
@@ -109,6 +110,10 @@ CheckInit:	dc.l 0						; checksum init value
 		include "code/init.asm"				; include init routine
 		include "code/vint.asm"				; include V-int routines
 		include "code/hardware/PAD.asm"			; include PAD routines
+		include "code/text/hud.asm"			; include HUD routines
+
+kosmHud:	incbin "code/text/text.kosm"			; include HUD graphics
+		even
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Test screen mode

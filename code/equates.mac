@@ -22,6 +22,17 @@ PAD_ENABLE_MULTI	EQU 1					; enable multitap (Team Player) and EA 4-way play.
 PAD_ENABLE_MOUSE	EQU 1					; enable mouse read support
 ; ==============================================================
 ; --------------------------------------------------------------
+; Decompression and DMA equates
+; --------------------------------------------------------------
+
+dmaqueueentries =	$10					; how many separate DMA queue entries to have
+kosqueueentries =	$04					; númber of kosinski queue entries
+kosmqueueentries =	$0C					; númber of kosinski moduled queue entries
+_Kos_UseLUT = 		1
+_Kos_LoopUnroll = 	3
+_Kos_ExtremeUnrolling =	1
+; ==============================================================
+; --------------------------------------------------------------
 ; Level data equates
 ; --------------------------------------------------------------
 
@@ -37,7 +48,6 @@ dynallocsize =		4					; number of tiles to allocate for every bit of alloc table
 dynalloctiles =		$180					; number of tiles for dynamic allocator
 dynallocbits =		dynalloctiles / dynallocsize		; number of bits for dynamic allocator
 dynallocbytes =		((dynallocbits / 8 + 1) + 1) & $FFE	; number of bytes for dynamic allocator (next even value)
-dmaqueueentries =	$10					; how many separate DMA queue entries to have
 
 	if dynallocbits >= $100					; check if there are too many bits for allocator to work
 		inform 3,"Too many tiles reserved for dynamic allocator!"; display error message
@@ -180,6 +190,24 @@ Vint			ds.w 3					; vertical interrupt handler code
 VscrollTable		ds.l 20					; vscroll data table
 HscrollTable		ds.l 224				; hscroll data table
 SpriteTable		ds.l 80*2				; sprite data table
+Kos_decomp_buffer	ds.b $1000				; each module in a KosM archive is decompressed here and then DMAed to VRAM
+
+Kos_decomp_queue_count	ds.w 1					; the number of pieces of data on the queue. Sign bit set indicates a decompression is in progress
+Kos_decomp_stored_registers ds.w 20				; allows decompression to be spread over multiple frames
+Kos_decomp_stored_SR	ds.w 1
+Kos_decomp_bookmark	ds.l 1					; the address within the Kosinski queue processor at which processing is to be resumed
+Kos_description_field	ds.w 1					; used by the Kosinski queue processor the same way the stack is used by the normal Kosinski decompression routine
+
+Kos_decomp_queue	ds.l 2*kosqueueentries			; 2 longwords per entry, first is source location and second is decompression location
+Kos_decomp_source	equ Kos_decomp_queue			; the compressed data location for the first entry in the queue
+Kos_decomp_destination	equ Kos_decomp_queue+4			; the decompression location for the first entry in the queue
+
+Kos_modules_left	ds.b 1					; the number of modules left to decompresses. Sign bit set indicates a module is being decompressed/has been decompressed
+			ds.b 1					; unused
+Kos_last_module_size	ds.w 1					; the uncompressed size of the last module in words. All other modules are $800 words
+Kos_module_queue	ds.w 3*kosmqueueentries			; 6 bytes per entry, first longword is source location and next word is VRAM destination
+Kos_module_source	equ Kos_module_queue			; the compressed data location for the first module in the queue
+Kos_module_destination	equ Kos_module_queue+4			; the VRAM destination for the first module in the queue
 
 RespawnList		ds.w levelmaxobj/2			; max number of objects per level
 ObjList			ds.b objcount * size			; the RAM for every object

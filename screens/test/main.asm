@@ -21,11 +21,18 @@ gmTest:
 		lea	ObjSonic(pc),a3				; load object pointer to a3
 		jsr	oLoadImportant.w			; load an important object
 
+		lea	kosmHud,a1				; load HUD text data to a1
+		move.w	#vStatic,d2				; load into static VRAM
+		jsr	Queue_Kos_Module			; queue kos data
+
 .proc
+		jsr	Process_Kos_Module_Queue		; process kosinski moduled decompression queue
 	RunObjects						; run all objects
 		jsr	ProcAlloc				; update allocations
 		jsr	ProcMaps				; update sprite table
-	vsync							; wait for the next frame
+		move.w	VintCount+2.w,-(sp)			; save v-int counter to stack
+		jsr	Process_Kos_Queue			; process kosinski decompression queue
+	vsync	1						; wait for the next frame
 		bra.s	.proc					; infinite loop
 ; --------------------------------------------------------------
 

@@ -129,8 +129,12 @@ arx		equr a1						; default areg
 ; V-int synchronization macro
 ; --------------------------------------------------------------
 
-vsync			macro
+vsync			macro preload
+	if \preload
+		move.w	(sp)+,d0				; load v-int counter to d0
+	else
 		move.w	VintCount+2.w,d0			; load v-int counter to d0
+	endif
 
 .sync\@
 		stop	#$2300					; wait for the next interrupt
