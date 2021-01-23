@@ -297,3 +297,16 @@ exNoDebug		rs.w 1					; exception when DEBUG flag is off
 exFullDMA		rs.w 1					; exception when DMA queue is full
 exAddKosm		rs.w 1					; exception when there is no free kosinski moduled queue slots
 exAddKos		rs.w 1					; exception when there is no free kosinski queue slots
+; ==============================================================
+; --------------------------------------------------------------
+; Kosinski module list macro
+;
+; macro arguments:
+;   vram =	VRAM target address of the data
+;   addr =	Source address of the kosinski module data
+; --------------------------------------------------------------
+
+kosmEntry		macro vram, addr
+		dc.l \addr
+		dc.w \vram
+	endm

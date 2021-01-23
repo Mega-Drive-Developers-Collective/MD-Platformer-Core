@@ -83,6 +83,7 @@ kosmQueueProc:
 		move.l	kosmQueueSource.w,d0			; load the new source address for the queue
 		beq.s	kosmQueueAdd_Rts			; branch if the queue is empty now
 		movea.l	d0,a1					; copy the source address to a1
+
 		move.w	kosmQueueDest.w,d2			; load the destination address
 		bra.s	kosmQueueInit				; initialize the next module file
 ; ==============================================================
@@ -157,6 +158,48 @@ kosmQueueInit:
 		addq.b	#1,d0					; correct the number of modules
 		move.b	d0,kosmQueueLeft.w			; store the number of modules
 		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to add a list of kosinski modules into the queue
+;
+; input:
+;   a3 = kosinski module queue list
+;
+; thrash: d0-d3/a1-a2
+; --------------------------------------------------------------
+
+kosmQueueList_Next:
+		move.l	(a3)+,a1				; load kosinski module source address
+		move.w	(a3)+,d2				; load the destination VRAM address
+		bsr.s	kosmQueueAdd				; add to the queue
+; --------------------------------------------------------------
+
+kosmQueueList:
+		tst.w	(a3)					; check if we found the end token
+		bpl.s	kosmQueueList_Next			; if not, keep loopimg
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; Routine to queue a kosinski module list from the global array
+;
+; input:
+;   d0 = num offset into the array, in multiples of 2
+;
+; thrash: d0-d3/a1-a3
+; --------------------------------------------------------------
+
+kosmQueueGlobal:
+		move.w	kosmGlobalTable(pc,d0.w),d0		; load the offset from the table
+		lea	kosmGlobalTable(pc,d0.w),a3		; load the kosinski module list to a3
+		bra.s	kosmQueueList				; load this list data now
+; --------------------------------------------------------------
+
+kosmGlobalTable:
+		dc.w .test-kosmGlobalTable			; $00 - test
+
+.test
+	kosmEntry vStatic, kosmHud
+		dc.w -1
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to queue a kosinski file
@@ -275,6 +318,7 @@ kosDec:
 
 		move.b	(a0)+,d0				; get desc field low-byte.
 		move.b	(a0)+,d1				; get desc field hi-byte.
+
 	if kosuselut
 		move.b	(a4,d0.w),d0				; invert bit order...
 		move.b	(a4,d1.w),d1				; ... for both bytes.
@@ -317,6 +361,7 @@ kosDec:
 		kosBitstream
 		move.b	(a0)+,d5				; d5 = displacement.
 		adda.w	d5,a5
+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
 		bra.s	.fetchnewcode
@@ -326,6 +371,7 @@ kosDec:
 		kosBitstream
 		move.b	(a0)+,d5				; d5 = displacement.
 		adda.w	d5,a5
+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
@@ -340,6 +386,7 @@ kosDec:
 		kosBitstream
 		move.b	(a0)+,d5				; d5 = displacement.
 		adda.w	d5,a5
+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
@@ -351,6 +398,7 @@ kosDec:
 		kosBitstream
 		move.b	(a0)+,d5				; d5 = displacement.
 		adda.w	d5,a5
+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
 		move.b	(a5)+,(a1)+
@@ -368,9 +416,11 @@ kosDec:
 		kosBitstream
 		kosReadbit
 		addx.w	d4,d4
+
 		kosBitstream
 		kosReadbit
 		addx.w	d4,d4
+
 		kosBitstream
 		move.b	(a0)+,d5				; d5 = displacement.
 
@@ -411,6 +461,7 @@ kosDec:
 
 		adda.w	d5,a5
 		move.b	(a5)+,(a1)+				; do 1 extra copy (to compensate +1 to copy counter).
+
 		move.w	d4,d6
 		not.w	d6
 		and.w	d7,d6
@@ -453,6 +504,7 @@ kosDec:
 .quit
 		move.l	a0,kosQueueSource.w			; save the new source address for the kosinski file
 		move.l	a1,kosQueueDest.w			; save the new destination address
+
 		andi.b	#$7F,kosQueueLeft.w			; disable decompression bit
 		subq.b	#1,kosQueueLeft.w			; decrease the amount of kosinski files left
 		beq.s	kosQueueProc_End			; branch if none are left
@@ -489,4 +541,4 @@ KosDec_ByteMap:
 		dc.b $07,$87,$47,$C7,$27,$A7,$67,$E7,$17,$97,$57,$D7,$37,$B7,$77,$F7
 		dc.b $0F,$8F,$4F,$CF,$2F,$AF,$6F,$EF,$1F,$9F,$5F,$DF,$3F,$BF,$7F,$FF
 	endif
-; ===========================================================================
+; --------------------------------------------------------------

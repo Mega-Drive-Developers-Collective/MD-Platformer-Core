@@ -21,9 +21,8 @@ gmTest:
 		lea	ObjSonic(pc),a3				; load object pointer to a3
 		jsr	oLoadImportant.w			; load an important object
 
-		lea	kosmHud,a1				; load HUD text data to a1
-		move.w	#0,d2				; load into static VRAM
-		jsr	kosmQueueAdd				; queue kosm data
+		moveq	#0,d0					; test
+		jsr	kosmQueueGlobal				; queue kosm data
 
 .proc
 		jsr	kosmQueueProc				; process kosinski moduled decompression queue
