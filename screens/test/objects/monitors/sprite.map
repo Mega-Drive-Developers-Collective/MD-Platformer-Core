@@ -1,0 +1,46 @@
+.map		dc.w .f1-.map
+		dc.w .f2-.map
+		dc.w .f3-.map
+		dc.w .f4-.map
+		dc.w .f5-.map
+		dc.w .f6-.map
+		dc.w .f7-.map
+		dc.w .f8-.map
+		dc.w .f9-.map
+		dc.w .f10-.map
+		dc.w .f11-.map
+		dc.w .f12-.map
+
+.f1		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f2		sprite $0018, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f3		sprite $0310, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f4		sprite $001C, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f5		sprite $2020, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f6		sprite $0024, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f7		sprite $0030, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f8		sprite $002C, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f9		sprite $0034, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f10		sprite $0028, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f11		sprite $0038, 2, 2, $FFF8, $FFF3
+		spritt $0000, 4, 4, $FFF0, $FFF0
+
+.f12		spritt $0010, 4, 2, $FFF0, $0000

@@ -21,6 +21,10 @@ gmTest:
 		lea	ObjSonic(pc),a3				; load object pointer to a3
 		jsr	oLoadImportant.w			; load an important object
 
+		lea	ObjMonitor(pc),a3			; load object pointer to a3
+		jsr	oLoadImportant.w			; load an important object
+		move.b	#10,arg(a1)				; set animation
+
 		moveq	#0,d0					; test
 		jsr	kosmQueueGlobal				; queue kosm data
 
@@ -44,10 +48,11 @@ gmTest:
 .debug
 		move.w	TailNext.w,a0				; load the first object to a0
 	Console.WriteLine " VELOCITY %<.w xvel(a0) hex> x %<.w yvel(a0) hex>"
-	Console.WriteLine " FRAME    %<.b frame(a0) hex> @%<.w anispeed(a0) hex>"
+	Console.WriteLine " FRAME    %<.b frame(a0) hex> @%<.w anispeed(a0) hex> %<.b anioff(a0) hex>"
 	Console.WriteLine " SPRITES  %<.b SpritesCount dem>"
 		rts
 ; --------------------------------------------------------------
 
-		include	"screens/test/objects/sonic/object.asm"
 		include	"screens/test/objects/monitors/object.asm"
+		include	"screens/test/objects/sonic/object.asm"
+Test_Pmap:	dcb.w 128, 0					; platform mappings

@@ -13,7 +13,6 @@ VRAMMAP		SECTION org(0), size($10000), bss		; create VRAM section from 0000 to F
 vPlaneB			ds.w $800				; plane B mappings
 vWindow			ds.w $40				; window plane mappings
 
-vFont								; font stuff
 vStatic			ds.b $C4*32				; static art data
 vStaticEnd		ds.w 0					; end of static art data
 vDynamic		ds.b dynalloctiles*32			; dynamically allocated art
@@ -27,3 +26,11 @@ vExtra1			ds.b $4C*32				; extra static tiles
 		align $400					; alignment needed for scroll data
 vHscroll		ds.l 240				; hscroll table
 vExtra2			ds.b $02*32				; extra static tiles
+
+	rsset offset(vStatic)
+vFont			rs.b $80*32				; font graphics
+vMonitor		rs.b $3C				; monitor graphics
+
+	if __rs >= offset(vDynamic)
+		inform 2,"Can not fit static graphics"
+	endif

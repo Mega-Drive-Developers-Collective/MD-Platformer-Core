@@ -199,6 +199,7 @@ kosmGlobalTable:
 
 .test
 	kosmEntry vFont, kosmHud
+	kosmEntry vMonitor, kosmMonitor
 		dc.w -1
 ; ==============================================================
 ; --------------------------------------------------------------

@@ -9,8 +9,7 @@
 ; --------------------------------------------------------------
 
 ObjSonic:
-	oAttributes	Test_Map, 1, 0, 64, 16			; setup attributes
-;	oCreatePlat	Test_Pmap, (1<<pactive) | (1<<ptop) | (1<<plrb), 64, 16; setup platform
+	oAttributes	Test_Map, 1, 0, 13, 16			; setup attributes
 ;	oCreateTouch	0, 0, 64, 16				; setup touch
 	oCreateDynArt	Test_Art, Test_Dmap, 7			; setup dynamic art
 	oAddDisplay	2, a0, a1, 1				; enable display
@@ -23,21 +22,62 @@ ObjSonic:
 ; --------------------------------------------------------------
 
 .act
+		cmp.w	#200-1,ypos(a0)				; check if we're on floor
+		blt.s	.chkspeed				; branch if not
+		btst	#6,pPress1A+1.w				; check if A is pressed
+		beq.s	.noa					; branch if no
+
+		move.w	#-$680,yvel(a0)				; change velocity
+		bra.s	.noa
+
+.chkspeed
+		btst	#6,pHeld1A+1.w				; check if A is held
+		bne.s	.noa					; branch if yes
+
+		move.w	#-$400,d0				; prepare max speed
+		cmp.w	yvel(a0),d0				; check if moving upwards faster
+		blt.s	.noa					; branch if not
+		move.w	d0,yvel(a0)				; set y-velocity
+; --------------------------------------------------------------
+
+.noa
+		moveq	#$08,d0					; set deceleration speed to d0
 		btst	#2,pHeld1A+1.w				; check if left is pressed
 		beq.s	.nol					; branch if no
 		sub.w	#$1C,xvel(a0)				; change velocity
+		moveq	#$00,d0					; no deceleration
 
 .nol
 		btst	#3,pHeld1A+1.w				; check if right is pressed
 		beq.s	.nor					; branch if no
 		add.w	#$1C,xvel(a0)				; change velocity
+		moveq	#$00,d0					; no deceleration
+; --------------------------------------------------------------
 
 .nor
-		btst	#6,pPress1A+1.w				; check if A is pressed
-		beq.s	.noa					; branch if no
-		move.w	#-$600,yvel(a0)				; change velocity
+		tst.w	xvel(a0)				; check if moving
+		beq.s	.nomove					; branch if not
+		bmi.s	.neg					; branch if backwards
 
-.noa
+		sub.w	d0,xvel(a0)				; apply deceleration
+		bcc.s	.nomove					; branch if no carry
+		bra.s	.clr					; clear speed
+
+.neg
+		add.w	d0,xvel(a0)				; apply deceleration
+		bcc.s	.nomove					; branch if no carry
+
+.clr
+		clr.w	xvel(a0)				; otherwise clear velocity
+; --------------------------------------------------------------
+
+.nomove
+		jsr	platCheck				; do platform tests
+		beq.s	.noplat					; branch if no collision
+		add.w	d2,xpos(a0)				; offset position
+		add.w	d3,ypos(a0)				; offset position
+
+.noplat
 		jsr	oGravity				; deal with gravity
 		jsr	oClipTest				; do clipping test
 ; --------------------------------------------------------------
@@ -54,7 +94,7 @@ ObjSonic:
 
 .abs
 		cmp.w	#200-1,ypos(a0)				; check if we're on floor
-		bge.s	.floor					; branch if not
+		bge.s	.floor					; branch if yes
 		moveq	#3,d0					; set rolling animation
 		add.w	#$300,d1				; adjust
 		bra.s	.walk
@@ -96,7 +136,6 @@ ObjSonic:
 ; --------------------------------------------------------------
 
 Test_Ani:	include	"screens/test/objects/sonic/sprite.ani"	; test (Sonic) animations
-Test_Pmap:	dc.w 0						; platform mappings
 Test_Map:	include	"screens/test/objects/sonic/sprite.map"	; test (Sonic) sprite mappings
 Test_Dmap:	include	"screens/test/objects/sonic/dyn.map"	; test (Sonic) dynamic mappings
 Test_Art:	incdma	"screens/test/objects/sonic/art.unc"	; test (Sonic) art

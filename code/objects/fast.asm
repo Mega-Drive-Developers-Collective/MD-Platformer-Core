@@ -47,7 +47,7 @@ CreatePlatform:
 
 .next
 		addq.w	#psize,a1				; go to next object
-		tst.w	(a1)					; check if object exists
+		tst.w	ptr(a1)					; check if object exists
 		dbeq	d0,.next				; if yes, keep looping for all objects
 		beq.s	.create					; if it didn't exist, branch
 	exception	exCreatePlat				; handle platform exception
@@ -59,6 +59,21 @@ CreatePlatform:
 		move.w	a0,(a1)+				; load the parent pointer
 		move.w	(a2)+,(a1)+				; load width and height
 		move.l	(a2)+,(a1)+				; load flags and mappings
+; --------------------------------------------------------------
+
+	; remove this object from the list from current position
+		move.w	prev(a0),a1				; copy previous pointer to a1
+		move.w	next(a0),next(a1)			; copy next pointer to previous object
+		move.w	next(a0),a1				; get next object to a1
+		move.w	prev(a0),prev(a1)			; copy previous pointer
+; --------------------------------------------------------------
+
+	; add this object to the beginning of the list
+		move.w	TailNext.w,a1				; load head object to a1
+		move.w	a0,TailNext.w				; save as the new head object
+		move.w	prev(a1),prev(a0)			; copy the prev pointer from old head to this object
+		move.w	a0,prev(a1)				; save this object as prev pointer for old head
+		move.w	a1,next(a0)				; save old head as the next pointer for this object
 		jmp	(a2)					; jump to the address after the data
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -78,7 +93,7 @@ CreatePlatform:
 
 oRmvTouch		macro
 		move.w	touch(a0),a1				; load touch pointer to a1
-		clr.w	(a1)					; clear parent pointer
+		clr.w	ptr(a1)					; clear parent pointer
 		clr.w	touch(a0)				; also clear touch pointer
 	endm
 ; --------------------------------------------------------------
@@ -92,14 +107,14 @@ oCreateTouch		macro flags, extra, width, height
 
 CreateTouch:
 		lea	TouchList.w,a1				; load touch list to a1
-		tst.w	(a1)					; check if object exists
+		tst.w	ptr(a1)					; check if object exists
 		beq.s	.create					; branch if not
 		dbset	touchcount-1,d0				; prepare touch count to d0
 ; --------------------------------------------------------------
 
 .next
 		addq.w	#tsize,a1				; go to next object
-		tst.w	(a1)					; check if object exists
+		tst.w	ptr(a1)					; check if object exists
 		dbeq	d0,.next				; if yes, keep looping for all objects
 		beq.s	.create					; if it didn't exist, branch
 	exception	exCreateTouch				; handle touch exception
@@ -135,14 +150,14 @@ oCreateDynArt		macro art, map, width
 
 CreateDynArt:
 		lea	DartList.w,a1				; load dynamic art list to a1
-		tst.w	(a1)					; check if object exists
+		tst.w	ptr(a1)					; check if object exists
 		beq.s	.create					; branch if not
 		dbset	dyncount-1,d0				; prepare dymart count to d0
 ; --------------------------------------------------------------
 
 .next
 		add.w	#dsize,a1				; go to next object
-		tst.w	(a1)					; check if object exists
+		tst.w	ptr(a1)					; check if object exists
 		dbeq	d0,.next				; if yes, keep looping for all objects
 		beq.s	.create					; if it didn't exist, branch
 	exception	exCreateDynArt				; handle dynart exception
@@ -283,19 +298,19 @@ ObjAttributes0:
 ; --------------------------------------------------------------
 
 oDelete:
-	oRmvDisplay	a0, a1, 1		; remove object display
-	oRmvPlat				; remove platform object stuff
-	oRmvTouch				; remove touch object stuff
-		jsr	RmvDynArt.w		; remove dynamic art allocation
+	oRmvDisplay	a0, a1, 1				; remove object display
+	oRmvPlat						; remove platform object stuff
+	oRmvTouch						; remove touch object stuff
+		jsr	RmvDynArt.w				; remove dynamic art allocation
 
 oDeleteUnsafe:
-		move.w	prev(a0),a1		; copy previous pointer to a1
-		move.w	next(a0),next(a1)	; copy next pointer to previous object
-		move.w	next(a0),a1		; get next object to a1
-		move.w	prev(a0),prev(a1)	; copy previous pointer
+		move.w	prev(a0),a1				; copy previous pointer to a1
+		move.w	next(a0),next(a1)			; copy next pointer to previous object
+		move.w	next(a0),a1				; get next object to a1
+		move.w	prev(a0),prev(a1)			; copy previous pointer
 
-		move.w	FreeHead.w,prev(a0)	; get the head of the free list to previous pointer of this object
-		move.w	a0,FreeHead.w		; save as the new head of free list
+		move.w	FreeHead.w,prev(a0)			; get the head of the free list to previous pointer of this object
+		move.w	a0,FreeHead.w				; save as the new head of free list
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------

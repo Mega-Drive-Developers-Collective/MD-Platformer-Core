@@ -99,6 +99,7 @@ CheckInit:	dc.l 0						; checksum init value
 		include "code/objects/alloc.asm"		; include alloc routines
 		include "code/objects/misc.asm"			; include misc object routines
 		include "code/objects/clip.asm"			; include object clipping routines
+		include "code/objects/platforms.asm"		; include platform routines
 		include "code/objects/render.asm"		; include object rendering routines
 		include "code/SRAM.asm"				; include SRAM routines
 		include "code/kosinski.asm"			; include kosinski routines
@@ -112,7 +113,9 @@ CheckInit:	dc.l 0						; checksum init value
 		include "code/hardware/PAD.asm"			; include PAD routines
 		include "code/text/hud.asm"			; include HUD routines
 
-kosmHud:	incbin "code/text/text.kosm"			; include HUD graphics
+kosmHud:	incbin "code/text/text.kosm"			; include HUD text
+		even
+kosmMonitor:	incbin "screens/test/objects/monitors/Art.kosm"	; include Monitor graphics
 		even
 ; ==============================================================
 ; --------------------------------------------------------------

@@ -1,0 +1,23 @@
+.ani
+		dc.w $0056, .broken-.ani		; $01	; broken
+		dc.w $0080, .life-.ani			; $02	; life
+		dc.w $0080, .robotnik-.ani		; $03	; robotnik
+		dc.w $0080, .ring-.ani			; $04	; ring
+		dc.w $0080, .speedshoes-.ani		; $05	; speed shoes
+		dc.w $0080, .fireshield-.ani		; $06	; fire shield
+		dc.w $0080, .lightshield-.ani		; $07	; lightning shield
+		dc.w $0080, .bubbleshield-.ani		; $08	; bubble shield
+		dc.w $0080, .stars-.ani			; $09	; stars
+		dc.w $0080, .super-.ani			; $0A	; super
+
+.broken		dc.b $01, $02, $0C, ajump, -$03
+.life		dc.b $01, $03, $03, $02, $03, $03, ajump, -$08
+.robotnik	dc.b $01, $04, $04, $02, $04, $04, ajump, -$08
+.ring		dc.b $01, $05, $05, $02, $05, $05, ajump, -$08
+.speedshoes	dc.b $01, $06, $06, $02, $06, $06, ajump, -$08
+.fireshield	dc.b $01, $07, $07, $02, $07, $07, ajump, -$08
+.lightshield	dc.b $01, $08, $08, $02, $08, $08, ajump, -$08
+.bubbleshield	dc.b $01, $09, $09, $02, $09, $09, ajump, -$08
+.stars		dc.b $01, $0A, $0A, $02, $0A, $0A, ajump, -$08
+.super		dc.b $01, $0B, $0B, $02, $0B, $0B, ajump, -$08
+		even
