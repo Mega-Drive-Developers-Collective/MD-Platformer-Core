@@ -36,7 +36,7 @@ oAniStartSpeed:
 
 		move.w	-4(a2,d1.w),d1				; load animation speed to d1
 		move.w	d1,anispeed(a0)				; reset animation speed
-		move.b	d1,aniacc(a0)				; set accumulator
+		st	aniacc(a0)				; set accumulator, so the next frame should be rendered immediately
 ; ==============================================================
 ; --------------------------------------------------------------
 ; Routine to initialize an animation without animation speed

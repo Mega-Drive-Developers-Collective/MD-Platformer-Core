@@ -190,7 +190,7 @@ Console_StartNewLine: __global
 		add.w	Console.ScreenRowSz(a3),d0
 
 		; TODO: Check if offset is out of plane boundaries
-		and.w	#$5FFF,d0				; make sure line stays within plane
+		and.w	#$7FFF,d0				; make sure line stays within plane
 		move.w	d0,(a3)					; save new position
 		move.l	(a3)+,VDP_Ctrl
 		move.w	(a3)+,(a3)+				; reset characters on line counter (copy "CharsPerLine" to "CharsRemaining")

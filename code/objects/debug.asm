@@ -33,225 +33,6 @@ DebugROM:
 	endif
 ; ==============================================================
 ; --------------------------------------------------------------
-; Debug object lists
-; --------------------------------------------------------------
-
-DebugList:
-		if DEBUG
-	RaiseError	"OBJECT LIST DEBUG", .rt, 0
-
-.rt								; bit0 = free, bit1 = next, bit2 = prev
-		move.w	#ObjList,d7				; load object list start address to d7
-		move.w	#ObjListEnd-ObjList,d6			; load list size to d6
-		moveq	#-1,d0					; this allows switching to free RAM space
-; --------------------------------------------------------------
-
-		move.w	FreeHead.w,a0				; load the next free object to a0
-
-.free
-		move.w	a0,d0					; copy object to d0
-		sub.w	d7,d0					; subtract the beginning of object list from object address
-		cmp.w	d6,d0					; check if the object is within bounds
-		bhs.s	.freend					; branch if not
-
-		move.l	d0,a1					; convert this to a RAM pointer
-		bset	#0,(a1)+				; enable free list
-		move.w	prev(a0),a0				; load next object to a0
-		bra.s	.free					; continue loop
-; --------------------------------------------------------------
-
-.freend
-		move.w	TailNext.w,a0				; load the first used object to a0
-
-.next
-		move.w	a0,d0					; copy object to d0
-		sub.w	d7,d0					; subtract the beginning of object list from object address
-		cmp.w	d6,d0					; check if the object is within bounds
-		bhs.s	.nxend					; branch if not
-
-		move.l	d0,a1					; convert this to a RAM pointer
-		bset	#1,(a1)+				; enable next list
-		move.w	next(a0),a0				; load next object to a0
-		bra.s	.next					; continue loop
-; --------------------------------------------------------------
-
-.nxend
-		move.w	TailPrev.w,a0				; load the first used object to a0
-
-.prev
-		move.w	a0,d0					; copy object to d0
-		sub.w	d7,d0					; subtract the beginning of object list from object address
-		cmp.w	d6,d0					; check if the object is within bounds
-		bhs.s	.pvend					; branch if not
-
-		move.l	d0,a1					; convert this to a RAM pointer
-		bset	#2,(a1)+				; enable prev list
-		move.w	prev(a0),a0				; load next object to a0
-		bra.s	.prev					; continue loop
-; --------------------------------------------------------------
-
-.pvend
-	; check all objects if they belong to the correct lists. Only bits 1 and 6 should get set
-		moveq	#0,d5					; load bitfield to d5
-		clr.w	d0					; clear low word
-		move.l	d0,a1					; load object params to a1
-
-		lea	ObjList.w,a0				; load object list to a0
-		dbset	objcount,d2				; load object list length to d2
-
-.proc
-		move.b	(a1),d1					; load object attributes to d1
-		bset	d1,d5					; enable attributes
-		lea	size(a1),a1				; go to next object
-		dbf	d2,.proc				; loop for every object
-; --------------------------------------------------------------
-
-	; process all orphan objects
-		btst	#0,d5					; check if any orphans exist
-		beq.s	.noorphans				; branch if not
-
-	Console.Write "%<pal0>Orphans:%<pal2>"			; write header
-		moveq	#8,d3					; line offset
-		moveq	#0,d4					; write all objects with this attribute
-		bsr.w	.writeattribute				; write it out
-; --------------------------------------------------------------
-
-.noorphans
-	; process all objects in multiple lists
-		btst	#7,d5					; check if any multi objects exist
-		beq.s	.nomulti				; branch if not
-
-	Console.Write "%<pal0>Multiple lists:   %<pal2>"	; write header
-		moveq	#18,d3					; line offset
-		moveq	#7,d4					; write all objects with this attribute
-		bsr.w	.writeattribute				; write it out
-; --------------------------------------------------------------
-
-.nomulti
-	; process all objects in multiple lists
-		moveq	#(1<<2)|(1<<3)|(1<<4)|(1<<5),d3		; load all invalid config bits to d3
-		and.w	d5,d3					; and with the actual bitfield
-		beq.s	.noinvalid				; branch if none set
-
-	Console.Write "%<pal0>Invalid:%<pal2>"			; write header
-		moveq	#8,d3					; line offset
-
-		moveq	#2,d4					; write all objects with this attribute
-		bsr.w	.writeattribute				; write it out
-		moveq	#3,d4					; write all objects with this attribute
-		bsr.w	.writeattribute				; write it out
-		moveq	#4,d4					; write all objects with this attribute
-		bsr.w	.writeattribute				; write it out
-		moveq	#5,d4					; write all objects with this attribute
-		bsr.w	.writeattribute				; write it out
-; --------------------------------------------------------------
-
-.noinvalid
-	; process all used objects
-	Console.Write "%<endl>%<pal0>Used:   %<pal2>"		; write header
-		moveq	#8,d3					; line offset
-		move.w	TailNext.w,a0				; load the first used object to a0
-
-.dnext
-		move.w	a0,d0					; copy object to d0
-		sub.w	d7,d0					; subtract the beginning of object list from object address
-		cmp.w	d6,d0					; check if the object is within bounds
-		bhs.s	.ndend					; branch if not
-
-		bsr.w	.writeptr				; write object pointer
-	Console.Write "%<pal1>>%<pal2>"				; write a >
-
-		move.w	next(a0),a0				; load next object to a0
-		bra.s	.dnext					; continue loop
-; --------------------------------------------------------------
-
-.ndend
-		cmp.w	#TailPtr,a0				; check if this is the tail object
-		beq.s	.writetail				; branch if so
-	Console.WriteLine "%<pal3>%<.w a0 hex>"			; write invalid object
-		bra.s	.notail
-
-.writetail
-	Console.WriteLine "%<pal0>tail"				; write tail
-; --------------------------------------------------------------
-
-.notail
-	; process all free objects
-	Console.Write "%<endl>%<pal0>Free:   %<pal2>"		; write header
-		moveq	#8,d3					; line offset
-		move.w	FreeHead.w,a0				; load the next free object to a0
-
-.dfree
-		move.w	a0,d0					; copy object to d0
-		sub.w	d7,d0					; subtract the beginning of object list from object address
-		cmp.w	d6,d0					; check if the object is within bounds
-		bhs.s	.dfend					; branch if not
-
-		bsr.s	.writeptr				; write object pointer
-	Console.Write "%<pal1><%<pal2>"				; write a <
-
-		move.w	prev(a0),a0				; load next object to a0
-		bra.s	.dfree					; continue loop
-; --------------------------------------------------------------
-
-.dfend
-		cmp.w	#0,a0					; check if this is the tail object
-		beq.s	.writet2il				; branch if so
-	Console.WriteLine "%<pal3>%<.w a0 hex>"			; write invalid object
-		bra.s	.not2il
-
-.writet2il
-	Console.WriteLine "%<pal0>0"				; write tail
-; --------------------------------------------------------------
-
-.not2il
-		rts						; done!
-; --------------------------------------------------------------
-; function to write object pointer
-;
-; in:
-;    d3 = line position
-;    a0 = object
-; --------------------------------------------------------------
-
-.writeptr
-		cmp.b	#40-5,d3				; check if we don't have enough room for the ptr
-		bls.s	.isroom					; branch if we do
-		moveq	#3,d3					; clear position counter
-	Console.Write "   "					; insert a line break
-
-.isroom
-	Console.Write "%<.w a0 hex>"				; write the pointer
-		addq.b	#5,d3					; advance position counter
-		rts
-; --------------------------------------------------------------
-; function to write objects with specific attribute
-;
-; in:
-;    d4 = attribute
-;    d3 = line position
-; --------------------------------------------------------------
-
-.writeattribute
-		move.l	d0,a1					; load object params to a1
-		lea	ObjList.w,a0				; load object list to a0
-		dbset	objcount,d2				; load object list length to d2
-
-.proca
-		cmp.b	(a1),d4					; check if attribute matches
-		bne.s	.nomatch				; branch if not
-		bsr.s	.writeptr				; write object pointer
-	Console.Write " "					; write a space
-
-.nomatch
-		lea	size(a0),a0				; go to next object
-		lea	size(a1),a1				; go to next object
-		dbf	d2,.proca				; loop for every object
-	Console.BreakLine					; insert a line break
-		rts
-	endif
-; ==============================================================
-; --------------------------------------------------------------
 ; Debug single objects
 ;
 ; input:
@@ -271,19 +52,19 @@ DebugOne:
 	Console.Write     "%<pal0>Platform:  "
 		move.w	plat(a0),a1				; load platform pointer to a1
 		lea	.writeplat(pc),a2			; load routine to a2
-		bsr.w	.writeptr				; write ptr info
+		bsr.w	.writeinfo				; write ptr info
 ; --------------------------------------------------------------
 
 	Console.Write     "%<pal0>Touch:     "
 		move.w	touch(a0),a1				; load touch pointer to a1
 		lea	.writetouch(pc),a2			; load routine to a2
-		bsr.w	.writeptr				; write ptr info
+		bsr.w	.writeinfo				; write ptr info
 ; --------------------------------------------------------------
 
 	Console.Write     "%<pal0>Dyn Art:   "
 		move.w	dyn(a0),a1				; load dynart pointer to a1
 		lea	.writedart(pc),a2			; load routine to a2
-		bsr.w	.writeptr				; write ptr info
+		bsr.w	.writeinfo				; write ptr info
 ; --------------------------------------------------------------
 
 		tst.w	resp(a0)				; check if respawn address was set
@@ -363,7 +144,7 @@ DebugOne:
 ;    a2 = routine if not null
 ; --------------------------------------------------------------
 
-.writeptr
+.writeinfo
 		cmp.w	#0,a1					; check if null
 		beq.s	.null					; branch if yes
 		jmp	(a2)					; run custom routine
@@ -594,19 +375,258 @@ DebugPrintFlags:
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
+; Debug object lists
+; --------------------------------------------------------------
+
+DebugList:
+		if DEBUG
+	RaiseError	"OBJECT LIST DEBUG", .rt, 0
+
+.rt								; bit0 = free, bit1 = next, bit2 = prev
+		lea	DebugWritePtr_Blank+1(pc),a5		; load blank string to a5
+		lea	.text(pc),a4				; load text code to a4
+
+		move.w	#ObjList,d7				; load object list start address to d7
+		move.w	#ObjListEnd-ObjList,d3			; load list size to d3
+		moveq	#-1,d0					; this allows switching to free RAM space
+; --------------------------------------------------------------
+
+		move.w	FreeHead.w,a0				; load the next free object to a0
+
+.free
+		move.w	a0,d0					; copy object to d0
+		sub.w	d7,d0					; subtract the beginning of object list from object address
+		cmp.w	d3,d0					; check if the object is within bounds
+		bhs.s	.freend					; branch if not
+
+		move.l	d0,a1					; convert this to a RAM pointer
+		bset	#0,(a1)+				; enable free list
+		move.w	prev(a0),a0				; load next object to a0
+		bra.s	.free					; continue loop
+; --------------------------------------------------------------
+
+.freend
+		move.w	TailNext.w,a0				; load the first used object to a0
+
+.next
+		move.w	a0,d0					; copy object to d0
+		sub.w	d7,d0					; subtract the beginning of object list from object address
+		cmp.w	d3,d0					; check if the object is within bounds
+		bhs.s	.nxend					; branch if not
+
+		move.l	d0,a1					; convert this to a RAM pointer
+		bset	#1,(a1)+				; enable next list
+		move.w	next(a0),a0				; load next object to a0
+		bra.s	.next					; continue loop
+; --------------------------------------------------------------
+
+.nxend
+		move.w	TailPrev.w,a0				; load the first used object to a0
+
+.prev
+		move.w	a0,d0					; copy object to d0
+		sub.w	d7,d0					; subtract the beginning of object list from object address
+		cmp.w	d3,d0					; check if the object is within bounds
+		bhs.s	.pvend					; branch if not
+
+		move.l	d0,a1					; convert this to a RAM pointer
+		bset	#2,(a1)+				; enable prev list
+		move.w	prev(a0),a0				; load next object to a0
+		bra.s	.prev					; continue loop
+; --------------------------------------------------------------
+
+.pvend
+	; check all objects if they belong to the correct lists. Only bits 1 and 6 should get set
+		moveq	#0,d5					; load bitfield to d5
+		clr.w	d0					; clear low word
+		move.l	d0,a1					; load object params to a1
+
+		lea	ObjList.w,a0				; load object list to a0
+		dbset	objcount,d2				; load object list length to d2
+
+.proc
+		move.b	(a1),d1					; load object attributes to d1
+		bset	d1,d5					; enable attributes
+		lea	size(a1),a1				; go to next object
+		dbf	d2,.proc				; loop for every object
+; --------------------------------------------------------------
+
+	; process all orphan objects
+		btst	#0,d5					; check if any orphans exist
+		beq.s	.noorphans				; branch if not
+
+	Console.Write "%<pal0>Orphans:%<pal2>"			; write header
+		moveq	#7-1,d6					; line offset
+		moveq	#0,d4					; write all objects with this attribute
+		bsr.w	.writeattribute				; write it out
+; --------------------------------------------------------------
+
+.noorphans
+	; process all objects in multiple lists
+		btst	#7,d5					; check if any multi objects exist
+		beq.s	.nomulti				; branch if not
+
+	Console.Write "%<pal0>Multiple lists:   %<pal2>"	; write header
+		moveq	#5-1,d6					; line offset
+		moveq	#7,d4					; write all objects with this attribute
+		bsr.w	.writeattribute				; write it out
+; --------------------------------------------------------------
+
+.nomulti
+	; process all objects in multiple lists
+		moveq	#(1<<2)|(1<<3)|(1<<4)|(1<<5),d6		; load all invalid config bits to d3
+		and.w	d5,d6					; and with the actual bitfield
+		beq.s	.noinvalid				; branch if none set
+
+	Console.Write "%<pal0>Invalid:%<pal2>"			; write header
+		moveq	#7-1,d6					; line offset
+
+		moveq	#2,d4					; write all objects with this attribute
+		bsr.w	.writeattribute				; write it out
+		moveq	#3,d4					; write all objects with this attribute
+		bsr.w	.writeattribute				; write it out
+		moveq	#4,d4					; write all objects with this attribute
+		bsr.w	.writeattribute				; write it out
+		moveq	#5,d4					; write all objects with this attribute
+		bsr.w	.writeattribute				; write it out
+; --------------------------------------------------------------
+
+.noinvalid
+	; process all used objects
+	Console.Write "%<endl>%<pal0>Used:   %<pal2>"		; write header
+		moveq	#7-1,d6					; line offset
+		move.w	TailNext.w,a0				; load the first used object to a0
+
+.dnext
+		move.w	a0,d0					; copy object to d0
+		sub.w	d7,d0					; subtract the beginning of object list from object address
+		cmp.w	d3,d0					; check if the object is within bounds
+		bhs.s	.ndend					; branch if not
+
+		jsr	DebugWritePtr(pc)			; write object pointer
+	Console.Write "%<pal1>>%<pal2>"				; write a >
+
+		move.w	next(a0),a0				; load next object to a0
+		bra.s	.dnext					; continue loop
+; --------------------------------------------------------------
+
+.ndend
+		cmp.w	#TailPtr,a0				; check if this is the tail object
+		beq.s	.writetail				; branch if so
+	Console.WriteLine "%<pal3>%<.w a0 hex>"			; write invalid object
+		bra.s	.notail
+
+.writetail
+	Console.WriteLine "%<pal0>tail"				; write tail
+; --------------------------------------------------------------
+
+.notail
+	; process all free objects
+	Console.Write "%<endl>%<pal0>Free:   %<pal2>"		; write header
+		moveq	#7-1,d6					; line offset
+		move.w	FreeHead.w,a0				; load the next free object to a0
+
+.dfree
+		move.w	a0,d0					; copy object to d0
+		sub.w	d7,d0					; subtract the beginning of object list from object address
+		cmp.w	d3,d0					; check if the object is within bounds
+		bhs.s	.dfend					; branch if not
+
+		jsr	DebugWritePtr(pc)			; write object pointer
+	Console.Write "%<pal1><%<pal2>"				; write a <
+
+		move.w	prev(a0),a0				; load next object to a0
+		bra.s	.dfree					; continue loop
+; --------------------------------------------------------------
+
+.dfend
+		cmp.w	#0,a0					; check if this is the tail object
+		beq.s	.writet2il				; branch if so
+	Console.WriteLine "%<pal3>%<.w a0 hex>"			; write invalid object
+		bra.s	.not2il
+
+.writet2il
+	Console.WriteLine "%<pal0>0"				; write tail
+; --------------------------------------------------------------
+
+.not2il
+		rts						; done!
+; --------------------------------------------------------------
+; function to write objects with specific attribute
+;
+; in:
+;    d4 = attribute
+;    d3 = line position
+; --------------------------------------------------------------
+
+.writeattribute
+		move.l	d0,a1					; load object params to a1
+		lea	ObjList.w,a0				; load object list to a0
+		dbset	objcount,d2				; load object list length to d2
+
+.proca
+		cmp.b	(a1),d4					; check if attribute matches
+		bne.s	.nomatch				; branch if not
+		bsr.s	DebugWritePtr				; write object pointer
+	Console.Write " "					; write a space
+
+.nomatch
+		lea	size(a0),a0				; go to next object
+		lea	size(a1),a1				; go to next object
+		dbf	d2,.proca				; loop for every object
+	Console.BreakLine					; insert a line break
+		rts
+; --------------------------------------------------------------
+
+.text
+	Console.Write "%<.w a0 hex>%<pal0>"			; write the pointer
+		rts
+; ==============================================================
+; --------------------------------------------------------------
+; function to write number of data items per line
+; splitting line when done
+;
+; in:
+;    d6 = line position
+;    a4 = normal line code
+;    a5 = break line string
+; --------------------------------------------------------------
+
+DebugWritePtr:
+		subq.b	#1,d6					; check if we don't have enough room for the ptr
+		bcc.s	.isroom					; branch if we do
+		move.b	-1(a5),d6				; reset the position counter
+	Console.Write "%<.l a5 str>"				; write the str
+
+.isroom
+		jmp	(a4)					; write data
+
+DebugWritePtr_Blank:
+		dc.b 7-1, "   ", 0				; blank line
+		even
+	endif
+; ==============================================================
+; --------------------------------------------------------------
 ; Debug all display layers
 ; --------------------------------------------------------------
 
 DebugLayers:
 	RaiseError	"DISPLAY LAYER DEBUG", .rt, 0
 
+.text
+	Console.Write "%<.w a1 hex>%<pal0>"			; write the pointer
+		rts
+; --------------------------------------------------------------
+
 .rt
+		lea	DebugWritePtr_Blank+1(pc),a5		; load blank string to a5
+		lea	.text(pc),a4				; load text code to a4
 		lea	DisplayList.w,a0			; load start of list to a0
 		moveq	#0,d0					; load current layer to d0
 
 .layer
 	Console.Write "%<pal0>Layer %<.w d0 dem>:%<pal1>%<.w a0>%<pal0>>%<pal2>"
-		moveq	#5,d3					; set remaining space to 6
+		moveq	#6-1,d6					; set remaining space to 6
 		move.w	ddnext(a0),a1				; load first object to a1
 ; --------------------------------------------------------------
 
@@ -617,11 +637,13 @@ DebugLayers:
 		bhs.s	.outside				; branch if not
 
 .ptr
-		bsr.s	.writeptr				; write this pointer
+		jsr	DebugWritePtr(pc)			; write this pointer
 		move.w	dnext(a1),a1				; load next object
 	Console.Write ">%<pal2>"				; write the separator
 		bra.s	.objloop
 ; --------------------------------------------------------------
+
+.colorstr	dc.b pal1, 0, pal3, 0				; color strings
 
 .outside
 		lea	.colorstr(pc),a2			; load color str to a2
@@ -636,7 +658,7 @@ DebugLayers:
 
 .stilloutside
 	Console.Write "%<.l a2 str>"				; write the color
-		bsr.s	.writeptr				; write the pointer
+		jsr	DebugWritePtr(pc)			; write this pointer
 	Console.BreakLine					; insert a line break
 ; --------------------------------------------------------------
 
@@ -646,26 +668,6 @@ DebugLayers:
 		cmp.b	#dislayercount,d0			; check if this is the last layer
 		bne.w	.layer					; branch if not
 		rts
-; --------------------------------------------------------------
-; function to write object pointer
-;
-; in:
-;    d3 = line position
-;    a1 = object
-; --------------------------------------------------------------
-
-.writeptr
-		subq.b	#1,d3					; check if we don't have enough room for the ptr
-		bcc.s	.isroom					; branch if we do
-		moveq	#7-1,d3					; reset position counter
-	Console.Write "   "					; insert a line break
-
-.isroom
-	Console.Write "%<.w a1 hex>%<pal0>"			; write the pointer
-	;	addq.b	#1,d3					; advance position counter
-		rts
-
-.colorstr	dc.b pal1, 0, pal3, 0				; color strings
 ; --------------------------------------------------------------
 
 	if DEBUG=0

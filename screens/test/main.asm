@@ -36,24 +36,17 @@ gmTest:
 
 	vdpPlanePos move.w, vPlaneA, 0, 0, d1			; load VRAM address to d1
 		move.w	#$8000,d0				; set as high plane
-		lea	.text(pc),a2				; load input string to a2
+		lea	.debug(pc),a4				; load debug code to a4
 		jsr	hudPrint				; print this text
 		bra.s	.proc					; infinite loop
 ; --------------------------------------------------------------
 
-.text		dc.b " VELOCITY "
-	hudSetPtr TailNext					; set the pointer
-		dc.b txreadptrw, 0				; read the pointer
-		dc.b txptrwwh, xvel, " x ", txptrwwh, yvel	; print velocity
-
-		dc.b txline, " FRAME    "
-		dc.b txptrwbh, frame, " @", txptrwwh, anispeed	; frame & speed
-
-	hudSetPtr SpritesCount					; set the pointer
-		dc.b txline, " SPRITES  "
-		dc.b txptrwbd, 0				; sprites shown
-		dc.b 0						; terminate
-		even
+.debug
+		move.w	TailNext.w,a0				; load the first object to a0
+	Console.WriteLine " VELOCITY %<.w xvel(a0) hex> x %<.w yvel(a0) hex>"
+	Console.WriteLine " FRAME    %<.b frame(a0) hex> @%<.w anispeed(a0) hex>"
+	Console.WriteLine " SPRITES  %<.b SpritesCount dem>"
+		rts
 ; --------------------------------------------------------------
 
 		include	"screens/test/objects/sonic/object.asm"

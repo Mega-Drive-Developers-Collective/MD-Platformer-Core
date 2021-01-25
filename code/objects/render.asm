@@ -254,6 +254,8 @@ ProcMapObjNoflip:
 
 		tst.b	-7(a3)				; 12	; check if end token was set
 		dbmi	d7,.loop			; 10-14	; if not and more sprite pieces exist, loop
+
+		subq.w	#1,d7				; 	; this is stupid, dbmi doesn't actually decrement the last time! Oh!
 		rts					; 16	; mi = end token was used
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -308,6 +310,8 @@ ProcMapObjYflip:
 
 		tst.b	-7(a3)				; 12	; check if end token was set
 		dbmi	d7,.loop			; 10-14	; if not and more sprite pieces exist, loop
+
+		subq.w	#1,d7				; 	; this is stupid, dbmi doesn't actually decrement the last time! Oh!
 		rts					; 16	; mi = end token was used
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -374,6 +378,8 @@ ProcMapObjXYflip:
 
 		tst.b	-7(a3)				; 12	; check if end token was set
 		dbmi	d7,.loop			; 10-14	; if not and more sprite pieces exist, loop
+
+		subq.w	#1,d7				; 	; this is stupid, dbmi doesn't actually decrement the last time! Oh!
 		rts					; 16	; mi = end token was used
 ; ==============================================================
 ; --------------------------------------------------------------
@@ -438,4 +444,6 @@ ProcMapObjXflip:
 
 		tst.b	-7(a3)				; 12	; check if end token was set
 		dbmi	d7,.loop			; 10-14	; if not and more sprite pieces exist, loop
+
+		subq.w	#1,d7				; 	; this is stupid, dbmi doesn't actually decrement the last time! Oh!
 		rts					; 16	; mi = end token was used

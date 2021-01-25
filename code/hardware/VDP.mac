@@ -23,7 +23,7 @@ VDP_BANK =		$20000					; size of a single DMA bank
 ;   length =	optional length of the file to read from
 ; --------------------------------------------------------------
 
-incdma		macro label, path, start, length
+incdma		macro *, path, start, length
 	if SAFE_DMA=0
 		local check					; this will determine the check for alignment
 
@@ -46,16 +46,15 @@ check =			filesize(\path)				; use the filesize of the file
 		endif
 	endif
 
-\label:
-	if narg=2						; I hate this so much
+\*:
+	if narg=1						; I hate this so much
 		incbin \path					; include file
-	elseif narg=3
+	elseif narg=2
 		incbin \path, \start				; include file
 	else
 		incbin \path, \start, \length			; include file
 	endif
 	endm
-
 ; ==============================================================
 ; --------------------------------------------------------------
 ; VDP command generator

@@ -53,8 +53,8 @@ ObjSonic:
 		bset	#xflip,flags(a0)			; flip player
 
 .abs
-		cmp.w	#200,ypos(a0)				; check if we're on floor
-		beq.s	.floor					; branch if not
+		cmp.w	#200-1,ypos(a0)				; check if we're on floor
+		bge.s	.floor					; branch if not
 		moveq	#3,d0					; set rolling animation
 		add.w	#$300,d1				; adjust
 		bra.s	.walk
@@ -99,6 +99,6 @@ Test_Ani:	include	"screens/test/objects/sonic/sprite.ani"	; test (Sonic) animati
 Test_Pmap:	dc.w 0						; platform mappings
 Test_Map:	include	"screens/test/objects/sonic/sprite.map"	; test (Sonic) sprite mappings
 Test_Dmap:	include	"screens/test/objects/sonic/dyn.map"	; test (Sonic) dynamic mappings
-	incdma	Test_Art, "screens/test/objects/sonic/art.unc"	; test (Sonic) art
-	incdma	Test_Pal, "screens/test/test.pal"		; test (Sonic&Tails) palette
+Test_Art:	incdma	"screens/test/objects/sonic/art.unc"	; test (Sonic) art
+Test_Pal:	incdma	"screens/test/test.pal"			; test (Sonic&Tails) palette
 ; --------------------------------------------------------------
