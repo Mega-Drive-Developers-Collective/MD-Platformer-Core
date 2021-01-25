@@ -13,6 +13,7 @@ VRAMMAP		SECTION org(0), size($10000), bss		; create VRAM section from 0000 to F
 vPlaneB			ds.w $800				; plane B mappings
 vWindow			ds.w $40				; window plane mappings
 
+vFont								; font stuff
 vStatic			ds.b $C4*32				; static art data
 vStaticEnd		ds.w 0					; end of static art data
 vDynamic		ds.b dynalloctiles*32			; dynamically allocated art

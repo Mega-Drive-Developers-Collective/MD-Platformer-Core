@@ -30,10 +30,10 @@ oClipTest:
 .nol
 		tst.w	xvel(a0)				; check if moving left
 		ble.s	.nor					; branch if no
-		cmp.w	#320,xpos(a0)				; check if to left
+		cmp.w	#300,xpos(a0)				; check if to left
 		ble.s	.nor					; branch if no
-		move.w	#320,xpos(a0)				; stop moving
-		clr.w	xvel(a0)				;
+		move.w	#300,xpos(a0)				; stop moving
+	;	clr.w	xvel(a0)				;
 ; --------------------------------------------------------------
 
 .nor

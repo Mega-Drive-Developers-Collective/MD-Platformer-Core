@@ -228,9 +228,10 @@ DMAQueueAddr		ds.w 1					; address of the next free DMA queue slot (must be at t
 DynAllocTable		ds.b dynallocbytes			; the RAM for all the bits needed for dynamic allocator
 DynAllocTimer		ds.b 1					; timer for refactoring dynamic allocations
 
-Gamemode		ds.b 1					; the current game mode
 VintCount		ds.l 1					; number of vertical interrupts so far
 VintRoutine		ds.b 1					; vertical interrupt routine
+Gamemode		ds.b 1					; the current game mode
+SpritesCount		ds.b 1					; amount of sprites rendered this frame
 
 CameraX			ds.l 1					; camera x-position
 CameraY			ds.l 1					; camera y-position

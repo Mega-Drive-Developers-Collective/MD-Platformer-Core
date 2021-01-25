@@ -198,7 +198,7 @@ kosmGlobalTable:
 		dc.w .test-kosmGlobalTable			; $00 - test
 
 .test
-	kosmEntry vStatic, kosmHud
+	kosmEntry vFont, kosmHud
 		dc.w -1
 ; ==============================================================
 ; --------------------------------------------------------------

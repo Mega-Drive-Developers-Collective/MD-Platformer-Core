@@ -78,7 +78,7 @@ check =			filesize(\path)				; use the filesize of the file
 ;   end2 =	the destination for command data
 ; --------------------------------------------------------------
 
-vdp			macro ins,addr,type,rwd,end,end2
+vdp			macro ins, addr, type, rwd, end, end2
 	if narg=5
 		\ins #(((\type&\rwd)&3) << 30) | (((\addr)&$3FFF) << 16) | (((\type&\rwd)&$FC) << 2) | (((\addr)&$C000) >> 14), \end
 
@@ -113,7 +113,7 @@ WDMA =			$27					; VDP DMA
 ;   type =	destination type: VRAM, CRAM or VSRAM
 ; --------------------------------------------------------------
 
-dma			macro source,dest,length,type
+dma			macro source, dest, length, type
 		move.l	#$94009300|((((\length)>>1)&$FF00)<<8)|(((\length)>>1)&$FF),(a6)
 		move.l	#$96009500|((((\source)>>1)&$FF00)<<8)|(((\source)>>1)&$FF),(a6)
 		move.w	#$9700|(((\source)>>17)&$7F),(a6)
@@ -129,7 +129,7 @@ dma			macro source,dest,length,type
 ;   wait =	if 1, the code waits until DMA ends
 ; --------------------------------------------------------------
 
-vdpfill		macro fill,dest,length,wait
+vdpfill		macro fill, dest, length, wait
 		move.l	#$8F019400|((((\length)-1)&$FF00)>>8),(a6)
 		move.l	#$97809300|(((\length)-1)&$FF),(a6)
 	vdp	move.l,\dest,VRAM,WDMA,(a6)			; start a fill
@@ -153,7 +153,7 @@ vdpfill		macro fill,dest,length,wait
 ;   wait =	if 1, the code waits until DMA ends
 ; --------------------------------------------------------------
 
-vdpcopy			macro source,dest,length,type,wait
+vdpcopy			macro source, dest, length, type, wait
 		move.l	#$94009400|((((\length)>>1)&$FF00)<<8)|(((\length)>>1)&$FF),(a6)
 		move.l	#$96009500|((((\source)>>1)&$FF00)<<8)|(((\source)>>1)&$FF),(a6)
 		move.w	#$97C0,(a6)
@@ -165,5 +165,23 @@ vdpcopy			macro source,dest,length,type,wait
 		move	(a6),ccr				; check if DMA is taking place
 		bvs.s	.wait\@					; if yes, branch
 		move.w	#$8F02,(a6)				; restore the autoincrement
+	endif
+	endm
+; ==============================================================
+; --------------------------------------------------------------
+; VDP macro to generate a VRAM address for plane position
+;
+;   ins =	instruction to use for this VRAM address
+;   base =	base VRAM address (points to the plane)
+;   x =		X-offset for the plane position
+;   y =		Y-offset for the plane position
+;   dest =	(optional) destination location for command
+; --------------------------------------------------------------
+
+vdpPlanePos		macro ins, base, x, y, dest
+	if narg = 4
+		\ins (\base) + ((\x)*2) + ((\y)*$80)
+	else
+		\ins #(\base) + ((\x)*2) + ((\y)*$80),\dest
 	endif
 	endm

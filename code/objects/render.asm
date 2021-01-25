@@ -3,7 +3,7 @@
 ; MD Platformer Core
 ;
 ;   by Mega Drive Developers Collective
-;      AURORA FIELDS, Nat The Porcupin 2020/12
+;      AURORA FIELDS, Nat The Porcupine 2020/12
 ;
 ;   Mappings rendering subroutines and macros
 ; --------------------------------------------------------------
@@ -75,6 +75,10 @@ ProcMaps:
 		cmp.b	#80-1,d7			;	; check if any sprites were written
 		beq.s	.null				;	; branch if not
 
+		moveq	#80-1,d6			; 4	; set the max sprites count
+		sub.b	d7,d6				; 4	; subtract the amoung of free sprites
+		move.b	d6,SpritesCount.w		;	; set the remaining sprites
+
 		clr.b	-5(a0)				; 16	; clear the link counter of the last sprite
 		rts					; 16
 ; --------------------------------------------------------------
@@ -82,6 +86,7 @@ ProcMaps:
 .null
 		clr.l	(a0)+				;	; clear the entire first sprite data
 		clr.l	(a0)+				;	;
+		clr.b	SpritesCount.w				; clear sprites count
 		rts
 ; ==============================================================
 ; --------------------------------------------------------------
