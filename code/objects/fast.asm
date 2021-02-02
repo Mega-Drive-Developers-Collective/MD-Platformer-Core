@@ -156,7 +156,7 @@ CreateDynArt:
 ; --------------------------------------------------------------
 
 .next
-		add.w	#dsize,a1				; go to next object
+		lea	dsize(a1),a1				; go to next object
 		tst.w	ptr(a1)					; check if object exists
 		dbeq	d0,.next				; if yes, keep looping for all objects
 		beq.s	.create					; if it didn't exist, branch
